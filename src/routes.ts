@@ -1,4 +1,4 @@
-import {AppMiddleware, AppRoutes} from '@gravity-ui/expresskit';
+import {AppRoutes} from '@gravity-ui/expresskit';
 
 export const getRoutes = () => {
     const routes: AppRoutes = {
