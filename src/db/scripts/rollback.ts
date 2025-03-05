@@ -1,13 +1,18 @@
-require('dotenv').config();
-require('../../index');
-import {helpers} from '../index';
+import dotenv from 'dotenv';
+dotenv.config();
 
-helpers
-    .rollbackDatabase()
-    .then(() => {
-        process.exit(0);
-    })
-    .catch((error) => {
-        console.error(error);
-        process.exit(1);
-    });
+import '../../index';
+import {registry} from '../../registry';
+
+if (require.main === module) {
+    const {helpers} = registry.getDbInstance();
+    helpers
+        .rollbackDatabase()
+        .then(() => {
+            process.exit(0);
+        })
+        .catch((error) => {
+            console.error(error);
+            process.exit(1);
+        });
+}
