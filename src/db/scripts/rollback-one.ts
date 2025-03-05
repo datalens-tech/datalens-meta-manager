@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import '../../index';
+import '../..';
 import {registry} from '../../registry';
 
 if (require.main === module) {
