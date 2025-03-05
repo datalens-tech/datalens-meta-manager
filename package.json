@@ -1,0 +1,51 @@
+{
+  "name": "@datalens-tech/datalens-transfer",
+  "description": "DataLens Transfer",
+  "version": "0.0.0",
+  "private": true,
+  "author": "DataLens Team <https://github.com/datalens-tech>",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:datalens-tech/datalens-transfer.git"
+  },
+  "main": "dist/index.js",
+  "dependencies": {
+    "@gravity-ui/expresskit": "^2.2.0",
+    "@gravity-ui/gateway": "^4.2.1",
+    "@gravity-ui/nodekit": "^2.2.1",
+    "@gravity-ui/postgreskit": "^2.0.0",
+    "@temporalio/activity": "^1.11.7",
+    "@temporalio/client": "^1.11.7",
+    "@temporalio/common": "^1.11.7",
+    "@temporalio/worker": "^1.11.7",
+    "@temporalio/workflow": "^1.11.7",
+    "db-errors": "^0.2.3",
+    "dotenv": "^16.4.7",
+    "lodash": "^4.17.21",
+    "pg-error-constants": "^1.0.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@gravity-ui/eslint-config": "^3.3.0",
+    "@gravity-ui/prettier-config": "^1.1.0",
+    "@gravity-ui/tsconfig": "^1.0.0",
+    "@types/express": "^5.0.0",
+    "@types/lodash": "^4.17.16",
+    "@types/node": "^22.13.9",
+    "eslint": "^8.57.1",
+    "prettier": "^3.5.3",
+    "ts-node": "^10.9.2",
+    "tsc-watch": "^6.2.1",
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "build": "npm run clear:dist && tsc",
+    "dev": "npm run clear:dist && tsc-watch --onSuccess 'node dist/server'",
+    "clear:dist": "rm -rf ./dist/server",
+    "lint:prettier": "prettier --check '**/*.{js,ts}'",
+    "lint:js": "eslint \"**/*.{js,ts}\" --quiet",
+    "lint": "npm run lint:prettier && npm run lint:js",
+    "typecheck": "tsc --noEmit"
+  }
+}
