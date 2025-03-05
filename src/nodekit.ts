@@ -2,6 +2,9 @@ import * as path from 'path';
 
 import {NodeKit} from '@gravity-ui/nodekit';
 
+import {initDB} from './db/init-db';
+import {registry} from './registry';
+
 const nodekit = new NodeKit({
     configsPath: path.resolve(__dirname, 'configs'),
 });
@@ -14,5 +17,8 @@ nodekit.ctx.log('AppConfig details', {
     appInstallation,
     appDevMode,
 });
+
+const initedDB = initDB(nodekit);
+registry.setupDbInstance(initedDB);
 
 export {nodekit};
