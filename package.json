@@ -42,6 +42,9 @@
   "scripts": {
     "build": "npm run clear:dist && tsc",
     "dev": "npm run clear:dist && tsc-watch --onSuccess 'node dist/server'",
-    "clear:dist": "rm -rf ./dist/server"
+    "clear:dist": "rm -rf ./dist/server",
+    "lint:js": "eslint \"**/*.{js,ts}\" --quiet",
+    "lint": "npm run lint:prettier && npm run lint:js && npm run lint:migrations",
+    "typecheck": "tsc --noEmit"
   }
 }
