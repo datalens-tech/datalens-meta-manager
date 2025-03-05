@@ -4,10 +4,10 @@ import PG_ERRORS from 'pg-error-constants';
 
 import {TRANSFER_ERROR} from '../../constants/errors';
 
-function getDBErrorCode(error: DBError): string {
+const getDBErrorCode = (error: DBError): string => {
     const nativeError = error.nativeError as Error & {code?: string};
     return nativeError?.code || '';
-}
+};
 
 type PreparedErrorResponse = {
     code: number;

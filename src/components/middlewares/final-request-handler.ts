@@ -12,7 +12,7 @@ const logError = (error: AppError, req: Request) => {
     }
 };
 
-export const finalRequestHandler = async (error: AppError, req: Request, res: Response) => {
+export const finalRequestHandler = (error: AppError, req: Request, res: Response) => {
     logError(error, req);
 
     const {code, response} = prepareErrorResponse(error);
