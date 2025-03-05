@@ -6,7 +6,7 @@
     "noUnusedLocals": false,
     "sourceMap": true
   },
-  "include": ["typings", "src", "scripts"],
+  "include": ["typings", "src"],
   "exclude": ["node_modules"],
   "types": ["node"]
 }

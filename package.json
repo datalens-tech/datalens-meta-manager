@@ -46,7 +46,7 @@
     "clear:dist": "rm -rf ./dist/server",
     "lint:prettier": "prettier --check '**/*.{js,ts}'",
     "lint:js": "eslint \"**/*.{js,ts}\" --quiet",
-    "lint:migrations": "node ./scripts/linters/migration-timestamp-consistency.ts",
+    "lint:migrations": "ts-node ./scripts/linters/migration-timestamp-consistency.ts",
     "lint": "npm run lint:prettier && npm run lint:js && npm run lint:migrations",
     "typecheck": "tsc --noEmit",
     "db:migration:create": "npx knex migrate:make --migrations-directory ./src/db/migrations -x ts",
