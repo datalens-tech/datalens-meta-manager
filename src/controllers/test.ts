@@ -31,23 +31,19 @@ export const testController: AppRouteHandler = async (req, res) => {
 
     const {gatewayApi} = registry.getGatewayApi();
 
-    const createdWorkbook = await gatewayApi.us
-        ._createWorkbook({
-            ctx: req.ctx,
-            headers: {},
-            authArgs: {},
-            requestId: req.ctx.get('requestId') ?? uuidv4(),
-            args: {title: result?.exportId ?? ''},
-        })
-        .catch((e) => {
-            console.log(e);
-            throw e;
-        });
+    const createdWorkbook = await gatewayApi.us._createWorkbook({
+        ctx: req.ctx,
+        headers: {},
+        authArgs: {},
+        requestId: req.ctx.get('requestId') ?? uuidv4(),
+        args: {title: result?.exportId ?? uuidv4()},
+    });
 
     res.status(200).send({
         result: result?.exportId,
         param: query.field,
         workbookId: createdWorkbook.responseData.workbookId,
+        title: createdWorkbook.responseData.title,
     });
 };
 

@@ -10,6 +10,7 @@ export const getGatewayConfig = (
     return {
         installation: nodekit.config.appInstallation || 'unknownAppInstallation',
         env: nodekit.config.appEnv || 'unknownEnv',
+        axiosConfig: {},
         caCertificatePath: null,
         withDebugHeaders: false,
         ErrorConstructor: AppError,
