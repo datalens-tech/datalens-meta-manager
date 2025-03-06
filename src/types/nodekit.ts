@@ -3,6 +3,7 @@ import type {Registry} from '../registry';
 
 export interface PlatformAppConfig {
     features: FeaturesConfig;
+    usMasterToken: string;
     swaggerEnabled?: boolean;
 }
 

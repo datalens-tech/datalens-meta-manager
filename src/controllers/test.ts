@@ -1,8 +1,10 @@
 import {AppRouteHandler} from '@gravity-ui/expresskit';
+import {v4 as uuidv4} from 'uuid';
 
 import {ApiTag, CONTENT_TYPE_JSON} from '../components/api-docs';
 import {makeReqParser, z} from '../components/zod';
 import {ExportModel, ExportModelColumn} from '../db/models';
+import {registry} from '../registry';
 
 import {test} from './response-models';
 
@@ -27,7 +29,26 @@ export const testController: AppRouteHandler = async (req, res) => {
         .first()
         .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
 
-    res.status(200).send({result: result?.exportId, param: query.field});
+    const {gatewayApi} = registry.getGatewayApi();
+
+    const createdWorkbook = await gatewayApi.us
+        ._createWorkbook({
+            ctx: req.ctx,
+            headers: {},
+            authArgs: {},
+            requestId: req.ctx.get('requestId') ?? uuidv4(),
+            args: {title: result?.exportId ?? ''},
+        })
+        .catch((e) => {
+            console.log(e);
+            throw e;
+        });
+
+    res.status(200).send({
+        result: result?.exportId,
+        param: query.field,
+        workbookId: createdWorkbook.responseData.workbookId,
+    });
 };
 
 testController.api = {

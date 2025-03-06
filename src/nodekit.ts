@@ -2,6 +2,8 @@ import * as path from 'path';
 
 import {NodeKit} from '@gravity-ui/nodekit';
 
+import {getGatewayConfig} from './components/gateway';
+import {schema} from './components/gateway/schema';
 import {initDB} from './db/init-db';
 import {registry} from './registry';
 
@@ -20,5 +22,7 @@ nodekit.ctx.log('AppConfig details', {
 
 const initedDB = initDB(nodekit);
 registry.setupDbInstance(initedDB);
+
+registry.setupGateway(getGatewayConfig(nodekit), {root: schema});
 
 export {nodekit};
