@@ -15,7 +15,7 @@ export const initSwagger = (app: ExpressKit) => {
 
     const installationText = `Installation – <b>${config.appInstallation}</b>`;
     const envText = `Env – <b>${config.appEnv}</b>`;
-    const descriptionText = `<br />Storage for DataLens entities.`;
+    const descriptionText = `<br />Service for transferring DataLens entities.`;
 
     setImmediate(() => {
         app.express.use(
@@ -26,7 +26,7 @@ export const initSwagger = (app: ExpressKit) => {
                     openapi: '3.1.0',
                     info: {
                         version: `${config.appVersion}`,
-                        title: `United Storage `,
+                        title: `DataLens Transfer Service`,
                         description: [installationText, envText, descriptionText].join('<br />'),
                     },
                     servers: [{url: '/'}],
