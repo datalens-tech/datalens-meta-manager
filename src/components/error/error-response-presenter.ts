@@ -2,7 +2,7 @@ import {AppError} from '@gravity-ui/nodekit';
 import {DBError} from 'db-errors';
 import PG_ERRORS from 'pg-error-constants';
 
-import {TRANSFER_ERROR} from '../../constants/errors';
+import {TRANSFER_ERROR} from '../../constants';
 
 const getDBErrorCode = (error: DBError): string => {
     const nativeError = error.nativeError as Error & {code?: string};
