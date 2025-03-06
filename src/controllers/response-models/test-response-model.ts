@@ -5,7 +5,7 @@ const schema = z
     .object({
         exportId: z.string(),
     })
-    .describe('Ping');
+    .describe('Test');
 
 type TestResponseModel = z.infer<typeof schema>;
 
