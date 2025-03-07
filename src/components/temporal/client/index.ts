@@ -1,7 +1,9 @@
 import {exportWorkbook} from '../workflows/export-workbook';
 import {EXPORT_WORKBOOK_QUEUE_NAME} from '../workflows/export-workbook/constants';
 
-import {getClient} from './get-client';
+import {getClient} from './client';
+
+export {getClient};
 
 export const startExportWorkbook = async ({
     exportId,
@@ -12,7 +14,7 @@ export const startExportWorkbook = async ({
 }) => {
     const client = await getClient();
 
-    const handle = await client.start(exportWorkbook, {
+    const handle = await client.workflow.start(exportWorkbook, {
         args: [{workbookId}],
         taskQueue: EXPORT_WORKBOOK_QUEUE_NAME,
         workflowId: exportId,

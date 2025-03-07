@@ -26,8 +26,5 @@ export const initWorkers = (deps: ActivitiesDeps) => {
         await exportWorkbookWorker.run();
     };
 
-    Promise.all([runExportWorker()]).catch((err) => {
-        console.error(err);
-        process.exit(1);
-    });
+    return Promise.all([runExportWorker()]);
 };

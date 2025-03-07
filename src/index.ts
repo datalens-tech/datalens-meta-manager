@@ -5,6 +5,7 @@ import {AppMiddleware, ExpressKit} from '@gravity-ui/expresskit';
 
 import {initSwagger} from './components/api-docs';
 import {finalRequestHandler} from './components/middlewares';
+import {initNamespace as initTemporalNamespace} from './components/temporal/utils';
 import {initWorkers as initTemporalWorkers} from './components/temporal/workers';
 import {ExportModel, ImportModel} from './db/models';
 import {registry} from './registry';
@@ -17,7 +18,13 @@ nodekit.config.appFinalErrorHandler = finalRequestHandler;
 
 const {gatewayApi} = registry.getGatewayApi();
 
-initTemporalWorkers({models: {ExportModel, ImportModel}, ctx: nodekit.ctx, gatewayApi});
+initTemporalNamespace()
+    .then(() =>
+        initTemporalWorkers({models: {ExportModel, ImportModel}, ctx: nodekit.ctx, gatewayApi}),
+    )
+    .catch((e: unknown) => {
+        nodekit.ctx.logError('TEMPORAL_INIT_FAIL', e);
+    });
 
 const routes = getAppRoutes(nodekit, {beforeAuth, afterAuth});
 
