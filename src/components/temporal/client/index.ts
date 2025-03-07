@@ -21,5 +21,4 @@ export const startExportWorkbook = async ({
     });
 
     console.log(`Started Workflow ${handle.workflowId} with RunID ${handle.firstExecutionRunId}`);
-    // console.log(await handle.result());
 };

@@ -12,8 +12,6 @@ export const actions = {
     _getWorkbook: createAction<GetWorkbookResponse, GetWorkbookParams>({
         method: 'GET',
         path: (params) => {
-            console.log(params, 'pqpqppqppqpqp');
-
             return `/private/v2/workbooks/${params.workbookId}`;
         },
         params: (_, headers, {ctx}) => ({

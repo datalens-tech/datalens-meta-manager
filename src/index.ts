@@ -22,8 +22,9 @@ initTemporalNamespace()
     .then(() =>
         initTemporalWorkers({models: {ExportModel, ImportModel}, ctx: nodekit.ctx, gatewayApi}),
     )
-    .catch((e: unknown) => {
-        nodekit.ctx.logError('TEMPORAL_INIT_FAIL', e);
+    .catch((error: unknown) => {
+        nodekit.ctx.logError('TEMPORAL_INIT_FAIL', error);
+        process.exit(1);
     });
 
 const routes = getAppRoutes(nodekit, {beforeAuth, afterAuth});
