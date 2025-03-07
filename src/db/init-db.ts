@@ -1,7 +1,7 @@
 import path from 'path';
 
 import type {NodeKit} from '@gravity-ui/nodekit';
-import {initDB as initPosgresDB} from '@gravity-ui/postgreskit';
+import {initDB as initPostgresDB} from '@gravity-ui/postgreskit';
 import type {Knex} from 'knex';
 
 import {convertCamelCase} from './utils/camel-case';
@@ -55,7 +55,7 @@ export const initDB = (nodekit: NodeKit) => {
         suppressStatusLogs: true,
     };
 
-    const {db, CoreBaseModel, helpers} = initPosgresDB({
+    const {db, CoreBaseModel, helpers} = initPostgresDB({
         connectionString: dsnList,
         dispatcherOptions,
         knexOptions: getKnexOptions(),
