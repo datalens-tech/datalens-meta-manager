@@ -1,43 +1,31 @@
-import {AppMiddleware, AppRoutes, ExpressKit} from '@gravity-ui/expresskit';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-import {initSwagger, registerApiRoute} from './components/api-docs';
-import {isEnabledFeature} from './components/features';
-import {finalRequestHandler} from './components/middlewares';
+// eslint-disable-next-line import/order
 import {nodekit} from './nodekit';
+
+import {AppMiddleware, ExpressKit} from '@gravity-ui/expresskit';
+
+import {initSwagger} from './components/api-docs';
+import {finalRequestHandler} from './components/middlewares';
+import {initWorkers as initTemporalWorkers} from './components/temporal/workers';
+import {ExportModel, ImportModel} from './db/models';
 import {registry} from './registry';
-import {getRoutes} from './routes';
-import {objectKeys} from './utils';
+import {getAppRoutes} from './routes';
 
 const beforeAuth: AppMiddleware[] = [];
 const afterAuth: AppMiddleware[] = [];
 
 nodekit.config.appFinalErrorHandler = finalRequestHandler;
 
-const extendedRoutes = getRoutes(nodekit, {beforeAuth, afterAuth});
+const {gatewayApi} = registry.getGatewayApi();
 
-const routes: AppRoutes = {};
-objectKeys(extendedRoutes).forEach((key) => {
-    const {route, features, ...params} = extendedRoutes[key];
-    if (
-        !Array.isArray(features) ||
-        features.every((feature) => isEnabledFeature(nodekit.ctx, feature))
-    ) {
-        if (nodekit.config.swaggerEnabled) {
-            registerApiRoute(extendedRoutes[key]);
-        }
+initTemporalWorkers({models: {ExportModel, ImportModel}, ctx: nodekit.ctx, gatewayApi});
 
-        routes[route] = params;
-    }
-});
+const routes = getAppRoutes(nodekit, {beforeAuth, afterAuth});
 
 const app = new ExpressKit(nodekit, routes);
 registry.setupApp(app);
 
 if (nodekit.config.swaggerEnabled) {
-    initSwagger(app);
+    initSwagger(app, routes);
 }
 
 if (require.main === module) {

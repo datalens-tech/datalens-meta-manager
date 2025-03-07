@@ -1,16 +1,63 @@
 import {OpenAPIRegistry, OpenApiGeneratorV31} from '@asteasolutions/zod-to-openapi';
-import {ExpressKit} from '@gravity-ui/expresskit';
+import {AppRouteDescription, ExpressKit} from '@gravity-ui/expresskit';
 import swaggerUi from 'swagger-ui-express';
 import {ZodType} from 'zod';
 
-import type {ExtendedAppRouteDescription} from '../../routes';
+import type {TransferAppRoutes} from '../../routes';
+
+import type {Method} from './types';
+import {formatPath} from './utils';
 
 export {ApiTag, CONTENT_TYPE_JSON} from './constants';
-import type {Method} from './types';
 
 const openApiRegistry = new OpenAPIRegistry();
 
-export const initSwagger = (app: ExpressKit) => {
+const registerApiRoute = ({
+    route,
+    routeDescription,
+}: {
+    route: string;
+    routeDescription: AppRouteDescription;
+}) => {
+    const {handler} = routeDescription;
+    const {api} = handler;
+
+    if (!api) {
+        return;
+    }
+
+    const [rawMethod, rawPath] = route.split(' ');
+
+    const method = rawMethod.toLowerCase() as Method;
+    const path = formatPath(rawPath);
+
+    const headers: ZodType<unknown>[] = [];
+
+    if (api.request?.headers) {
+        if (Array.isArray(api.request.headers)) {
+            headers.push(...api.request.headers);
+        } else {
+            headers.push(api.request.headers);
+        }
+    }
+
+    openApiRegistry.registerPath({
+        method,
+        path,
+        ...api,
+        request: {
+            ...api.request,
+            headers: [...headers],
+        },
+        responses: api.responses ?? {},
+    });
+};
+
+export const initSwagger = (app: ExpressKit, routes: TransferAppRoutes) => {
+    Object.entries(routes).forEach(([route, routeDescription]) => {
+        registerApiRoute({route, routeDescription});
+    });
+
     const {config} = app;
 
     const installationText = `Installation – <b>${config.appInstallation}</b>`;
@@ -34,52 +81,4 @@ export const initSwagger = (app: ExpressKit) => {
             ),
         );
     });
-};
-
-export const registerApiRoute = (routeDescription: ExtendedAppRouteDescription<unknown>) => {
-    const {route, handler} = routeDescription;
-    const {api} = handler;
-
-    if (api) {
-        const [rawMethod, rawPath] = route.split(' ');
-
-        const method = rawMethod.toLowerCase() as Method;
-        const path = `/${rawPath
-            .split('/')
-            .reduce<string[]>((acc, item) => {
-                if (item) {
-                    if (item.startsWith(':')) {
-                        const [param, ...postfixes] = item.slice(1).split('[:]');
-                        acc.push(
-                            `{${param}}${postfixes.length > 0 ? `:${postfixes.join(':')}` : ''}`,
-                        );
-                    } else {
-                        acc.push(item);
-                    }
-                }
-                return acc;
-            }, [])
-            .join('/')}`;
-
-        const headers: ZodType<unknown>[] = [];
-
-        if (api.request?.headers) {
-            if (Array.isArray(api.request.headers)) {
-                headers.push(...api.request.headers);
-            } else {
-                headers.push(api.request.headers);
-            }
-        }
-
-        openApiRegistry.registerPath({
-            method,
-            path,
-            ...api,
-            request: {
-                ...api.request,
-                headers: [...headers],
-            },
-            responses: api.responses ?? {},
-        });
-    }
 };

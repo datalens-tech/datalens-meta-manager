@@ -1,4 +1,8 @@
-import * as path from 'path';
+// eslint-disable-next-line import/order
+import dotenv from 'dotenv';
+dotenv.config();
+
+import path from 'path';
 
 import {NodeKit} from '@gravity-ui/nodekit';
 
