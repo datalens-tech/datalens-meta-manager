@@ -3,7 +3,9 @@ import {proxyActivities, workflowInfo} from '@temporalio/workflow';
 import type {createActivities} from './activities';
 import type {ExportWorkbookArgs, ExportWorkbookResult} from './types';
 
-export async function exportWorkbook(_params: ExportWorkbookArgs): Promise<ExportWorkbookResult> {
+export const exportWorkbook = async (
+    _params: ExportWorkbookArgs,
+): Promise<ExportWorkbookResult> => {
     const {finishExport} = proxyActivities<ReturnType<typeof createActivities>>({
         retry: {
             initialInterval: '1 second',
@@ -19,4 +21,4 @@ export async function exportWorkbook(_params: ExportWorkbookArgs): Promise<Expor
     await finishExport({exportId: workflowId});
 
     return {exportId: workflowId};
-}
+};

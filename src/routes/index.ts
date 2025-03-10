@@ -6,7 +6,6 @@ import {Feature, isEnabledFeature} from '../components/features';
 import {exportWorkbookController} from '../controllers/export-workbook';
 import healthcheck from '../controllers/healthcheck';
 import {homeController} from '../controllers/home';
-import {testController} from '../controllers/test';
 import {objectKeys} from '../utils';
 
 type GetRoutesOptions = {
@@ -16,7 +15,7 @@ type GetRoutesOptions = {
 
 type Route = `${Uppercase<HttpMethod>} ${string}`;
 
-export type TransferAppRoutes = Record<Route, AppRouteDescription>;
+export type AppRoutes = Record<Route, AppRouteDescription>;
 
 export type ExtendedAppRouteDescription<F = Feature> = AppRouteDescription & {
     route: Route;
@@ -58,12 +57,6 @@ export const getRoutes = (nodekit: NodeKit, options: GetRoutesOptions) => {
             authPolicy: AuthPolicy.disabled,
         },
 
-        test: makeRoute({
-            route: 'GET /test',
-            handler: testController,
-            authPolicy: AuthPolicy.disabled,
-        }),
-
         exportWorkbook: makeRoute({
             route: 'GET /export/workbook/:workbookId',
             handler: exportWorkbookController,
@@ -76,10 +69,10 @@ export const getRoutes = (nodekit: NodeKit, options: GetRoutesOptions) => {
     return typedRoutes;
 };
 
-export const getAppRoutes = (nodekit: NodeKit, options: GetRoutesOptions): TransferAppRoutes => {
+export const getAppRoutes = (nodekit: NodeKit, options: GetRoutesOptions): AppRoutes => {
     const extendedRoutes = getRoutes(nodekit, options);
 
-    const routes: TransferAppRoutes = {};
+    const routes: AppRoutes = {};
 
     objectKeys(extendedRoutes).forEach((key) => {
         const {route, features, ...params} = extendedRoutes[key];

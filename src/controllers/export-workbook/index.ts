@@ -14,8 +14,6 @@ const requestSchema = {
     }),
 };
 
-export type CreateCollectionReqParams = z.infer<typeof requestSchema.params>;
-
 const parseReq = makeReqParser(requestSchema);
 
 export const exportWorkbookController: AppRouteHandler = async (req, res) => {
@@ -49,7 +47,7 @@ export const exportWorkbookController: AppRouteHandler = async (req, res) => {
 
 exportWorkbookController.api = {
     summary: 'Export workbook',
-    tags: [ApiTag.Test],
+    tags: [ApiTag.Export],
     request: {
         params: requestSchema.params,
     },

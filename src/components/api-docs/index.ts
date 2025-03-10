@@ -3,7 +3,7 @@ import {AppRouteDescription, ExpressKit} from '@gravity-ui/expresskit';
 import swaggerUi from 'swagger-ui-express';
 import {ZodType} from 'zod';
 
-import type {TransferAppRoutes} from '../../routes';
+import type {AppRoutes} from '../../routes';
 
 import type {Method} from './types';
 import {formatPath} from './utils';
@@ -53,7 +53,7 @@ const registerApiRoute = ({
     });
 };
 
-export const initSwagger = (app: ExpressKit, routes: TransferAppRoutes) => {
+export const initSwagger = (app: ExpressKit, routes: AppRoutes) => {
     Object.entries(routes).forEach(([route, routeDescription]) => {
         registerApiRoute({route, routeDescription});
     });

@@ -5,10 +5,10 @@ export type FinishExportArgs = {
     exportId: string;
 };
 
-export async function finishExport(
+export const finishExport = async (
     {models: {ExportModel}}: ActivitiesDeps,
     {exportId}: FinishExportArgs,
-): Promise<void> {
+): Promise<void> => {
     await ExportModel.query(ExportModel.primary)
         .patch({
             status: ExportStatus.Success,
@@ -16,4 +16,4 @@ export async function finishExport(
         .where({
             exportId,
         });
-}
+};

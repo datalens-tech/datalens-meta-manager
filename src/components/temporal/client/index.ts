@@ -14,11 +14,9 @@ export const startExportWorkbook = async ({
 }) => {
     const client = await getClient();
 
-    const handle = await client.workflow.start(exportWorkbook, {
+    await client.workflow.start(exportWorkbook, {
         args: [{workbookId}],
         taskQueue: EXPORT_WORKBOOK_QUEUE_NAME,
         workflowId: exportId,
     });
-
-    console.log(`Started Workflow ${handle.workflowId} with RunID ${handle.firstExecutionRunId}`);
 };
