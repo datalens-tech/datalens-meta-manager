@@ -11,7 +11,9 @@ import {
 export const actions = {
     _getWorkbook: createAction<GetWorkbookResponse, GetWorkbookParams>({
         method: 'GET',
-        path: ({workbookId}) => `/private/v2/workbooks/${workbookId}`,
+        path: ({workbookId}) => {
+            return `/private/v2/workbooks/${workbookId}`;
+        },
         params: (_, headers, {ctx}) => ({
             headers: {
                 ...headers,

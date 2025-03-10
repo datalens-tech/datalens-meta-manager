@@ -2,24 +2,27 @@ import {AppMiddleware, AppRouteDescription, AuthPolicy} from '@gravity-ui/expres
 import type {HttpMethod} from '@gravity-ui/expresskit/dist/types';
 import type {NodeKit} from '@gravity-ui/nodekit';
 
-import {Feature} from '../components/features';
+import {Feature, isEnabledFeature} from '../components/features';
+import {exportWorkbookController} from '../controllers/export-workbook';
 import healthcheck from '../controllers/healthcheck';
 import {homeController} from '../controllers/home';
-import {testController} from '../controllers/test';
+import {objectKeys} from '../utils';
 
-export type GetRoutesOptions = {
+type GetRoutesOptions = {
     beforeAuth: AppMiddleware[];
     afterAuth: AppMiddleware[];
 };
 
+type Route = `${Uppercase<HttpMethod>} ${string}`;
+
+export type AppRoutes = Record<Route, AppRouteDescription>;
+
 export type ExtendedAppRouteDescription<F = Feature> = AppRouteDescription & {
-    route: `${Uppercase<HttpMethod>} ${string}`;
+    route: Route;
     features?: F[];
 };
 
-type Routes = Record<string, ExtendedAppRouteDescription>;
-
-export const getRoutes = (_nodekit: NodeKit, options: GetRoutesOptions): Routes => {
+export const getRoutes = (nodekit: NodeKit, options: GetRoutesOptions) => {
     const makeRoute = (
         routeDescription: ExtendedAppRouteDescription,
     ): ExtendedAppRouteDescription => ({
@@ -54,12 +57,33 @@ export const getRoutes = (_nodekit: NodeKit, options: GetRoutesOptions): Routes 
             authPolicy: AuthPolicy.disabled,
         },
 
-        test: makeRoute({
-            route: 'GET /test',
-            handler: testController,
+        exportWorkbook: makeRoute({
+            route: 'GET /export/workbook/:workbookId',
+            handler: exportWorkbookController,
             authPolicy: AuthPolicy.disabled,
         }),
-    } satisfies Routes;
+    } satisfies Record<string, ExtendedAppRouteDescription>;
+
+    const typedRoutes: {[key in keyof typeof routes]: ExtendedAppRouteDescription} = routes;
+
+    return typedRoutes;
+};
+
+export const getAppRoutes = (nodekit: NodeKit, options: GetRoutesOptions): AppRoutes => {
+    const extendedRoutes = getRoutes(nodekit, options);
+
+    const routes: AppRoutes = {};
+
+    objectKeys(extendedRoutes).forEach((key) => {
+        const {route, features, ...params} = extendedRoutes[key];
+
+        const isRouteEnabled =
+            !features || features.every((feature) => isEnabledFeature(nodekit.ctx, feature));
+
+        if (isRouteEnabled) {
+            routes[route] = params;
+        }
+    });
 
     return routes;
 };

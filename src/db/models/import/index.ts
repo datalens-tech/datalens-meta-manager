@@ -16,7 +16,7 @@ export const ImportModelColumn = {
     ExpiredAt: 'expiredAt',
 } as const;
 
-export class Import extends Model {
+export class ImportModel extends Model {
     static get tableName() {
         return 'imports';
     }
