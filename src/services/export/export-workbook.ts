@@ -2,7 +2,7 @@ import {raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
 import {startExportWorkbook} from '../../components/temporal/client';
-import {ExportModel} from '../../db/models';
+import {ExportModel, ExportModelColumn} from '../../db/models';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 
@@ -31,8 +31,8 @@ export const exportWorkbook = async (
 
     const result = await ExportModel.query(ExportModel.replica)
         .insert({
-            createdBy: 'mock-user-id',
-            expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [1]),
+            [ExportModelColumn.CreatedBy]: 'mock-user-id',
+            [ExportModelColumn.ExpiredAt]: raw(`NOW() + INTERVAL '?? DAY'`, [1]),
         })
         .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
 

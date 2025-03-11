@@ -6,7 +6,7 @@ import {exportWorkbook} from '../../services/export';
 import {exportWorkbookModel} from '../response-models';
 
 const requestSchema = {
-    params: z.object({
+    body: z.object({
         workbookId: z.string(),
     }),
 };
@@ -14,12 +14,12 @@ const requestSchema = {
 const parseReq = makeReqParser(requestSchema);
 
 export const exportWorkbookController: AppRouteHandler = async (req, res) => {
-    const {params} = await parseReq(req);
+    const {body} = await parseReq(req);
 
     const result = await exportWorkbook(
         {ctx: req.ctx},
         {
-            workbookId: params.workbookId,
+            workbookId: body.workbookId,
         },
     );
 
@@ -28,9 +28,15 @@ export const exportWorkbookController: AppRouteHandler = async (req, res) => {
 
 exportWorkbookController.api = {
     summary: 'Export workbook',
-    tags: [ApiTag.Export],
+    tags: [ApiTag.Workbooks],
     request: {
-        params: requestSchema.params,
+        body: {
+            content: {
+                [CONTENT_TYPE_JSON]: {
+                    schema: requestSchema.body,
+                },
+            },
+        },
     },
     responses: {
         200: {

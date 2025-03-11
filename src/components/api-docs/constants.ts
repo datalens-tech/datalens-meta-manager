@@ -1,5 +1,5 @@
 export enum ApiTag {
-    Export = 'Export',
+    Workbooks = 'Workbooks',
 }
 
 export const CONTENT_TYPE_JSON = 'application/json';

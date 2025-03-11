@@ -4,6 +4,7 @@ import type {NodeKit} from '@gravity-ui/nodekit';
 
 import {Feature, isEnabledFeature} from '../components/features';
 import {exportWorkbookController} from '../controllers/export-workbook';
+import {getWorkbookExportStatusController} from '../controllers/get-workbook-export-status';
 import healthcheck from '../controllers/healthcheck';
 import {homeController} from '../controllers/home';
 import {objectKeys} from '../utils';
@@ -58,8 +59,14 @@ export const getRoutes = (nodekit: NodeKit, options: GetRoutesOptions) => {
         },
 
         exportWorkbook: makeRoute({
-            route: 'GET /export/workbook/:workbookId',
+            route: 'POST /workbooks/export',
             handler: exportWorkbookController,
+            authPolicy: AuthPolicy.disabled,
+        }),
+
+        getWorkbookExportStatus: makeRoute({
+            route: 'GET /workbooks/export/:exportId',
+            handler: getWorkbookExportStatusController,
             authPolicy: AuthPolicy.disabled,
         }),
     } satisfies Record<string, ExtendedAppRouteDescription>;
