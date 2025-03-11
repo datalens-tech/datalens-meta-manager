@@ -1,4 +1,5 @@
 import {AppError} from '@gravity-ui/nodekit';
+import {WorkflowNotFoundError} from '@temporalio/common';
 import {DBError} from 'db-errors';
 import PG_ERRORS from 'pg-error-constants';
 
@@ -14,10 +15,13 @@ type PreparedErrorResponse = {
     response: {
         code?: string;
         message: string;
+        details?: unknown;
     };
 };
 
-export const prepareErrorResponse = (error: AppError | DBError): PreparedErrorResponse => {
+export const prepareErrorResponse = (
+    error: AppError | DBError | unknown,
+): PreparedErrorResponse => {
     if (error instanceof DBError) {
         const dbCode = getDBErrorCode(error);
 
@@ -39,6 +43,49 @@ export const prepareErrorResponse = (error: AppError | DBError): PreparedErrorRe
                     },
                 };
         }
+    }
+
+    if (error instanceof AppError) {
+        const {code, message, details} = error;
+
+        switch (code) {
+            case TRANSFER_ERROR.VALIDATION_ERROR: {
+                return {
+                    code: 400,
+                    response: {
+                        code,
+                        message,
+                        details,
+                    },
+                };
+            }
+
+            case TRANSFER_ERROR.EXPORT_NOT_EXIST: {
+                return {
+                    code: 404,
+                    response: {
+                        code: TRANSFER_ERROR.EXPORT_NOT_EXIST,
+                        message: "The exports doesn't exist",
+                    },
+                };
+            }
+        }
+
+        return {
+            code: 500,
+            response: {
+                message: 'Internal Server Error',
+            },
+        };
+    }
+
+    if (error instanceof WorkflowNotFoundError) {
+        return {
+            code: 404,
+            response: {
+                message: error.message,
+            },
+        };
     }
 
     return {
