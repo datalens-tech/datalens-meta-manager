@@ -7,16 +7,18 @@ export type GetWorkbookContentArgs = {
     workbookId: string;
 };
 
-export const getWorkbookContent = async (
-    {ctx, gatewayApi}: ActivitiesDeps,
-    {workbookId}: GetWorkbookContentArgs,
-): Promise<{
+type GetWorkbookContentResult = {
     connections: string[];
     datasets: string[];
     charts: string[];
     dashboards: string[];
     reports: string[];
-}> => {
+};
+
+export const getWorkbookContent = async (
+    {ctx, gatewayApi}: ActivitiesDeps,
+    {workbookId}: GetWorkbookContentArgs,
+): Promise<GetWorkbookContentResult> => {
     const connections: string[] = [];
     const datasets: string[] = [];
     const charts: string[] = [];

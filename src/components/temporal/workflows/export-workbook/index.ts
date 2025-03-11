@@ -10,7 +10,7 @@ const {finishExport, getWorkbookContent, exportConnection, exportDataset} = prox
 >({
     retry: {
         initialInterval: '1 sec',
-        maximumInterval: '5 sec',
+        maximumInterval: '4 sec',
         backoffCoefficient: 2,
         maximumAttempts: 1,
     },
@@ -35,21 +35,21 @@ export const exportWorkbook = async ({
     entriesCount =
         connections.length + datasets.length + charts.length + dashboards.length + reports.length;
 
-    const connectionIdsMapping: Record<string, string> = {};
+    const connectionIdMapping: Record<string, string> = {};
 
     for (let i = 0; i < connections.length; i++) {
         const connectionId = connections[i];
 
         await exportConnection({exportId, connectionId});
 
-        connectionIdsMapping[connectionId] = `connectionId_${i}`;
+        connectionIdMapping[connectionId] = `connectionId_${i}`;
         processedEntriesCount++;
     }
 
     for (let i = 0; i < datasets.length; i++) {
         const datasetId = datasets[i];
 
-        await exportDataset({exportId, datasetId, idMapping: connectionIdsMapping});
+        await exportDataset({exportId, datasetId, idMapping: connectionIdMapping});
 
         processedEntriesCount++;
     }

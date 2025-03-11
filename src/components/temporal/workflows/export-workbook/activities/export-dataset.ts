@@ -1,6 +1,7 @@
 import {raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
+import {ExportModelColumn} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
 
 export type ExportDatasetArgs = {
@@ -13,7 +14,9 @@ export const exportDataset = async (
     {models: {ExportModel}, ctx, gatewayApi}: ActivitiesDeps,
     {exportId, datasetId, idMapping}: ExportDatasetArgs,
 ): Promise<void> => {
-    const {responseData} = await gatewayApi.bi.exportDataset({
+    const {
+        responseData: {dataset, notifications},
+    } = await gatewayApi.bi.exportDataset({
         ctx,
         headers: {},
         authArgs: {},
@@ -25,7 +28,7 @@ export const exportDataset = async (
         .patch({
             data: raw(
                 "jsonb_set(??, '{datasets}', (COALESCE(data->'datasets', '[]'::jsonb) || ?::jsonb))",
-                ['data', {data: responseData.dataset, notifications: responseData.notifications}],
+                [ExportModelColumn.Data, {data: dataset, notifications}],
             ),
         })
         .where({
