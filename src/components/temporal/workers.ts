@@ -7,7 +7,7 @@ import {ActivitiesDeps} from './types';
 import {createActivities as createExportWorkbookActivities} from './workflows/export-workbook/activities';
 import {EXPORT_WORKBOOK_QUEUE_NAME} from './workflows/export-workbook/constants';
 
-const WORKFLOW_SOURCES =
+const WORKFLOWS_SOURCES =
     process.env.APP_DEV_MODE && isTruthyString(process.env.APP_DEV_MODE)
         ? {workflowsPath: require.resolve('./workflows')}
         : {
@@ -17,9 +17,9 @@ const WORKFLOW_SOURCES =
           };
 
 export const initWorkers = (deps: ActivitiesDeps) => {
-    const runExportWorker = async () => {
+    const runExportWorkbookWorker = async () => {
         const exportWorkbookWorker = await Worker.create({
-            ...WORKFLOW_SOURCES,
+            ...WORKFLOWS_SOURCES,
             activities: createExportWorkbookActivities(deps),
             namespace: NAMESPACE,
             taskQueue: EXPORT_WORKBOOK_QUEUE_NAME,
@@ -28,5 +28,5 @@ export const initWorkers = (deps: ActivitiesDeps) => {
         await exportWorkbookWorker.run();
     };
 
-    return Promise.all([runExportWorker()]);
+    return Promise.all([runExportWorkbookWorker()]);
 };
