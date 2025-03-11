@@ -1,12 +1,9 @@
 import {AppRouteHandler} from '@gravity-ui/expresskit';
-import {raw} from 'objection';
-import {v4 as uuidv4} from 'uuid';
 
-import {ApiTag} from '../../components/api-docs';
-import {startExportWorkbook} from '../../components/temporal/client';
+import {ApiTag, CONTENT_TYPE_JSON} from '../../components/api-docs';
 import {makeReqParser, z} from '../../components/zod';
-import {ExportModel} from '../../db/models';
-import {registry} from '../../registry';
+import {exportWorkbook} from '../../services/export';
+import {exportWorkbookModel} from '../response-models';
 
 const requestSchema = {
     params: z.object({
@@ -19,30 +16,14 @@ const parseReq = makeReqParser(requestSchema);
 export const exportWorkbookController: AppRouteHandler = async (req, res) => {
     const {params} = await parseReq(req);
 
-    const {gatewayApi} = registry.getGatewayApi();
+    const result = await exportWorkbook(
+        {ctx: req.ctx},
+        {
+            workbookId: params.workbookId,
+        },
+    );
 
-    const {responseData} = await gatewayApi.us._getWorkbook({
-        ctx: req.ctx,
-        headers: {},
-        authArgs: {},
-        requestId: req.ctx.get('requestId') ?? uuidv4(),
-        args: {workbookId: params.workbookId},
-    });
-
-    const result = await ExportModel.query(ExportModel.replica)
-        .insert({
-            createdBy: 'mock-user-id',
-            expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [1]),
-            data: {workbookId: responseData.workbookId},
-        })
-        .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
-
-    await startExportWorkbook({
-        exportId: result.exportId,
-        workbookId: params.workbookId,
-    });
-
-    res.status(200).send({exportId: result.exportId});
+    res.status(200).send(exportWorkbookModel.format(result));
 };
 
 exportWorkbookController.api = {
@@ -51,5 +32,14 @@ exportWorkbookController.api = {
     request: {
         params: requestSchema.params,
     },
-    responses: {},
+    responses: {
+        200: {
+            description: exportWorkbookModel.schema.description ?? '',
+            content: {
+                [CONTENT_TYPE_JSON]: {
+                    schema: exportWorkbookModel.schema,
+                },
+            },
+        },
+    },
 };
