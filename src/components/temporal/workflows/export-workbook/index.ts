@@ -8,6 +8,7 @@ export const getProgress = defineQuery<number, []>('getProgress');
 const {finishExport, getWorkbookContent, exportConnection, exportDataset} = proxyActivities<
     ReturnType<typeof createActivities>
 >({
+    // TODO: check config values
     retry: {
         initialInterval: '1 sec',
         maximumInterval: '4 sec',

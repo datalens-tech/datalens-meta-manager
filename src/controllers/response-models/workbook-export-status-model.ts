@@ -7,19 +7,23 @@ const schema = z
         exportId: z.string(),
         status: z.nativeEnum(ExportStatus),
         progress: z.number(),
+        error: z.record(z.string(), z.unknown()).nullable(),
     })
     .describe('Workbook export status');
 
 type WorkbookExportStatusModel = z.infer<typeof schema>;
 
 const format = ({
-    workbookExport,
+    exportId,
+    status,
     progress,
+    error,
 }: GetWorkbookExportStatusResult): WorkbookExportStatusModel => {
     return {
-        exportId: workbookExport.exportId,
-        status: workbookExport.status,
+        exportId,
+        status,
         progress,
+        error,
     };
 };
 
