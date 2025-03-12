@@ -6,9 +6,9 @@ import {Feature, isEnabledFeature} from '../components/features';
 import healthcheck from '../controllers/healthcheck';
 import {homeController} from '../controllers/home';
 import {
-    exportWorkbookController,
     getWorkbookExportController,
     getWorkbookExportStatusController,
+    startWorkbookExportController,
 } from '../controllers/workbook-export';
 import {objectKeys} from '../utils';
 
@@ -61,9 +61,9 @@ export const getRoutes = (nodekit: NodeKit, options: GetRoutesOptions) => {
             authPolicy: AuthPolicy.disabled,
         },
 
-        exportWorkbook: makeRoute({
+        startWorkbookExport: makeRoute({
             route: 'POST /workbooks/export',
-            handler: exportWorkbookController,
+            handler: startWorkbookExportController,
             authPolicy: AuthPolicy.disabled,
         }),
         getWorkbookExport: makeRoute({

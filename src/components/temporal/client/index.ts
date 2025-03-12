@@ -5,7 +5,7 @@ import {getClient} from './client';
 
 export {getClient};
 
-export const startExportWorkbook = async ({
+export const startExportWorkbookWorkflow = async ({
     exportId,
     workbookId,
 }: {

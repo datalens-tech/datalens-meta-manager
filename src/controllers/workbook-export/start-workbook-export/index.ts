@@ -2,8 +2,8 @@ import {AppRouteHandler} from '@gravity-ui/expresskit';
 
 import {ApiTag, CONTENT_TYPE_JSON} from '../../../components/api-docs';
 import {makeReqParser, z} from '../../../components/zod';
-import {exportWorkbook} from '../../../services/export';
-import {initWorkbookExportModel} from '../response-models';
+import {startWorkbookExport} from '../../../services/export';
+import {startWorkbookExportModel} from '../response-models';
 
 const requestSchema = {
     body: z.object({
@@ -13,21 +13,21 @@ const requestSchema = {
 
 const parseReq = makeReqParser(requestSchema);
 
-export const exportWorkbookController: AppRouteHandler = async (req, res) => {
+export const startWorkbookExportController: AppRouteHandler = async (req, res) => {
     const {body} = await parseReq(req);
 
-    const result = await exportWorkbook(
+    const result = await startWorkbookExport(
         {ctx: req.ctx},
         {
             workbookId: body.workbookId,
         },
     );
 
-    res.status(200).send(initWorkbookExportModel.format(result));
+    res.status(200).send(startWorkbookExportModel.format(result));
 };
 
-exportWorkbookController.api = {
-    summary: 'Export workbook',
+startWorkbookExportController.api = {
+    summary: 'Start workbook export',
     tags: [ApiTag.Workbooks],
     request: {
         body: {
@@ -40,10 +40,10 @@ exportWorkbookController.api = {
     },
     responses: {
         200: {
-            description: initWorkbookExportModel.schema.description ?? '',
+            description: startWorkbookExportModel.schema.description ?? '',
             content: {
                 [CONTENT_TYPE_JSON]: {
-                    schema: initWorkbookExportModel.schema,
+                    schema: startWorkbookExportModel.schema,
                 },
             },
         },

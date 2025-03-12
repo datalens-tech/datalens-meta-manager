@@ -1,22 +1,22 @@
 import {raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
-import {startExportWorkbook} from '../../components/temporal/client';
+import {startExportWorkbookWorkflow} from '../../components/temporal/client';
 import {ExportModel, ExportModelColumn} from '../../db/models';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 
-type ExportWorkbookArgs = {
+type StartWorkbookExportArgs = {
     workbookId: string;
 };
 
-export const exportWorkbook = async (
+export const startWorkbookExport = async (
     {ctx}: ServiceArgs,
-    args: ExportWorkbookArgs,
+    args: StartWorkbookExportArgs,
 ): Promise<ExportModel> => {
     const {workbookId} = args;
 
-    ctx.log('EXPORT_WORKBOOK_REQUEST_START', {
+    ctx.log('START_WORKBOOK_EXPORT_START', {
         workbookId,
     });
 
@@ -36,12 +36,12 @@ export const exportWorkbook = async (
         })
         .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
 
-    await startExportWorkbook({
+    await startExportWorkbookWorkflow({
         exportId: result.exportId,
         workbookId: responseData.workbookId,
     });
 
-    ctx.log('EXPORT_WORKBOOK_REQUEST_FINISH', {
+    ctx.log('START_WORKBOOK_EXPORT_FINISH', {
         exportId: result.exportId,
     });
 
