@@ -1,5 +1,5 @@
-import {z} from '../../components/zod';
-import {ExportModel} from '../../db/models';
+import {z} from '../../../components/zod';
+import {ExportModel} from '../../../db/models';
 
 const schema = z
     .object({

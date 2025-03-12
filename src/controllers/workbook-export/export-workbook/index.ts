@@ -1,8 +1,8 @@
 import {AppRouteHandler} from '@gravity-ui/expresskit';
 
-import {ApiTag, CONTENT_TYPE_JSON} from '../../components/api-docs';
-import {makeReqParser, z} from '../../components/zod';
-import {exportWorkbook} from '../../services/export';
+import {ApiTag, CONTENT_TYPE_JSON} from '../../../components/api-docs';
+import {makeReqParser, z} from '../../../components/zod';
+import {exportWorkbook} from '../../../services/export';
 import {initWorkbookExportModel} from '../response-models';
 
 const requestSchema = {
