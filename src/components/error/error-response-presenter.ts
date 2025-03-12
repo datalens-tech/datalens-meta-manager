@@ -65,7 +65,17 @@ export const prepareErrorResponse = (
                     code: 404,
                     response: {
                         code: TRANSFER_ERROR.EXPORT_NOT_EXIST,
-                        message: "The exports doesn't exist",
+                        message: "The export doesn't exist",
+                    },
+                };
+            }
+
+            case TRANSFER_ERROR.IMPORT_NOT_EXIST: {
+                return {
+                    code: 404,
+                    response: {
+                        code: TRANSFER_ERROR.IMPORT_NOT_EXIST,
+                        message: "The import doesn't exist",
                     },
                 };
             }

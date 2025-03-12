@@ -10,6 +10,10 @@ import {
     getWorkbookExportStatusController,
     startWorkbookExportController,
 } from '../controllers/workbook-export';
+import {
+    getWorkbookImportStatusController,
+    startWorkbookImportController,
+} from '../controllers/workbook-import';
 import {objectKeys} from '../utils';
 
 type GetRoutesOptions = {
@@ -64,17 +68,23 @@ export const getRoutes = (nodekit: NodeKit, options: GetRoutesOptions) => {
         startWorkbookExport: makeRoute({
             route: 'POST /workbooks/export',
             handler: startWorkbookExportController,
-            authPolicy: AuthPolicy.disabled,
         }),
         getWorkbookExport: makeRoute({
             route: 'GET /workbooks/export/:exportId',
             handler: getWorkbookExportController,
-            authPolicy: AuthPolicy.disabled,
         }),
         getWorkbookExportStatus: makeRoute({
             route: 'GET /workbooks/export/:exportId/status',
             handler: getWorkbookExportStatusController,
-            authPolicy: AuthPolicy.disabled,
+        }),
+
+        startWorkbookImport: makeRoute({
+            route: 'POST /workbooks/import',
+            handler: startWorkbookImportController,
+        }),
+        getWorkbookImportStatus: makeRoute({
+            route: 'GET /workbooks/import/:importId/status',
+            handler: getWorkbookImportStatusController,
         }),
     } satisfies Record<string, ExtendedAppRouteDescription>;
 
