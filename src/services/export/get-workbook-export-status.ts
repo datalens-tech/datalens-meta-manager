@@ -32,7 +32,7 @@ export const getWorkbookExportStatus = async (
     const progress = await handle.query(getProgress);
 
     const workbookExport = await ExportModel.query(ExportModel.replica)
-        .select([ExportModelColumn.ExportId, ExportModelColumn.Status])
+        .select([ExportModelColumn.ExportId, ExportModelColumn.Status, ExportModelColumn.Error])
         .where({
             [ExportModelColumn.ExportId]: exportId,
         })
