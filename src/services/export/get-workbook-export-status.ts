@@ -3,7 +3,7 @@ import {AppError} from '@gravity-ui/nodekit';
 import {getClient} from '../../components/temporal/client';
 import {getProgress} from '../../components/temporal/workflows';
 import {TRANSFER_ERROR} from '../../constants';
-import {ExportModel, ExportModelColumn} from '../../db/models';
+import {ExportModel, ExportModelColumn, ExportStatus} from '../../db/models';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookExportStatusArgs = {
@@ -11,8 +11,10 @@ type GetWorkbookExportStatusArgs = {
 };
 
 export type GetWorkbookExportStatusResult = {
-    workbookExport: ExportModel;
+    status: ExportStatus;
+    exportId: string;
     progress: number;
+    error: Record<string, unknown> | null;
 };
 
 export const getWorkbookExportStatus = async (
@@ -49,5 +51,10 @@ export const getWorkbookExportStatus = async (
         progress,
     });
 
-    return {workbookExport, progress};
+    return {
+        exportId: workbookExport.exportId,
+        status: workbookExport.status,
+        progress,
+        error: workbookExport.error,
+    };
 };

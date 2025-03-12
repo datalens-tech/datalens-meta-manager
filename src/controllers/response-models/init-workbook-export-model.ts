@@ -5,17 +5,17 @@ const schema = z
     .object({
         exportId: z.string(),
     })
-    .describe('Workbook export');
+    .describe('Init workbook export result');
 
-type ExportWorkbookModel = z.infer<typeof schema>;
+type InitWorkbookExportModel = z.infer<typeof schema>;
 
-const format = (workbookExport: ExportModel): ExportWorkbookModel => {
+const format = (workbookExport: ExportModel): InitWorkbookExportModel => {
     return {
         exportId: workbookExport.exportId,
     };
 };
 
-export const exportWorkbookModel = {
+export const initWorkbookExportModel = {
     schema,
     format,
 };

@@ -13,12 +13,13 @@ const schema = z
 type WorkbookExportStatusModel = z.infer<typeof schema>;
 
 const format = ({
-    workbookExport,
+    exportId,
+    status,
     progress,
 }: GetWorkbookExportStatusResult): WorkbookExportStatusModel => {
     return {
-        exportId: workbookExport.exportId,
-        status: workbookExport.status,
+        exportId,
+        status,
         progress,
     };
 };
