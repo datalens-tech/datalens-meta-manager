@@ -1,6 +1,6 @@
 import {Model} from '../..';
 
-import type {ImportStatus} from './types';
+import {ImportStatus} from './types';
 
 export {ImportStatus};
 

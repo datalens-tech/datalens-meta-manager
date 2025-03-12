@@ -6,6 +6,8 @@ import {NAMESPACE} from './constants';
 import {ActivitiesDeps} from './types';
 import {createActivities as createExportWorkbookActivities} from './workflows/export-workbook/activities';
 import {EXPORT_WORKBOOK_QUEUE_NAME} from './workflows/export-workbook/constants';
+import {createActivities as createImportWorkbookActivities} from './workflows/import-workbook/activities';
+import {IMPORT_WORKBOOK_QUEUE_NAME} from './workflows/import-workbook/constants';
 
 const WORKFLOWS_SOURCES =
     process.env.APP_DEV_MODE && isTruthyString(process.env.APP_DEV_MODE)
@@ -18,15 +20,26 @@ const WORKFLOWS_SOURCES =
 
 export const initWorkers = (deps: ActivitiesDeps) => {
     const runExportWorkbookWorker = async () => {
-        const exportWorkbookWorker = await Worker.create({
+        const worker = await Worker.create({
             ...WORKFLOWS_SOURCES,
             activities: createExportWorkbookActivities(deps),
             namespace: NAMESPACE,
             taskQueue: EXPORT_WORKBOOK_QUEUE_NAME,
         });
 
-        await exportWorkbookWorker.run();
+        await worker.run();
     };
 
-    return Promise.all([runExportWorkbookWorker()]);
+    const runImportWorkbookWorker = async () => {
+        const worker = await Worker.create({
+            ...WORKFLOWS_SOURCES,
+            activities: createImportWorkbookActivities(deps),
+            namespace: NAMESPACE,
+            taskQueue: IMPORT_WORKBOOK_QUEUE_NAME,
+        });
+
+        await worker.run();
+    };
+
+    return Promise.all([runExportWorkbookWorker(), runImportWorkbookWorker()]);
 };

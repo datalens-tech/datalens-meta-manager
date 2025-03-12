@@ -3,7 +3,7 @@ import {defineQuery, proxyActivities, setHandler} from '@temporalio/workflow';
 import type {createActivities} from './activities';
 import type {ExportWorkbookArgs, ExportWorkbookResult} from './types';
 
-export const getProgress = defineQuery<number, []>('getProgress');
+export const getWorkbookExportProgress = defineQuery<number, []>('getProgress');
 
 const {finishExport, getWorkbookContent, exportConnection, exportDataset} = proxyActivities<
     ReturnType<typeof createActivities>
@@ -25,7 +25,7 @@ export const exportWorkbook = async ({
     let entriesCount = 0;
     let processedEntriesCount = 0;
 
-    setHandler(getProgress, (): number => {
+    setHandler(getWorkbookExportProgress, (): number => {
         return entriesCount > 0 ? Math.floor((processedEntriesCount * 100) / entriesCount) : 0;
     });
 

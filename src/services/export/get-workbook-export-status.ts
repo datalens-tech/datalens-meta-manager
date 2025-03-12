@@ -1,7 +1,7 @@
 import {AppError} from '@gravity-ui/nodekit';
 
 import {getClient} from '../../components/temporal/client';
-import {getProgress} from '../../components/temporal/workflows';
+import {getWorkbookExportProgress} from '../../components/temporal/workflows';
 import {TRANSFER_ERROR} from '../../constants';
 import {ExportModel, ExportModelColumn, ExportStatus} from '../../db/models';
 import {ServiceArgs} from '../../types/service';
@@ -29,7 +29,7 @@ export const getWorkbookExportStatus = async (
 
     const client = await getClient();
     const handle = client.workflow.getHandle(exportId);
-    const progress = await handle.query(getProgress);
+    const progress = await handle.query(getWorkbookExportProgress);
 
     const workbookExport = await ExportModel.query(ExportModel.replica)
         .select([ExportModelColumn.ExportId, ExportModelColumn.Status, ExportModelColumn.Error])
