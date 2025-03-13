@@ -2,7 +2,7 @@ import {raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
 import {startImportWorkbookWorkflow} from '../../components/temporal/client';
-import {ImportModel, ImportModelColumn} from '../../db/models';
+import {ImportModel} from '../../db/models';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 
@@ -37,9 +37,9 @@ export const startWorkbookImport = async (
     const result = await ImportModel.query(ImportModel.replica)
         .insert({
             // TODO: fix user id
-            [ImportModelColumn.CreatedBy]: 'mock-user-id',
-            [ImportModelColumn.ExpiredAt]: raw(`NOW() + INTERVAL '?? DAY'`, [1]),
-            [ImportModelColumn.Data]: data,
+            createdBy: 'mock-user-id',
+            expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [1]),
+            data,
         })
         .timeout(ImportModel.DEFAULT_QUERY_TIMEOUT);
 
