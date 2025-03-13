@@ -38,29 +38,34 @@ export const exportWorkbook = async ({
 
     const connectionIdMapping: Record<string, string> = {};
 
-    for (let i = 0; i < connections.length; i++) {
-        const connectionId = connections[i];
-        const mockConnectionId = `connectionId_${i}`;
+    const exportConnectionPromises = connections.map(async (connectionId, index) => {
+        const mockConnectionId = `connectionId_${index}`;
 
-        await exportConnection({exportId, connectionId, mockConnectionId});
+        await exportConnection({exportId, connectionId, mockConnectionId}).then(() => {
+            processedEntriesCount++;
+            connectionIdMapping[connectionId] = mockConnectionId;
+        });
+    });
 
-        connectionIdMapping[connectionId] = mockConnectionId;
-        processedEntriesCount++;
-    }
+    await Promise.all(exportConnectionPromises);
 
-    for (let i = 0; i < datasets.length; i++) {
-        const datasetId = datasets[i];
-        const mockDatasetId = `datasetId_${i}`;
+    const datasetIdMapping: Record<string, string> = {};
 
-        await exportDataset({
+    const exportDatasetPromises = datasets.map((datasetId, index) => {
+        const mockDatasetId = `datasetId_${index}`;
+
+        return exportDataset({
             exportId,
             datasetId,
             mockDatasetId,
             idMapping: connectionIdMapping,
+        }).then(() => {
+            processedEntriesCount++;
+            datasetIdMapping[datasetId] = mockDatasetId;
         });
+    });
 
-        processedEntriesCount++;
-    }
+    await Promise.all(exportDatasetPromises);
 
     await finishExport({exportId});
 

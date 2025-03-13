@@ -22,34 +22,31 @@ export const importWorkbook = async ({
         startToCloseTimeout: '1 min',
     });
 
-    let totalEntriesCount = 0;
+    let entriesCount = 0;
     let processedEntriesCount = 0;
 
     setHandler(getWorkbookImportProgress, (): number => {
-        return totalEntriesCount > 0
-            ? Math.floor((processedEntriesCount * 100) / totalEntriesCount)
-            : 0;
+        return entriesCount > 0 ? Math.floor((processedEntriesCount * 100) / entriesCount) : 0;
     });
 
     const {connectionIds, datasetIds} = await getImportDataEntriesInfo({importId});
 
-    totalEntriesCount = connectionIds.length + datasetIds.length;
+    entriesCount = connectionIds.length + datasetIds.length;
 
     const connectionIdMapping: Record<string, string> = {};
 
-    for (let i = 0; i < connectionIds.length; i++) {
-        const mockConnectionId = connectionIds[i];
-
-        const {connectionId} = await importConnection({
+    const importConnectionPromises = connectionIds.map((mockConnectionId) => {
+        return importConnection({
             importId,
             workbookId,
             mockConnectionId,
+        }).then(({connectionId}) => {
+            processedEntriesCount++;
+            connectionIdMapping[mockConnectionId] = connectionId;
         });
+    });
 
-        connectionIdMapping[mockConnectionId] = connectionId;
-
-        processedEntriesCount++;
-    }
+    await Promise.all(importConnectionPromises);
 
     await finishImport({importId});
 
