@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import '../..';
+import '../../nodekit';
 import {registry} from '../../registry';
 
 if (require.main === module) {

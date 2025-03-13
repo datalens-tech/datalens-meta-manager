@@ -18,14 +18,16 @@ nodekit.config.appFinalErrorHandler = finalRequestHandler;
 
 const {gatewayApi} = registry.getGatewayApi();
 
-initTemporalNamespace()
-    .then(() =>
-        initTemporalWorkers({models: {ExportModel, ImportModel}, ctx: nodekit.ctx, gatewayApi}),
-    )
-    .catch((error: unknown) => {
-        nodekit.ctx.logError('TEMPORAL_INIT_FAIL', error);
-        process.exit(1);
-    });
+if (require.main === module) {
+    initTemporalNamespace()
+        .then(() =>
+            initTemporalWorkers({models: {ExportModel, ImportModel}, ctx: nodekit.ctx, gatewayApi}),
+        )
+        .catch((error: unknown) => {
+            nodekit.ctx.logError('TEMPORAL_INIT_FAIL', error);
+            process.exit(1);
+        });
+}
 
 const routes = getAppRoutes(nodekit, {beforeAuth, afterAuth});
 

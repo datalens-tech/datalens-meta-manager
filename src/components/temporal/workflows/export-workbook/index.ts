@@ -40,17 +40,24 @@ export const exportWorkbook = async ({
 
     for (let i = 0; i < connections.length; i++) {
         const connectionId = connections[i];
+        const mockConnectionId = `connectionId_${i}`;
 
-        await exportConnection({exportId, connectionId});
+        await exportConnection({exportId, connectionId, mockConnectionId});
 
-        connectionIdMapping[connectionId] = `connectionId_${i}`;
+        connectionIdMapping[connectionId] = mockConnectionId;
         processedEntriesCount++;
     }
 
     for (let i = 0; i < datasets.length; i++) {
         const datasetId = datasets[i];
+        const mockDatasetId = `datasetId_${i}`;
 
-        await exportDataset({exportId, datasetId, idMapping: connectionIdMapping});
+        await exportDataset({
+            exportId,
+            datasetId,
+            mockDatasetId,
+            idMapping: connectionIdMapping,
+        });
 
         processedEntriesCount++;
     }

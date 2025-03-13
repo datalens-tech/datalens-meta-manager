@@ -27,6 +27,7 @@ export async function up(knex: Knex): Promise<void> {
             export_id BIGINT NOT NULL PRIMARY KEY DEFAULT get_id(),
             status EXPORT_STATUS NOT NULL DEFAULT('pending'),
             data jsonb DEFAULT '{}',
+            notifications jsonb,
             error jsonb,
             created_by TEXT NOT NULL,
             created_at TIMESTAMPTZ DEFAULT NOW(),
