@@ -4,6 +4,8 @@ import {isTruthyString} from '../../utils';
 
 import {NAMESPACE} from './constants';
 import {ActivitiesDeps} from './types';
+import {createActivities as createClearExpiredActivities} from './workflows/clear-expired/activities';
+import {CLEAR_EXPIRED_QUEUE_NAME} from './workflows/clear-expired/constants';
 import {createActivities as createExportWorkbookActivities} from './workflows/export-workbook/activities';
 import {EXPORT_WORKBOOK_QUEUE_NAME} from './workflows/export-workbook/constants';
 import {createActivities as createImportWorkbookActivities} from './workflows/import-workbook/activities';
@@ -41,5 +43,20 @@ export const initWorkers = (deps: ActivitiesDeps) => {
         await worker.run();
     };
 
-    return Promise.all([runExportWorkbookWorker(), runImportWorkbookWorker()]);
+    const runClearExpiredWorker = async () => {
+        const worker = await Worker.create({
+            ...WORKFLOWS_SOURCES,
+            activities: createClearExpiredActivities(deps),
+            namespace: NAMESPACE,
+            taskQueue: CLEAR_EXPIRED_QUEUE_NAME,
+        });
+
+        await worker.run();
+    };
+
+    return Promise.all([
+        runExportWorkbookWorker(),
+        runImportWorkbookWorker(),
+        runClearExpiredWorker(),
+    ]);
 };
