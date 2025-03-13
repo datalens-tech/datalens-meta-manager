@@ -35,6 +35,7 @@ export const importConnection = async (
     };
 
     if (!result.connection) {
+        // TODO: fix error
         throw new AppError(
             `Error while importing connection! No connection data for ${mockConnectionId}`,
         );
