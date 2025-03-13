@@ -7,7 +7,6 @@ import {initSwagger} from './components/api-docs';
 import {finalRequestHandler} from './components/middlewares';
 import {initNamespace as initTemporalNamespace} from './components/temporal/utils';
 import {initWorkers as initTemporalWorkers} from './components/temporal/workers';
-import {ExportModel, ImportModel} from './db/models';
 import {registry} from './registry';
 import {getAppRoutes} from './routes';
 
@@ -20,9 +19,7 @@ const {gatewayApi} = registry.getGatewayApi();
 
 if (require.main === module) {
     initTemporalNamespace()
-        .then(() =>
-            initTemporalWorkers({models: {ExportModel, ImportModel}, ctx: nodekit.ctx, gatewayApi}),
-        )
+        .then(() => initTemporalWorkers({ctx: nodekit.ctx, gatewayApi}))
         .catch((error: unknown) => {
             nodekit.ctx.logError('TEMPORAL_INIT_FAIL', error);
             process.exit(1);

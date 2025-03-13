@@ -1,7 +1,7 @@
 import {AppError} from '@gravity-ui/nodekit';
 
 import {TRANSFER_ERROR} from '../../../../../constants';
-import {ImportModelColumn} from '../../../../../db/models';
+import {ImportModel, ImportModelColumn} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
 
 export type GetImportDataEntriesInfoArgs = {
@@ -14,7 +14,7 @@ export type GetImportDataEntriesInfoResult = {
 };
 
 export const getImportDataEntriesInfo = async (
-    {models: {ImportModel}}: ActivitiesDeps,
+    _: ActivitiesDeps,
     {importId}: GetImportDataEntriesInfoArgs,
 ): Promise<GetImportDataEntriesInfoResult> => {
     const workbookImport = await ImportModel.query(ImportModel.primary)

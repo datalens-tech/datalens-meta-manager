@@ -2,7 +2,7 @@ import {AppError} from '@gravity-ui/nodekit';
 import {raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
-import {ExportModelColumn} from '../../../../../db/models';
+import {ExportModelColumn, ImportModel} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
 
 export type ImportConnectionArgs = {
@@ -16,7 +16,7 @@ export type ImportConnectionResult = {
 };
 
 export const importConnection = async (
-    {models: {ImportModel}, ctx, gatewayApi}: ActivitiesDeps,
+    {ctx, gatewayApi}: ActivitiesDeps,
     {importId, workbookId, mockConnectionId}: ImportConnectionArgs,
 ): Promise<ImportConnectionResult> => {
     const result = (await ImportModel.query(ImportModel.primary)
