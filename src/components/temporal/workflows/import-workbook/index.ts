@@ -50,7 +50,7 @@ export const importWorkbook = async ({
 
         await finishImportSuccess({importId});
     } catch (error) {
-        CancellationScope.nonCancellable(() => finishImportError({importId, error}));
+        await CancellationScope.nonCancellable(() => finishImportError({importId, error}));
 
         throw error;
     }

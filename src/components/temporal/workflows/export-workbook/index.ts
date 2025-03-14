@@ -78,7 +78,7 @@ export const exportWorkbook = async ({
 
         await finishExportSuccess({exportId});
     } catch (error) {
-        CancellationScope.nonCancellable(() => finishExportError({exportId, error}));
+        await CancellationScope.nonCancellable(() => finishExportError({exportId, error}));
 
         throw error;
     }
