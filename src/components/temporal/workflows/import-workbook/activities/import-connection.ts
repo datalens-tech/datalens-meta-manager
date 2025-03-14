@@ -2,6 +2,7 @@ import {AppError} from '@gravity-ui/nodekit';
 import {raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
+import {TRANSFER_ERROR} from '../../../../../constants';
 import {ExportModelColumn, ImportModel} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
 
@@ -35,10 +36,9 @@ export const importConnection = async (
     };
 
     if (!result.connection) {
-        // TODO: fix error
-        throw new AppError(
-            `Error while importing connection! No connection data for ${mockConnectionId}`,
-        );
+        throw new AppError(`No connection data for id: ${mockConnectionId}`, {
+            code: TRANSFER_ERROR.INVALID_IMPORT_CONNECTION_DATA,
+        });
     }
 
     const {
