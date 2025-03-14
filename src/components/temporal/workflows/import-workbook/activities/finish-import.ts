@@ -1,4 +1,4 @@
-import {ImportStatus} from '../../../../../db/models';
+import {ImportModel, ImportStatus} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
 
 export type FinishImportArgs = {
@@ -6,7 +6,7 @@ export type FinishImportArgs = {
 };
 
 export const finishImport = async (
-    {models: {ImportModel}}: ActivitiesDeps,
+    _: ActivitiesDeps,
     {importId}: FinishImportArgs,
 ): Promise<void> => {
     await ImportModel.query(ImportModel.primary)

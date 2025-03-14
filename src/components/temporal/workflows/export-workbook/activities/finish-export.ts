@@ -1,4 +1,4 @@
-import {ExportStatus} from '../../../../../db/models/export';
+import {ExportModel, ExportStatus} from '../../../../../db/models/export';
 import type {ActivitiesDeps} from '../../../types';
 
 export type FinishExportArgs = {
@@ -6,7 +6,7 @@ export type FinishExportArgs = {
 };
 
 export const finishExport = async (
-    {models: {ExportModel}}: ActivitiesDeps,
+    _: ActivitiesDeps,
     {exportId}: FinishExportArgs,
 ): Promise<void> => {
     await ExportModel.query(ExportModel.primary)

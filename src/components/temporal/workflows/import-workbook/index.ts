@@ -7,8 +7,11 @@ export const getWorkbookImportProgress = defineQuery<number, []>('getProgress');
 
 export const importWorkbook = async ({
     importId,
+    workbookId,
 }: ImportWorkbookArgs): Promise<ImportWorkbookResult> => {
-    const {finishImport} = proxyActivities<ReturnType<typeof createActivities>>({
+    const {finishImport, getImportDataEntriesInfo, importConnection} = proxyActivities<
+        ReturnType<typeof createActivities>
+    >({
         // TODO: check config values
         retry: {
             initialInterval: '1 sec',
@@ -19,12 +22,31 @@ export const importWorkbook = async ({
         startToCloseTimeout: '1 min',
     });
 
-    const total = 0;
-    const current = 0;
+    let entriesCount = 0;
+    let processedEntriesCount = 0;
 
     setHandler(getWorkbookImportProgress, (): number => {
-        return total > 0 ? Math.floor((current * 100) / total) : 0;
+        return entriesCount > 0 ? Math.floor((processedEntriesCount * 100) / entriesCount) : 0;
     });
+
+    const {connectionIds, datasetIds} = await getImportDataEntriesInfo({importId});
+
+    entriesCount = connectionIds.length + datasetIds.length;
+
+    const connectionIdMapping: Record<string, string> = {};
+
+    const importConnectionPromises = connectionIds.map((mockConnectionId) => {
+        return importConnection({
+            importId,
+            workbookId,
+            mockConnectionId,
+        }).then(({connectionId}) => {
+            processedEntriesCount++;
+            connectionIdMapping[mockConnectionId] = connectionId;
+        });
+    });
+
+    await Promise.all(importConnectionPromises);
 
     await finishImport({importId});
 

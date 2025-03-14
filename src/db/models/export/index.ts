@@ -8,6 +8,7 @@ export const ExportModelColumn = {
     ExportId: 'exportId',
     Status: 'status',
     Data: 'data',
+    Notifications: 'notifications',
     Error: 'error',
     CreatedBy: 'createdBy',
     CreatedAt: 'createdAt',
@@ -28,6 +29,7 @@ export class ExportModel extends Model {
     status!: ExportStatus;
     data!: Record<string, unknown>;
     error!: Record<string, unknown> | null;
+    notifications!: Record<string, unknown> | null;
     createdBy!: string;
     createdAt!: string;
     updatedAt!: string;

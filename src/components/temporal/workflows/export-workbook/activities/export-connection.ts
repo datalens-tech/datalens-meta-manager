@@ -1,17 +1,18 @@
-import {raw} from 'objection';
+import {PartialModelObject, raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
-import {ExportModelColumn} from '../../../../../db/models';
+import {ExportModel, ExportModelColumn} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
 
 export type ExportConnectionArgs = {
     exportId: string;
     connectionId: string;
+    mockConnectionId: string;
 };
 
 export const exportConnection = async (
-    {models: {ExportModel}, ctx, gatewayApi}: ActivitiesDeps,
-    {exportId, connectionId}: ExportConnectionArgs,
+    {ctx, gatewayApi}: ActivitiesDeps,
+    {exportId, connectionId, mockConnectionId}: ExportConnectionArgs,
 ): Promise<void> => {
     const {
         responseData: {connection, notifications},
@@ -23,14 +24,33 @@ export const exportConnection = async (
         args: {connectionId},
     });
 
-    await ExportModel.query(ExportModel.primary)
-        .patch({
-            data: raw(
-                "jsonb_set(??, '{connections}', (COALESCE(data->'connections', '[]'::jsonb) || ?::jsonb))",
-                [ExportModelColumn.Data, {data: connection, notifications}],
-            ),
-        })
-        .where({
-            exportId,
-        });
+    const update: PartialModelObject<ExportModel> = {
+        data: raw("jsonb_set(??, '{connections}', (COALESCE(??->'connections', '{}') || ?))", [
+            ExportModelColumn.Data,
+            ExportModelColumn.Data,
+            {
+                [mockConnectionId]: {
+                    data: connection,
+                },
+            },
+        ]),
+    };
+
+    if (notifications.length > 0) {
+        update.notifications = raw(
+            "jsonb_set(COALESCE(??, '{}'), '{connections}', (COALESCE(??->'connections', '[]') || ?))",
+            [
+                ExportModelColumn.Notifications,
+                ExportModelColumn.Notifications,
+                {
+                    entryId: connectionId,
+                    notifications,
+                },
+            ],
+        );
+    }
+
+    await ExportModel.query(ExportModel.primary).patch(update).where({
+        exportId,
+    });
 };
