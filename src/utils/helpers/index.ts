@@ -1,2 +1,2 @@
-export * from './object-keys';
-export * from './is-truthy-string';
+export * from './object';
+export * from './string';

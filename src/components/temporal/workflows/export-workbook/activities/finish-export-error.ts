@@ -1,17 +1,18 @@
 import {ExportModel, ExportStatus} from '../../../../../db/models/export';
 import type {ActivitiesDeps} from '../../../types';
 
-export type FinishExportArgs = {
+export type FinishExportErrorArgs = {
     exportId: string;
+    error: unknown;
 };
 
-export const finishExport = async (
+export const finishExportError = async (
     _: ActivitiesDeps,
-    {exportId}: FinishExportArgs,
+    {exportId}: FinishExportErrorArgs,
 ): Promise<void> => {
     await ExportModel.query(ExportModel.primary)
         .patch({
-            status: ExportStatus.Success,
+            status: ExportStatus.Error,
         })
         .where({
             exportId,

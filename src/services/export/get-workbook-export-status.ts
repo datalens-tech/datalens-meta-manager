@@ -29,9 +29,8 @@ export const getWorkbookExportStatus = async (
 
     const client = await getClient();
     const handle = client.workflow.getHandle(exportId);
-    const progress = await handle.query(getWorkbookExportProgress);
 
-    const workbookExport = await ExportModel.query(ExportModel.replica)
+    const workbookExportPromise = ExportModel.query(ExportModel.replica)
         .select([ExportModelColumn.ExportId, ExportModelColumn.Status, ExportModelColumn.Error])
         .where({
             [ExportModelColumn.ExportId]: exportId,
@@ -39,17 +38,18 @@ export const getWorkbookExportStatus = async (
         .first()
         .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
 
+    const [progress, workbookExport] = await Promise.all([
+        handle.query(getWorkbookExportProgress),
+        workbookExportPromise,
+    ]);
+
     if (!workbookExport) {
         throw new AppError(TRANSFER_ERROR.EXPORT_NOT_EXIST, {
             code: TRANSFER_ERROR.EXPORT_NOT_EXIST,
         });
     }
 
-    ctx.log('GET_WORKBOOK_EXPORT_STATUS_FINISH', {
-        exportId: workbookExport.exportId,
-        status: workbookExport.status,
-        progress,
-    });
+    ctx.log('GET_WORKBOOK_EXPORT_STATUS_FINISH');
 
     return {
         exportId: workbookExport.exportId,

@@ -1,6 +1,7 @@
 import type {ActivitiesDeps} from '../../../types';
 
-import {FinishImportArgs, finishImport} from './finish-import';
+import {FinishImportErrorArgs, finishImportError} from './finish-import-error';
+import {FinishImportSuccessArgs, finishImportSuccess} from './finish-import-success';
 import {
     GetImportDataEntriesInfoArgs,
     getImportDataEntriesInfo,
@@ -8,8 +9,12 @@ import {
 import {ImportConnectionArgs, importConnection} from './import-connection';
 
 export const createActivities = (deps: ActivitiesDeps) => ({
-    async finishImport(args: FinishImportArgs) {
-        return finishImport(deps, args);
+    async finishImportSuccess(args: FinishImportSuccessArgs) {
+        return finishImportSuccess(deps, args);
+    },
+
+    async finishImportError(args: FinishImportErrorArgs) {
+        return finishImportError(deps, args);
     },
 
     async getImportDataEntriesInfo(args: GetImportDataEntriesInfoArgs) {

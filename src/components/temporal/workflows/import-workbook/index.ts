@@ -1,4 +1,4 @@
-import {defineQuery, proxyActivities, setHandler} from '@temporalio/workflow';
+import {CancellationScope, defineQuery, proxyActivities, setHandler} from '@temporalio/workflow';
 
 import type {createActivities} from './activities';
 import type {ImportWorkbookArgs, ImportWorkbookResult} from './types';
@@ -9,18 +9,17 @@ export const importWorkbook = async ({
     importId,
     workbookId,
 }: ImportWorkbookArgs): Promise<ImportWorkbookResult> => {
-    const {finishImport, getImportDataEntriesInfo, importConnection} = proxyActivities<
-        ReturnType<typeof createActivities>
-    >({
-        // TODO: check config values
-        retry: {
-            initialInterval: '1 sec',
-            maximumInterval: '4 sec',
-            backoffCoefficient: 2,
-            maximumAttempts: 1,
-        },
-        startToCloseTimeout: '1 min',
-    });
+    const {finishImportSuccess, finishImportError, getImportDataEntriesInfo, importConnection} =
+        proxyActivities<ReturnType<typeof createActivities>>({
+            // TODO: check config values
+            retry: {
+                initialInterval: '1 sec',
+                maximumInterval: '4 sec',
+                backoffCoefficient: 2,
+                maximumAttempts: 1,
+            },
+            startToCloseTimeout: '1 min',
+        });
 
     let entriesCount = 0;
     let processedEntriesCount = 0;
@@ -29,26 +28,32 @@ export const importWorkbook = async ({
         return entriesCount > 0 ? Math.floor((processedEntriesCount * 100) / entriesCount) : 0;
     });
 
-    const {connectionIds, datasetIds} = await getImportDataEntriesInfo({importId});
+    try {
+        const {connectionIds, datasetIds} = await getImportDataEntriesInfo({importId});
 
-    entriesCount = connectionIds.length + datasetIds.length;
+        entriesCount = connectionIds.length + datasetIds.length;
 
-    const connectionIdMapping: Record<string, string> = {};
+        const connectionIdMapping: Record<string, string> = {};
 
-    const importConnectionPromises = connectionIds.map((mockConnectionId) => {
-        return importConnection({
-            importId,
-            workbookId,
-            mockConnectionId,
-        }).then(({connectionId}) => {
+        const importConnectionPromises = connectionIds.map(async (mockConnectionId) => {
+            const {connectionId} = await importConnection({
+                importId,
+                workbookId,
+                mockConnectionId,
+            });
+
             processedEntriesCount++;
             connectionIdMapping[mockConnectionId] = connectionId;
         });
-    });
 
-    await Promise.all(importConnectionPromises);
+        await Promise.all(importConnectionPromises);
 
-    await finishImport({importId});
+        await finishImportSuccess({importId});
+    } catch (error) {
+        CancellationScope.nonCancellable(() => finishImportError({importId, error}));
+
+        throw error;
+    }
 
     return {importId};
 };
