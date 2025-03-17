@@ -46,6 +46,7 @@ export const startWorkbookImport = async (
         .insert({
             createdBy: user?.userId ?? '',
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_IMPORT_EXPIRATION_DAYS]),
+            meta: {workbookId},
             data,
         })
         .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);

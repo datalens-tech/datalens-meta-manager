@@ -37,6 +37,7 @@ export const startWorkbookExport = async (
             createdBy: user?.userId ?? '',
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),
             data: {version: WORKBOOK_EXPORT_DATA_VERSION},
+            meta: {sourceWorkbookId: workbookId},
         })
         .timeout(WorkbookExportModel.DEFAULT_QUERY_TIMEOUT);
 
