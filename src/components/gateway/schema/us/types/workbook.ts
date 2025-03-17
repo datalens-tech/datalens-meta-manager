@@ -1,4 +1,4 @@
-enum WorkbookPermission {
+export enum WorkbookPermission {
     ListAccessBindings = 'listAccessBindings',
     UpdateAccessBindings = 'updateAccessBindings',
     LimitedView = 'limitedView',

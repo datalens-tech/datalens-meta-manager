@@ -1,10 +1,12 @@
 import {AppError} from '@gravity-ui/nodekit';
+import {v4 as uuidv4} from 'uuid';
 
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookExportProgress} from '../../components/temporal/workflows';
 import {TRANSFER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
 import {WorkbookExportErrors} from '../../db/models/workbook-export/types';
+import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookExportStatusArgs = {
@@ -32,7 +34,12 @@ export const getWorkbookExportStatus = async (
     const handle = client.workflow.getHandle(exportId);
 
     const workbookExportPromise = WorkbookExportModel.query(WorkbookExportModel.replica)
-        .select([ExportModelColumn.ExportId, ExportModelColumn.Status, ExportModelColumn.Errors])
+        .select([
+            ExportModelColumn.ExportId,
+            ExportModelColumn.Status,
+            ExportModelColumn.Errors,
+            ExportModelColumn.Meta,
+        ])
         .where({
             [ExportModelColumn.ExportId]: exportId,
         })
@@ -47,6 +54,25 @@ export const getWorkbookExportStatus = async (
     if (!workbookExport) {
         throw new AppError(TRANSFER_ERROR.EXPORT_NOT_EXIST, {
             code: TRANSFER_ERROR.EXPORT_NOT_EXIST,
+        });
+    }
+
+    const {sourceWorkbookId} = workbookExport.meta;
+
+    const {gatewayApi} = registry.getGatewayApi();
+
+    const {
+        responseData: {permissions},
+    } = await gatewayApi.us.getWorkbook({
+        ctx,
+        headers: {},
+        requestId: ctx.get('requestId') ?? uuidv4(),
+        args: {workbookId: sourceWorkbookId, includePermissionsInfo: true},
+    });
+
+    if (!permissions?.update) {
+        throw new AppError('The user must have update permissions to perform this action.', {
+            code: TRANSFER_ERROR.WORKBOOK_OPERATION_FORBIDDEN,
         });
     }
 
