@@ -4,6 +4,7 @@ import {getClient} from '../../components/temporal/client';
 import {getWorkbookExportProgress} from '../../components/temporal/workflows';
 import {TRANSFER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
+import {WorkbookExportErrors} from '../../db/models/workbook-export/types';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookExportStatusArgs = {
@@ -14,7 +15,7 @@ export type GetWorkbookExportStatusResult = {
     status: ExportStatus;
     exportId: string;
     progress: number;
-    errors: Record<string, unknown> | null;
+    errors: WorkbookExportErrors | null;
 };
 
 export const getWorkbookExportStatus = async (

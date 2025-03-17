@@ -1,13 +1,18 @@
 import {z} from '../../../components/zod';
 import {ExportStatus} from '../../../db/models';
 import {GetWorkbookExportStatusResult} from '../../../services/export';
+import {entryNotificationSchema} from '../../schemas/notification';
 
 const schema = z
     .object({
         exportId: z.string(),
         status: z.nativeEnum(ExportStatus),
         progress: z.number(),
-        errors: z.record(z.string(), z.unknown()).nullable(),
+        errors: z
+            .object({
+                criticalNotifications: z.array(entryNotificationSchema).optional(),
+            })
+            .nullable(),
     })
     .describe('Workbook export status');
 
