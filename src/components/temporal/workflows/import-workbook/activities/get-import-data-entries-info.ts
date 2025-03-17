@@ -1,6 +1,5 @@
-import {AppError} from '@gravity-ui/nodekit';
+import {ApplicationFailure} from '@temporalio/common';
 
-import {TRANSFER_ERROR} from '../../../../../constants';
 import {ImportModel, ImportModelColumn} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
 
@@ -26,8 +25,9 @@ export const getImportDataEntriesInfo = async (
         .timeout(ImportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookImport) {
-        throw new AppError(TRANSFER_ERROR.IMPORT_NOT_EXIST, {
-            code: TRANSFER_ERROR.IMPORT_NOT_EXIST,
+        throw ApplicationFailure.create({
+            nonRetryable: true,
+            message: `Workbook import ${importId} not exist.`,
         });
     }
 

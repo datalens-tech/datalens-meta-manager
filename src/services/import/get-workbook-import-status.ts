@@ -45,11 +45,7 @@ export const getWorkbookImportStatus = async (
         });
     }
 
-    ctx.log('GET_WORKBOOK_IMPORT_STATUS_FINISH', {
-        importId: workbookImport.importId,
-        status: workbookImport.status,
-        progress,
-    });
+    ctx.log('GET_WORKBOOK_IMPORT_STATUS_FINISH');
 
     return {
         importId: workbookImport.importId,

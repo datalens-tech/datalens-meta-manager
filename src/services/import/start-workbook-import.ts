@@ -19,7 +19,11 @@ export const startWorkbookImport = async (
 ): Promise<ImportModel> => {
     const {data, title, description, collectionId} = args;
 
-    ctx.log('START_WORKBOOK_IMPORT_START');
+    ctx.log('START_WORKBOOK_IMPORT_START', {
+        title,
+        description,
+        collectionId,
+    });
 
     const {gatewayApi} = registry.getGatewayApi();
 

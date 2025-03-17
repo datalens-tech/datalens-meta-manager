@@ -1,13 +1,13 @@
 import {ImportModel, ImportStatus} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
 
-export type FinishImportArgs = {
+export type FinishImportSuccessArgs = {
     importId: string;
 };
 
-export const finishImport = async (
+export const finishImportSuccess = async (
     _: ActivitiesDeps,
-    {importId}: FinishImportArgs,
+    {importId}: FinishImportSuccessArgs,
 ): Promise<void> => {
     await ImportModel.query(ImportModel.primary)
         .patch({

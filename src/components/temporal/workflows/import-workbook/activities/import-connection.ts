@@ -1,8 +1,7 @@
-import {AppError} from '@gravity-ui/nodekit';
+import {ApplicationFailure} from '@temporalio/common';
 import {raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
-import {TRANSFER_ERROR} from '../../../../../constants';
 import {ExportModelColumn, ImportModel} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
 
@@ -36,8 +35,9 @@ export const importConnection = async (
     };
 
     if (!result.connection) {
-        throw new AppError(`No connection data for id: ${mockConnectionId}`, {
-            code: TRANSFER_ERROR.INVALID_IMPORT_CONNECTION_DATA,
+        throw ApplicationFailure.create({
+            nonRetryable: true,
+            message: `No connection data for id: ${mockConnectionId}.`,
         });
     }
 
