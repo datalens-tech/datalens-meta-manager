@@ -7,6 +7,7 @@ export {ImportStatus};
 export const ImportModelColumn = {
     ImportId: 'importId',
     Status: 'status',
+    Meta: 'meta',
     Data: 'data',
     Notifications: 'notifications',
     Errors: 'errors',

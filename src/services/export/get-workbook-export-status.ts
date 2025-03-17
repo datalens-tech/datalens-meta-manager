@@ -2,6 +2,7 @@ import {AppError} from '@gravity-ui/nodekit';
 
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookExportProgress} from '../../components/temporal/workflows';
+import {checkWorkbookUpdatePermission} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
 import {WorkbookExportErrors} from '../../db/models/workbook-export/types';
@@ -32,7 +33,12 @@ export const getWorkbookExportStatus = async (
     const handle = client.workflow.getHandle(exportId);
 
     const workbookExportPromise = WorkbookExportModel.query(WorkbookExportModel.replica)
-        .select([ExportModelColumn.ExportId, ExportModelColumn.Status, ExportModelColumn.Errors])
+        .select([
+            ExportModelColumn.ExportId,
+            ExportModelColumn.Status,
+            ExportModelColumn.Errors,
+            ExportModelColumn.Meta,
+        ])
         .where({
             [ExportModelColumn.ExportId]: exportId,
         })
@@ -49,6 +55,10 @@ export const getWorkbookExportStatus = async (
             code: TRANSFER_ERROR.EXPORT_NOT_EXIST,
         });
     }
+
+    const {sourceWorkbookId} = workbookExport.meta;
+
+    await checkWorkbookUpdatePermission({ctx, workbookId: sourceWorkbookId});
 
     ctx.log('GET_WORKBOOK_EXPORT_STATUS_FINISH');
 

@@ -7,6 +7,7 @@ export {ExportStatus};
 export const ExportModelColumn = {
     ExportId: 'exportId',
     Status: 'status',
+    Meta: 'meta',
     Data: 'data',
     Notifications: 'notifications',
     Errors: 'errors',

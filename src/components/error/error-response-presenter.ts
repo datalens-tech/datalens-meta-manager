@@ -79,6 +79,16 @@ export const prepareErrorResponse = (
                     },
                 };
             }
+
+            case TRANSFER_ERROR.WORKBOOK_OPERATION_FORBIDDEN: {
+                return {
+                    code: 403,
+                    response: {
+                        code,
+                        message,
+                    },
+                };
+            }
         }
 
         return {

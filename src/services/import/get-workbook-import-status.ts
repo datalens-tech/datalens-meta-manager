@@ -2,6 +2,7 @@ import {AppError} from '@gravity-ui/nodekit';
 
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookImportProgress} from '../../components/temporal/workflows';
+import {checkWorkbookUpdatePermission} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../db/models';
 import {WorkbookImportErrors} from '../../db/models/workbook-import/types';
@@ -33,7 +34,12 @@ export const getWorkbookImportStatus = async (
     const progress = await handle.query(getWorkbookImportProgress);
 
     const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.replica)
-        .select([ImportModelColumn.ImportId, ImportModelColumn.Status, ImportModelColumn.Errors])
+        .select([
+            ImportModelColumn.ImportId,
+            ImportModelColumn.Status,
+            ImportModelColumn.Errors,
+            ImportModelColumn.Meta,
+        ])
         .where({
             [ImportModelColumn.ImportId]: importId,
         })
@@ -45,6 +51,10 @@ export const getWorkbookImportStatus = async (
             code: TRANSFER_ERROR.IMPORT_NOT_EXIST,
         });
     }
+
+    const {workbookId} = workbookImport.meta;
+
+    await checkWorkbookUpdatePermission({ctx, workbookId});
 
     ctx.log('GET_WORKBOOK_IMPORT_STATUS_FINISH');
 
