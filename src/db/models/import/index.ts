@@ -8,7 +8,7 @@ export const ImportModelColumn = {
     ImportId: 'importId',
     Status: 'status',
     Data: 'data',
-    IdsMap: 'idsMap',
+    Notifications: 'notifications',
     Errors: 'errors',
     CreatedBy: 'createdBy',
     CreatedAt: 'createdAt',

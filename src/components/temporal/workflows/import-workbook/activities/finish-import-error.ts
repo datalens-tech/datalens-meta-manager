@@ -12,7 +12,7 @@ export const finishImportError = async (
 ): Promise<void> => {
     await WorkbookImportModel.query(WorkbookImportModel.primary)
         .patch({
-            status: ImportStatus.Success,
+            status: ImportStatus.Error,
         })
         .where({
             importId,

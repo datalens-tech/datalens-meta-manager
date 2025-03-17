@@ -35,7 +35,7 @@ export const startWorkbookExport = async (
     const result = await WorkbookExportModel.query(WorkbookExportModel.replica)
         .insert({
             createdBy: user?.userId ?? '',
-            expiredAt: raw(`NOW() + INTERVAL '? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),
+            expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),
             data: {version: WORKBOOK_EXPORT_DATA_VERSION},
         })
         .timeout(WorkbookExportModel.DEFAULT_QUERY_TIMEOUT);

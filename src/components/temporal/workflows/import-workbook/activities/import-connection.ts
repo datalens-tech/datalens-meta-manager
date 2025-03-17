@@ -2,11 +2,7 @@ import {ApplicationFailure} from '@temporalio/common';
 import {raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
-import {
-    ExportModelColumn,
-    WorkbookExportModel,
-    WorkbookImportModel,
-} from '../../../../../db/models';
+import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
 import {NotificationLevel} from '../../../../gateway/schema/bi/types';
 import type {ActivitiesDeps} from '../../../types';
@@ -25,8 +21,14 @@ export const importConnection = async (
     {ctx, gatewayApi}: ActivitiesDeps,
     {importId, workbookId, mockConnectionId}: ImportConnectionArgs,
 ): Promise<ImportConnectionResult> => {
-    const result = (await WorkbookExportModel.query(WorkbookExportModel.primary)
-        .select(raw('??->connections->? as connection', [ExportModelColumn.Data, mockConnectionId]))
+    const result = (await WorkbookImportModel.query(WorkbookImportModel.primary)
+        .select(
+            raw('??->?->? as connection', [
+                ImportModelColumn.Data,
+                'connections',
+                mockConnectionId,
+            ]),
+        )
         .first()
         .where({
             importId,
@@ -65,7 +67,7 @@ export const importConnection = async (
             .patch({
                 errors: raw(
                     "jsonb_set(COALESCE(??, '{}'), '{criticalNotifications}', (COALESCE(??->'criticalNotifications', '[]') || ?))",
-                    [ExportModelColumn.Errors, ExportModelColumn.Errors, criticalNotifications],
+                    [ImportModelColumn.Errors, ImportModelColumn.Errors, criticalNotifications],
                 ),
             })
             .where({
@@ -84,8 +86,8 @@ export const importConnection = async (
                 notifications: raw(
                     "jsonb_set(COALESCE(??, '{}'), '{connections}', (COALESCE(??->'connections', '[]') || ?))",
                     [
-                        ExportModelColumn.Notifications,
-                        ExportModelColumn.Notifications,
+                        ImportModelColumn.Notifications,
+                        ImportModelColumn.Notifications,
                         {
                             entryId: connectionId,
                             notifications,
