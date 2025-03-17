@@ -1,4 +1,4 @@
-// eslint-disable-next-line import/order
+/* eslint-disable import/order */
 import {nodekit} from './nodekit';
 
 import {AppMiddleware, ExpressKit} from '@gravity-ui/expresskit';
@@ -7,11 +7,16 @@ import {initSwagger} from './components/api-docs';
 import {finalRequestHandler} from './components/middlewares';
 import {initNamespace as initTemporalNamespace} from './components/temporal/utils';
 import {initWorkers as initTemporalWorkers} from './components/temporal/workers';
+import {appAuth} from './components/auth/middlewares/app-auth';
 import {registry} from './registry';
 import {getAppRoutes} from './routes';
 
 const beforeAuth: AppMiddleware[] = [];
 const afterAuth: AppMiddleware[] = [];
+
+if (nodekit.config.isAuthEnabled) {
+    nodekit.config.appAuthHandler = appAuth;
+}
 
 nodekit.config.appFinalErrorHandler = finalRequestHandler;
 
