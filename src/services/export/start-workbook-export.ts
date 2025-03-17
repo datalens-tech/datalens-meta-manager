@@ -2,7 +2,7 @@ import {raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
 import {startExportWorkbookWorkflow} from '../../components/temporal/client';
-import {WORKBOOK_EXPORT_DATA_VERSION} from '../../constants';
+import {WORKBOOK_EXPORT_DATA_VERSION, WORKBOOK_EXPORT_EXPIRATION_DAYS} from '../../constants';
 import {ExportModel} from '../../db/models';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
@@ -30,10 +30,12 @@ export const startWorkbookExport = async (
         args: {workbookId, includePermissionsInfo: true},
     });
 
+    const user = ctx.get('user');
+
     const result = await ExportModel.query(ExportModel.replica)
         .insert({
-            createdBy: 'mock-user-id',
-            expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [1]),
+            createdBy: user?.userId ?? '',
+            expiredAt: raw(`NOW() + INTERVAL '? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),
             data: {version: WORKBOOK_EXPORT_DATA_VERSION},
         })
         .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
