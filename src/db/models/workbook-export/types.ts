@@ -21,7 +21,7 @@ export type WorkbookExportData = {
 };
 
 export type WorkbookExportErrors = {
-    criticalNotifications?: Notification[];
+    criticalNotifications?: WorkbookExportEntryNotifications[];
 };
 
 export type WorkbookExportNotifications = {
