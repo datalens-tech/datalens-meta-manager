@@ -1,4 +1,4 @@
-import {ExportModel, ExportStatus} from '../../../../../db/models/export';
+import {ExportStatus, WorkbookExportModel} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
 
 export type FinishExportErrorArgs = {
@@ -10,7 +10,7 @@ export const finishExportError = async (
     _: ActivitiesDeps,
     {exportId}: FinishExportErrorArgs,
 ): Promise<void> => {
-    await ExportModel.query(ExportModel.primary)
+    await WorkbookExportModel.query(WorkbookExportModel.primary)
         .patch({
             status: ExportStatus.Error,
         })

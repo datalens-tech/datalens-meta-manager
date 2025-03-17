@@ -1,14 +1,14 @@
 import {AppError} from '@gravity-ui/nodekit';
 
 import {TRANSFER_ERROR} from '../../constants';
-import {ExportModel, ExportModelColumn} from '../../db/models';
+import {ExportModelColumn, WorkbookExportModel} from '../../db/models';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookExportArgs = {
     exportId: string;
 };
 
-export type GetWorkbookExportResult = ExportModel;
+export type GetWorkbookExportResult = WorkbookExportModel;
 
 export const getWorkbookExport = async (
     {ctx}: ServiceArgs,
@@ -20,13 +20,13 @@ export const getWorkbookExport = async (
         exportId,
     });
 
-    const workbookExport = await ExportModel.query(ExportModel.replica)
+    const workbookExport = await WorkbookExportModel.query(WorkbookExportModel.replica)
         .select()
         .where({
             [ExportModelColumn.ExportId]: exportId,
         })
         .first()
-        .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(WorkbookExportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookExport) {
         throw new AppError(TRANSFER_ERROR.EXPORT_NOT_EXIST, {

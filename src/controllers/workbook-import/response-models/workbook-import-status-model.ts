@@ -7,7 +7,7 @@ const schema = z
         importId: z.string(),
         status: z.nativeEnum(ImportStatus),
         progress: z.number(),
-        error: z.record(z.string(), z.unknown()).nullable(),
+        errors: z.record(z.string(), z.unknown()).nullable(),
     })
     .describe('Workbook import status');
 
@@ -17,13 +17,13 @@ const format = ({
     importId,
     status,
     progress,
-    error,
+    errors,
 }: GetWorkbookImportStatusResult): WorkbookImportStatusModel => {
     return {
         importId,
         status,
         progress,
-        error,
+        errors,
     };
 };
 

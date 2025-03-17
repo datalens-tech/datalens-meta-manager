@@ -3,7 +3,7 @@ import {v4 as uuidv4} from 'uuid';
 
 import {startExportWorkbookWorkflow} from '../../components/temporal/client';
 import {WORKBOOK_EXPORT_DATA_VERSION, WORKBOOK_EXPORT_EXPIRATION_DAYS} from '../../constants';
-import {ExportModel} from '../../db/models';
+import {WorkbookExportModel} from '../../db/models';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 
@@ -14,7 +14,7 @@ type StartWorkbookExportArgs = {
 export const startWorkbookExport = async (
     {ctx}: ServiceArgs,
     args: StartWorkbookExportArgs,
-): Promise<ExportModel> => {
+): Promise<WorkbookExportModel> => {
     const {workbookId} = args;
 
     ctx.log('START_WORKBOOK_EXPORT_START', {
@@ -32,13 +32,13 @@ export const startWorkbookExport = async (
 
     const user = ctx.get('user');
 
-    const result = await ExportModel.query(ExportModel.replica)
+    const result = await WorkbookExportModel.query(WorkbookExportModel.replica)
         .insert({
             createdBy: user?.userId ?? '',
             expiredAt: raw(`NOW() + INTERVAL '? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),
             data: {version: WORKBOOK_EXPORT_DATA_VERSION},
         })
-        .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(WorkbookExportModel.DEFAULT_QUERY_TIMEOUT);
 
     await startExportWorkbookWorkflow({
         exportId: result.exportId,

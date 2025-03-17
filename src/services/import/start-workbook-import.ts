@@ -3,12 +3,13 @@ import {v4 as uuidv4} from 'uuid';
 
 import {startImportWorkbookWorkflow} from '../../components/temporal/client';
 import {WORKBOOK_IMPORT_EXPIRATION_DAYS} from '../../constants';
-import {ImportModel} from '../../db/models';
+import {WorkbookImportModel} from '../../db/models';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 
 type StartWorkbookImportArgs = {
-    data: Record<string, unknown>;
+    // TODO: fix data type
+    data: any;
     title: string;
     description?: string;
     collectionId?: string;
@@ -17,7 +18,7 @@ type StartWorkbookImportArgs = {
 export const startWorkbookImport = async (
     {ctx}: ServiceArgs,
     args: StartWorkbookImportArgs,
-): Promise<ImportModel> => {
+): Promise<WorkbookImportModel> => {
     const {data, title, description, collectionId} = args;
 
     ctx.log('START_WORKBOOK_IMPORT_START', {
@@ -41,13 +42,13 @@ export const startWorkbookImport = async (
 
     const user = ctx.get('user');
 
-    const result = await ImportModel.query(ImportModel.replica)
+    const result = await WorkbookImportModel.query(WorkbookImportModel.replica)
         .insert({
             createdBy: user?.userId ?? '',
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_IMPORT_EXPIRATION_DAYS]),
             data,
         })
-        .timeout(ImportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
 
     await startImportWorkbookWorkflow({
         importId: result.importId,

@@ -9,14 +9,19 @@ export const ExportModelColumn = {
     Status: 'status',
     Data: 'data',
     Notifications: 'notifications',
-    Error: 'error',
+    Errors: 'errors',
     CreatedBy: 'createdBy',
     CreatedAt: 'createdAt',
     UpdatedAt: 'updatedAt',
     ExpiredAt: 'expiredAt',
 } as const;
 
-export class ExportModel extends Model {
+export class ExportModel<
+    Meta extends Record<string, unknown>,
+    Data extends Record<string, unknown>,
+    Errors extends Record<string, unknown>,
+    Notifications extends Record<string, unknown>,
+> extends Model {
     static get tableName() {
         return 'exports';
     }
@@ -27,9 +32,10 @@ export class ExportModel extends Model {
 
     exportId!: string;
     status!: ExportStatus;
-    data!: Record<string, unknown>;
-    error!: Record<string, unknown> | null;
-    notifications!: Record<string, unknown> | null;
+    meta!: Meta;
+    data!: Data;
+    errors!: Errors | null;
+    notifications!: Notifications | null;
     createdBy!: string;
     createdAt!: string;
     updatedAt!: string;

@@ -9,14 +9,19 @@ export const ImportModelColumn = {
     Status: 'status',
     Data: 'data',
     IdsMap: 'idsMap',
-    Error: 'error',
+    Errors: 'errors',
     CreatedBy: 'createdBy',
     CreatedAt: 'createdAt',
     UpdatedAt: 'updatedAt',
     ExpiredAt: 'expiredAt',
 } as const;
 
-export class ImportModel extends Model {
+export class ImportModel<
+    Meta extends Record<string, unknown>,
+    Data extends Record<string, unknown>,
+    Notifications extends Record<string, unknown>,
+    Errors extends Record<string, unknown>,
+> extends Model {
     static get tableName() {
         return 'imports';
     }
@@ -27,9 +32,10 @@ export class ImportModel extends Model {
 
     importId!: string;
     status!: ImportStatus;
-    data!: Record<string, any>;
-    idsMap!: Record<string, any>;
-    error!: Record<string, unknown> | null;
+    meta!: Meta;
+    data!: Data;
+    notifications!: Notifications | null;
+    errors!: Errors | null;
     createdBy!: string;
     createdAt!: string;
     updatedAt!: string;

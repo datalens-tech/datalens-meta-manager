@@ -3,7 +3,7 @@ import {AppError} from '@gravity-ui/nodekit';
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookExportProgress} from '../../components/temporal/workflows';
 import {TRANSFER_ERROR} from '../../constants';
-import {ExportModel, ExportModelColumn, ExportStatus} from '../../db/models';
+import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookExportStatusArgs = {
@@ -14,7 +14,7 @@ export type GetWorkbookExportStatusResult = {
     status: ExportStatus;
     exportId: string;
     progress: number;
-    error: Record<string, unknown> | null;
+    errors: Record<string, unknown> | null;
 };
 
 export const getWorkbookExportStatus = async (
@@ -30,13 +30,13 @@ export const getWorkbookExportStatus = async (
     const client = await getClient();
     const handle = client.workflow.getHandle(exportId);
 
-    const workbookExportPromise = ExportModel.query(ExportModel.replica)
-        .select([ExportModelColumn.ExportId, ExportModelColumn.Status, ExportModelColumn.Error])
+    const workbookExportPromise = WorkbookExportModel.query(WorkbookExportModel.replica)
+        .select([ExportModelColumn.ExportId, ExportModelColumn.Status, ExportModelColumn.Errors])
         .where({
             [ExportModelColumn.ExportId]: exportId,
         })
         .first()
-        .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(WorkbookExportModel.DEFAULT_QUERY_TIMEOUT);
 
     const [progress, workbookExport] = await Promise.all([
         handle.query(getWorkbookExportProgress),
@@ -55,6 +55,6 @@ export const getWorkbookExportStatus = async (
         exportId: workbookExport.exportId,
         status: workbookExport.status,
         progress,
-        error: workbookExport.error,
+        errors: workbookExport.errors,
     };
 };

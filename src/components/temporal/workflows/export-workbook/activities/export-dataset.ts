@@ -1,7 +1,13 @@
+import {ApplicationFailure} from '@temporalio/common';
 import {PartialModelObject, raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
-import {ExportModel, ExportModelColumn} from '../../../../../db/models';
+import {ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
+import type {
+    WorkbookExportEntriesData,
+    WorkbookExportEntryNotifications,
+} from '../../../../../db/models/workbook-export/types';
+import {NotificationLevel} from '../../../../gateway/schema/bi/types';
 import type {ActivitiesDeps} from '../../../types';
 
 export type ExportDatasetArgs = {
@@ -25,17 +31,44 @@ export const exportDataset = async (
         args: {datasetId, idMapping},
     });
 
-    const update: PartialModelObject<ExportModel> = {
+    const criticalNotifications = notifications.filter(
+        ({level}) => level === NotificationLevel.Critical,
+    );
+
+    if (criticalNotifications.length > 0) {
+        await WorkbookExportModel.query(WorkbookExportModel.primary)
+            .patch({
+                errors: raw(
+                    "jsonb_set(COALESCE(??, '{}'), '{criticalNotifications}', (COALESCE(??->'criticalNotifications', '[]') || ?))",
+                    [
+                        ExportModelColumn.Errors,
+                        ExportModelColumn.Errors,
+                        {
+                            entryId: datasetId,
+                            notifications: criticalNotifications,
+                        } satisfies WorkbookExportEntryNotifications,
+                    ],
+                ),
+            })
+            .where({
+                exportId,
+            });
+
+        throw ApplicationFailure.create({
+            nonRetryable: true,
+            message: `Got critical notification while exporting dataset: ${datasetId}`,
+        });
+    }
+
+    const update: PartialModelObject<WorkbookExportModel> = {
         data: raw(
             "jsonb_set(??, '{datasets}', (COALESCE(??->'datasets', '{}'::jsonb) || ?::jsonb))",
             [
                 ExportModelColumn.Data,
                 ExportModelColumn.Data,
                 {
-                    [mockDatasetId]: {
-                        data: dataset,
-                    },
-                },
+                    [mockDatasetId]: dataset,
+                } satisfies WorkbookExportEntriesData,
             ],
         ),
     };
@@ -49,12 +82,12 @@ export const exportDataset = async (
                 {
                     entryId: datasetId,
                     notifications,
-                },
+                } satisfies WorkbookExportEntryNotifications,
             ],
         );
     }
 
-    await ExportModel.query(ExportModel.primary).patch(update).where({
+    await WorkbookExportModel.query(WorkbookExportModel.primary).patch(update).where({
         exportId,
     });
 };

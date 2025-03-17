@@ -7,7 +7,7 @@ import {startWorkbookImportModel} from '../response-models';
 
 const requestSchema = {
     body: z.object({
-        data: z.record(z.string(), z.unknown()),
+        data: z.any(),
         title: z.string(),
         description: z.string().optional(),
         collectionId: z.string().optional(),

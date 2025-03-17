@@ -1,5 +1,5 @@
 import {z} from '../../../components/zod';
-import {ExportModel} from '../../../db/models';
+import {WorkbookExportModel} from '../../../db/models';
 
 const schema = z
     .object({
@@ -9,7 +9,7 @@ const schema = z
 
 type StartWorkbookExportModel = z.infer<typeof schema>;
 
-const format = (workbookExport: ExportModel): StartWorkbookExportModel => {
+const format = (workbookExport: WorkbookExportModel): StartWorkbookExportModel => {
     return {
         exportId: workbookExport.exportId,
     };
