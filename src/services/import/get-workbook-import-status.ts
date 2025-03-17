@@ -1,12 +1,11 @@
 import {AppError} from '@gravity-ui/nodekit';
-import {v4 as uuidv4} from 'uuid';
 
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookImportProgress} from '../../components/temporal/workflows';
+import {checkWorkbookUpdatePermission} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../db/models';
 import {WorkbookImportErrors} from '../../db/models/workbook-import/types';
-import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookImportStatusArgs = {
@@ -55,22 +54,7 @@ export const getWorkbookImportStatus = async (
 
     const {workbookId} = workbookImport.meta;
 
-    const {gatewayApi} = registry.getGatewayApi();
-
-    const {
-        responseData: {permissions},
-    } = await gatewayApi.us.getWorkbook({
-        ctx,
-        headers: {},
-        requestId: ctx.get('requestId') ?? uuidv4(),
-        args: {workbookId, includePermissionsInfo: true},
-    });
-
-    if (!permissions?.update) {
-        throw new AppError('The user must have update permissions to perform this action.', {
-            code: TRANSFER_ERROR.WORKBOOK_OPERATION_FORBIDDEN,
-        });
-    }
+    await checkWorkbookUpdatePermission({ctx, workbookId});
 
     ctx.log('GET_WORKBOOK_IMPORT_STATUS_FINISH');
 
