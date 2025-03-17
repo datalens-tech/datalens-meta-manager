@@ -23,7 +23,7 @@ export const startWorkbookExport = async (
 
     const {gatewayApi} = registry.getGatewayApi();
 
-    const {responseData} = await gatewayApi.us._getWorkbook({
+    const {responseData} = await gatewayApi.us.getWorkbook({
         ctx,
         headers: {},
         requestId: ctx.get('requestId') ?? uuidv4(),
@@ -37,7 +37,7 @@ export const startWorkbookExport = async (
             createdBy: user?.userId ?? '',
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),
             data: {version: WORKBOOK_EXPORT_DATA_VERSION},
-            meta: {sourceWorkbookId: workbookId},
+            meta: {sourceWorkbookId: responseData.workbookId},
         })
         .timeout(WorkbookExportModel.DEFAULT_QUERY_TIMEOUT);
 

@@ -31,7 +31,7 @@ export const startWorkbookImport = async (
 
     const {
         responseData: {workbookId},
-    } = await gatewayApi.us._createWorkbook({
+    } = await gatewayApi.us.createWorkbook({
         ctx,
         headers: {},
         authArgs: {},
