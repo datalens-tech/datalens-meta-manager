@@ -1,4 +1,4 @@
-import {ImportModel, ImportStatus} from '../../../../../db/models';
+import {ImportStatus, WorkbookImportModel} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
 
 export type FinishImportErrorArgs = {
@@ -10,9 +10,9 @@ export const finishImportError = async (
     _: ActivitiesDeps,
     {importId}: FinishImportErrorArgs,
 ): Promise<void> => {
-    await ImportModel.query(ImportModel.primary)
+    await WorkbookImportModel.query(WorkbookImportModel.primary)
         .patch({
-            status: ImportStatus.Success,
+            status: ImportStatus.Error,
         })
         .where({
             importId,

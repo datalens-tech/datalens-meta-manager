@@ -2,7 +2,11 @@ import {ApplicationFailure} from '@temporalio/common';
 import {PartialModelObject, raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
-import {ExportModel, ExportModelColumn} from '../../../../../db/models';
+import {ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
+import {
+    WorkbookExportEntriesData,
+    WorkbookExportEntryNotifications,
+} from '../../../../../db/models/workbook-export/types';
 import {NotificationLevel} from '../../../../gateway/schema/bi/types';
 import type {ActivitiesDeps} from '../../../types';
 
@@ -31,17 +35,17 @@ export const exportConnection = async (
     );
 
     if (criticalNotifications.length > 0) {
-        await ExportModel.query(ExportModel.primary)
+        await WorkbookExportModel.query(WorkbookExportModel.primary)
             .patch({
-                error: raw(
+                errors: raw(
                     "jsonb_set(COALESCE(??, '{}'), '{criticalNotifications}', (COALESCE(??->'criticalNotifications', '[]') || ?))",
                     [
-                        ExportModelColumn.Error,
-                        ExportModelColumn.Error,
+                        ExportModelColumn.Errors,
+                        ExportModelColumn.Errors,
                         {
                             entryId: connectionId,
-                            notifications,
-                        },
+                            notifications: criticalNotifications,
+                        } satisfies WorkbookExportEntryNotifications,
                     ],
                 ),
             })
@@ -55,15 +59,13 @@ export const exportConnection = async (
         });
     }
 
-    const update: PartialModelObject<ExportModel> = {
+    const update: PartialModelObject<WorkbookExportModel> = {
         data: raw("jsonb_set(??, '{connections}', (COALESCE(??->'connections', '{}') || ?))", [
             ExportModelColumn.Data,
             ExportModelColumn.Data,
             {
-                [mockConnectionId]: {
-                    data: connection,
-                },
-            },
+                [mockConnectionId]: connection,
+            } satisfies WorkbookExportEntriesData,
         ]),
     };
 
@@ -76,12 +78,12 @@ export const exportConnection = async (
                 {
                     entryId: connectionId,
                     notifications,
-                },
+                } satisfies WorkbookExportEntryNotifications,
             ],
         );
     }
 
-    await ExportModel.query(ExportModel.primary).patch(update).where({
+    await WorkbookExportModel.query(WorkbookExportModel.primary).patch(update).where({
         exportId,
     });
 };

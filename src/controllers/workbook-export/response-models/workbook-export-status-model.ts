@@ -7,7 +7,7 @@ const schema = z
         exportId: z.string(),
         status: z.nativeEnum(ExportStatus),
         progress: z.number(),
-        error: z.record(z.string(), z.unknown()).nullable(),
+        errors: z.record(z.string(), z.unknown()).nullable(),
     })
     .describe('Workbook export status');
 
@@ -17,13 +17,13 @@ const format = ({
     exportId,
     status,
     progress,
-    error,
+    errors,
 }: GetWorkbookExportStatusResult): WorkbookExportStatusModel => {
     return {
         exportId,
         status,
         progress,
-        error,
+        errors,
     };
 };
 

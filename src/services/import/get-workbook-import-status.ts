@@ -3,7 +3,7 @@ import {AppError} from '@gravity-ui/nodekit';
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookImportProgress} from '../../components/temporal/workflows';
 import {TRANSFER_ERROR} from '../../constants';
-import {ImportModel, ImportModelColumn, ImportStatus} from '../../db/models';
+import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../db/models';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookImportStatusArgs = {
@@ -14,7 +14,7 @@ export type GetWorkbookImportStatusResult = {
     status: ImportStatus;
     importId: string;
     progress: number;
-    error: Record<string, unknown> | null;
+    errors: Record<string, unknown> | null;
 };
 
 export const getWorkbookImportStatus = async (
@@ -31,13 +31,13 @@ export const getWorkbookImportStatus = async (
     const handle = client.workflow.getHandle(importId);
     const progress = await handle.query(getWorkbookImportProgress);
 
-    const workbookImport = await ImportModel.query(ImportModel.replica)
-        .select([ImportModelColumn.ImportId, ImportModelColumn.Status, ImportModelColumn.Error])
+    const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.replica)
+        .select([ImportModelColumn.ImportId, ImportModelColumn.Status, ImportModelColumn.Errors])
         .where({
             [ImportModelColumn.ImportId]: importId,
         })
         .first()
-        .timeout(ImportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookImport) {
         throw new AppError(TRANSFER_ERROR.IMPORT_NOT_EXIST, {
@@ -51,6 +51,6 @@ export const getWorkbookImportStatus = async (
         importId: workbookImport.importId,
         status: workbookImport.status,
         progress,
-        error: workbookImport.error,
+        errors: workbookImport.errors,
     };
 };
