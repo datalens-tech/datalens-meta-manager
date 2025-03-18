@@ -48,6 +48,20 @@ export const importWorkbook = async ({
 
         await Promise.all(importConnectionPromises);
 
+        // TODO: enable when import dataset endpoint is fixed
+        // const importDatasetPromises = datasetIds.map(async (mockDatasetId) => {
+        //     await importDataset({
+        //         importId,
+        //         workbookId,
+        //         mockDatasetId,
+        //         idMapping: connectionIdMapping,
+        //     });
+
+        //     processedEntriesCount++;
+        // });
+
+        // await Promise.all(importDatasetPromises);
+
         await finishImportSuccess({importId});
     } catch (error) {
         await CancellationScope.nonCancellable(() => finishImportError({importId, error}));

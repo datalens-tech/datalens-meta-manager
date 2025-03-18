@@ -7,7 +7,7 @@ export type GetImportDataEntriesInfoArgs = {
     importId: string;
 };
 
-export type GetImportDataEntriesInfoResult = {
+type GetImportDataEntriesInfoResult = {
     connectionIds: string[];
     datasetIds: string[];
 };
