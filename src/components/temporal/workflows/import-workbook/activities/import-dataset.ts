@@ -7,53 +7,49 @@ import {WorkbookImportEntryNotifications} from '../../../../../db/models/workboo
 import {NotificationLevel} from '../../../../gateway/schema/bi/types';
 import type {ActivitiesDeps} from '../../../types';
 
-export type ImportConnectionArgs = {
+export type ImportDatasetArgs = {
     importId: string;
     workbookId: string;
-    mockConnectionId: string;
+    mockDatasetId: string;
+    idMapping: Record<string, string>;
 };
 
-type ImportConnectionResult = {
-    connectionId: string;
+type ImportDatasetResult = {
+    datasetId: string;
 };
 
-export const importConnection = async (
+export const importDataset = async (
     {ctx, gatewayApi}: ActivitiesDeps,
-    {importId, workbookId, mockConnectionId}: ImportConnectionArgs,
-): Promise<ImportConnectionResult> => {
+    {importId, workbookId, mockDatasetId, idMapping}: ImportDatasetArgs,
+): Promise<ImportDatasetResult> => {
     const result = (await WorkbookImportModel.query(WorkbookImportModel.primary)
-        .select(
-            raw('??->?->? as connection', [
-                ImportModelColumn.Data,
-                'connections',
-                mockConnectionId,
-            ]),
-        )
+        .select(raw('??->?->? as dataset', [ImportModelColumn.Data, 'datasets', mockDatasetId]))
         .first()
         .where({
             importId,
         })) as unknown as {
-        connection: unknown | null;
+        dataset: unknown | null;
     };
 
-    if (!result.connection) {
+    if (!result.dataset) {
         throw ApplicationFailure.create({
             nonRetryable: true,
-            message: `No connection data for id: ${mockConnectionId}.`,
+            message: `No Dataset data for id: ${mockDatasetId}.`,
         });
     }
 
     const {
-        responseData: {id: connectionId, notifications},
-    } = await gatewayApi.bi.importConnection({
+        responseData: {id: datasetId, notifications},
+    } = await gatewayApi.bi.importDataset({
         ctx,
         headers: {},
         authArgs: {},
         requestId: uuidv4(),
         args: {
+            idMapping,
             data: {
                 workbookId,
-                connection: result.connection,
+                dataset: result.dataset,
             },
         },
     });
@@ -76,7 +72,7 @@ export const importConnection = async (
 
         throw ApplicationFailure.create({
             nonRetryable: true,
-            message: `Got critical notification while importing connection: ${mockConnectionId}`,
+            message: `Got critical notification while importing dataset: ${mockDatasetId}`,
         });
     }
 
@@ -84,12 +80,12 @@ export const importConnection = async (
         await WorkbookImportModel.query(WorkbookImportModel.primary)
             .patch({
                 notifications: raw(
-                    "jsonb_set(COALESCE(??, '{}'), '{connections}', (COALESCE(??->'connections', '[]') || ?))",
+                    "jsonb_set(COALESCE(??, '{}'), '{datasets}', (COALESCE(??->'datasets', '[]') || ?))",
                     [
                         ImportModelColumn.Notifications,
                         ImportModelColumn.Notifications,
                         {
-                            entryId: connectionId,
+                            entryId: datasetId,
                             notifications,
                         } satisfies WorkbookImportEntryNotifications,
                     ],
@@ -100,5 +96,5 @@ export const importConnection = async (
             });
     }
 
-    return {connectionId};
+    return {datasetId};
 };

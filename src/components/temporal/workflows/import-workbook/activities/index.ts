@@ -7,6 +7,7 @@ import {
     getImportDataEntriesInfo,
 } from './get-import-data-entries-info';
 import {ImportConnectionArgs, importConnection} from './import-connection';
+import {ImportDatasetArgs, importDataset} from './import-dataset';
 
 export const createActivities = (deps: ActivitiesDeps) => ({
     async finishImportSuccess(args: FinishImportSuccessArgs) {
@@ -23,5 +24,9 @@ export const createActivities = (deps: ActivitiesDeps) => ({
 
     async importConnection(args: ImportConnectionArgs) {
         return importConnection(deps, args);
+    },
+
+    async importDataset(args: ImportDatasetArgs) {
+        return importDataset(deps, args);
     },
 });
