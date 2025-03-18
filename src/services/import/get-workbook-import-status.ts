@@ -1,11 +1,15 @@
 import {AppError} from '@gravity-ui/nodekit';
+import {raw} from 'objection';
 
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookImportProgress} from '../../components/temporal/workflows';
 import {checkWorkbookUpdateAccessBindingsPermission} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../db/models';
-import {WorkbookImportErrors} from '../../db/models/workbook-import/types';
+import {
+    WorkbookImportErrors,
+    WorkbookImportNotifications,
+} from '../../db/models/workbook-import/types';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookImportStatusArgs = {
@@ -17,6 +21,7 @@ export type GetWorkbookImportStatusResult = {
     importId: string;
     progress: number;
     errors: WorkbookImportErrors | null;
+    notifications: WorkbookImportNotifications | null;
 };
 
 export const getWorkbookImportStatus = async (
@@ -37,8 +42,21 @@ export const getWorkbookImportStatus = async (
         .select([
             ImportModelColumn.ImportId,
             ImportModelColumn.Status,
-            ImportModelColumn.Errors,
             ImportModelColumn.Meta,
+            // select errors column only if status is error
+            raw(`CASE WHEN ?? = ? THEN ?? ELSE NULL END AS ??`, [
+                ImportModelColumn.Status,
+                ImportStatus.Error,
+                ImportModelColumn.Errors,
+                ImportModelColumn.Errors,
+            ]),
+            // select notifications column only if status is success
+            raw(`CASE WHEN ?? = ? THEN ?? ELSE NULL END AS ??`, [
+                ImportModelColumn.Status,
+                ImportStatus.Success,
+                ImportModelColumn.Notifications,
+                ImportModelColumn.Notifications,
+            ]),
         ])
         .where({
             [ImportModelColumn.ImportId]: importId,
@@ -61,7 +79,8 @@ export const getWorkbookImportStatus = async (
     return {
         importId: workbookImport.importId,
         status: workbookImport.status,
-        progress,
         errors: workbookImport.errors,
+        notifications: workbookImport.notifications,
+        progress,
     };
 };

@@ -1,7 +1,7 @@
 import {z} from '../../../components/zod';
 import {ImportStatus} from '../../../db/models';
 import {GetWorkbookImportStatusResult} from '../../../services/import';
-import {notificationSchema} from '../../schemas/notification';
+import {entryNotificationSchema, notificationSchema} from '../../schemas/notification';
 
 const schema = z
     .object({
@@ -13,6 +13,12 @@ const schema = z
                 criticalNotifications: z.array(notificationSchema).optional(),
             })
             .nullable(),
+        notifications: z
+            .object({
+                connections: z.array(entryNotificationSchema).optional(),
+                datasets: z.array(entryNotificationSchema).optional(),
+            })
+            .nullable(),
     })
     .describe('Workbook import status');
 
@@ -21,14 +27,16 @@ type WorkbookImportStatusModel = z.infer<typeof schema>;
 const format = ({
     importId,
     status,
-    progress,
     errors,
+    notifications,
+    progress,
 }: GetWorkbookImportStatusResult): WorkbookImportStatusModel => {
     return {
         importId,
         status,
-        progress,
         errors,
+        notifications,
+        progress,
     };
 };
 

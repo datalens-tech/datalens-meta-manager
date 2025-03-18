@@ -1,11 +1,15 @@
 import {AppError} from '@gravity-ui/nodekit';
+import {raw} from 'objection';
 
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookExportProgress} from '../../components/temporal/workflows';
 import {checkWorkbookUpdateAccessBindingsPermission} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
-import {WorkbookExportErrors} from '../../db/models/workbook-export/types';
+import {
+    WorkbookExportErrors,
+    WorkbookExportNotifications,
+} from '../../db/models/workbook-export/types';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookExportStatusArgs = {
@@ -17,6 +21,7 @@ export type GetWorkbookExportStatusResult = {
     exportId: string;
     progress: number;
     errors: WorkbookExportErrors | null;
+    notifications: WorkbookExportNotifications | null;
 };
 
 export const getWorkbookExportStatus = async (
@@ -36,8 +41,21 @@ export const getWorkbookExportStatus = async (
         .select([
             ExportModelColumn.ExportId,
             ExportModelColumn.Status,
-            ExportModelColumn.Errors,
             ExportModelColumn.Meta,
+            // select errors column only if status is error
+            raw(`CASE WHEN ?? = ? THEN ?? ELSE NULL END AS ??`, [
+                ExportModelColumn.Status,
+                ExportStatus.Error,
+                ExportModelColumn.Errors,
+                ExportModelColumn.Errors,
+            ]),
+            // select notifications column only if status is success
+            raw(`CASE WHEN ?? = ? THEN ?? ELSE NULL END AS ??`, [
+                ExportModelColumn.Status,
+                ExportStatus.Success,
+                ExportModelColumn.Notifications,
+                ExportModelColumn.Notifications,
+            ]),
         ])
         .where({
             [ExportModelColumn.ExportId]: exportId,
@@ -65,7 +83,8 @@ export const getWorkbookExportStatus = async (
     return {
         exportId: workbookExport.exportId,
         status: workbookExport.status,
-        progress,
         errors: workbookExport.errors,
+        notifications: workbookExport.notifications,
+        progress,
     };
 };
