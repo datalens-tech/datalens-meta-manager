@@ -13,6 +13,12 @@ const schema = z
                 criticalNotifications: z.array(entryNotificationSchema).optional(),
             })
             .nullable(),
+        notifications: z
+            .object({
+                connections: z.array(entryNotificationSchema).optional(),
+                datasets: z.array(entryNotificationSchema).optional(),
+            })
+            .nullable(),
     })
     .describe('Workbook export status');
 
@@ -23,12 +29,14 @@ const format = ({
     status,
     progress,
     errors,
+    notifications,
 }: GetWorkbookExportStatusResult): WorkbookExportStatusModel => {
     return {
         exportId,
         status,
-        progress,
         errors,
+        notifications,
+        progress,
     };
 };
 
