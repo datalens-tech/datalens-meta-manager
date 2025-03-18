@@ -1,1 +1,1 @@
-export * from './check-workbook-update-permission';
+export * from './check-workbook-update-access-bindings-permission';

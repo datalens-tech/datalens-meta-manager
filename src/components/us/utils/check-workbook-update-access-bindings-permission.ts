@@ -4,7 +4,7 @@ import {v4 as uuidv4} from 'uuid';
 import {TRANSFER_ERROR} from '../../../constants';
 import {registry} from '../../../registry';
 
-export const checkWorkbookUpdatePermission = async ({
+export const checkWorkbookUpdateAccessBindingsPermission = async ({
     ctx,
     workbookId,
 }: {
@@ -22,9 +22,12 @@ export const checkWorkbookUpdatePermission = async ({
         args: {workbookId, includePermissionsInfo: true},
     });
 
-    if (!permissions?.update) {
-        throw new AppError('The user must have update permissions to perform this action.', {
-            code: TRANSFER_ERROR.WORKBOOK_OPERATION_FORBIDDEN,
-        });
+    if (!permissions?.updateAccessBindings) {
+        throw new AppError(
+            'The user does not have sufficient permissions to perform this action.',
+            {
+                code: TRANSFER_ERROR.WORKBOOK_OPERATION_FORBIDDEN,
+            },
+        );
     }
 };
