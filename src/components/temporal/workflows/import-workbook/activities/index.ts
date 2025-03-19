@@ -1,5 +1,6 @@
 import type {ActivitiesDeps} from '../../../types';
 
+import {DeleteWorkbookArgs, deleteWorkbook} from './delete-workbook';
 import {FinishImportErrorArgs, finishImportError} from './finish-import-error';
 import {FinishImportSuccessArgs, finishImportSuccess} from './finish-import-success';
 import {
@@ -28,5 +29,9 @@ export const createActivities = (deps: ActivitiesDeps) => ({
 
     async importDataset(args: ImportDatasetArgs) {
         return importDataset(deps, args);
+    },
+
+    async deleteWorkbook(args: DeleteWorkbookArgs) {
+        return deleteWorkbook(deps, args);
     },
 });

@@ -4,6 +4,8 @@ import {createAction} from '../utils';
 import {
     CreateWorkbookParams,
     CreateWorkbookResponse,
+    DeleteWorkbookParams,
+    DeleteWorkbookResponse,
     GetWorkbookContentParams,
     GetWorkbookContentResponse,
     GetWorkbookParams,
@@ -47,6 +49,17 @@ export const actions = {
             },
             query: {
                 page,
+            },
+        }),
+    }),
+
+    _deleteWorkbook: createAction<DeleteWorkbookResponse, DeleteWorkbookParams>({
+        method: 'DELETE',
+        path: ({workbookId}) => `/private/v2/workbooks/${workbookId}`,
+        params: (params, headers, {ctx}) => ({
+            headers: {
+                ...headers,
+                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
             },
         }),
     }),
