@@ -6,11 +6,13 @@ import {Feature, isEnabledFeature} from '../components/features';
 import healthcheck from '../controllers/healthcheck';
 import {homeController} from '../controllers/home';
 import {
+    cancelWorkbookExportController,
     getWorkbookExportController,
     getWorkbookExportStatusController,
     startWorkbookExportController,
 } from '../controllers/workbook-export';
 import {
+    cancelWorkbookImportController,
     getWorkbookImportStatusController,
     startWorkbookImportController,
 } from '../controllers/workbook-import';
@@ -77,6 +79,10 @@ export const getRoutes = (nodekit: NodeKit, options: GetRoutesOptions) => {
             route: 'GET /workbooks/export/:exportId/status',
             handler: getWorkbookExportStatusController,
         }),
+        cancelWorkbookExport: makeRoute({
+            route: 'POST /workbooks/export/:exportId/cancel',
+            handler: cancelWorkbookExportController,
+        }),
 
         startWorkbookImport: makeRoute({
             route: 'POST /workbooks/import',
@@ -85,6 +91,10 @@ export const getRoutes = (nodekit: NodeKit, options: GetRoutesOptions) => {
         getWorkbookImportStatus: makeRoute({
             route: 'GET /workbooks/import/:importId/status',
             handler: getWorkbookImportStatusController,
+        }),
+        cancelWorkbookImport: makeRoute({
+            route: 'POST /workbooks/import/:importId/cancel',
+            handler: cancelWorkbookImportController,
         }),
     } satisfies Record<string, ExtendedAppRouteDescription>;
 
