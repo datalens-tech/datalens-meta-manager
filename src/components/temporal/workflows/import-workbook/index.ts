@@ -9,17 +9,22 @@ export const importWorkbook = async ({
     importId,
     workbookId,
 }: ImportWorkbookArgs): Promise<ImportWorkbookResult> => {
-    const {finishImportSuccess, finishImportError, getImportDataEntriesInfo, importConnection} =
-        proxyActivities<ReturnType<typeof createActivities>>({
-            // TODO: check config values
-            retry: {
-                initialInterval: '1 sec',
-                maximumInterval: '4 sec',
-                backoffCoefficient: 2,
-                maximumAttempts: 1,
-            },
-            startToCloseTimeout: '1 min',
-        });
+    const {
+        finishImportSuccess,
+        finishImportError,
+        getImportDataEntriesInfo,
+        importConnection,
+        deleteWorkbook,
+    } = proxyActivities<ReturnType<typeof createActivities>>({
+        // TODO: check config values
+        retry: {
+            initialInterval: '1 sec',
+            maximumInterval: '4 sec',
+            backoffCoefficient: 2,
+            maximumAttempts: 1,
+        },
+        startToCloseTimeout: '1 min',
+    });
 
     let entriesCount = 0;
     let processedEntriesCount = 0;
@@ -64,7 +69,9 @@ export const importWorkbook = async ({
 
         await finishImportSuccess({importId});
     } catch (error) {
-        await CancellationScope.nonCancellable(() => finishImportError({importId, error}));
+        await CancellationScope.nonCancellable(async () => {
+            await Promise.all([deleteWorkbook({workbookId}), finishImportError({importId, error})]);
+        });
 
         throw error;
     }
