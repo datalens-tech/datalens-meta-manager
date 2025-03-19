@@ -2,14 +2,18 @@ import {AppError} from '@gravity-ui/nodekit';
 
 import {checkWorkbookUpdateAccessBindingsPermission} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
-import {ExportModelColumn, WorkbookExportModel} from '../../db/models';
+import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookExportArgs = {
     exportId: string;
 };
 
-export type GetWorkbookExportResult = WorkbookExportModel;
+export type GetWorkbookExportResult = {
+    exportId: string;
+    status: ExportStatus;
+    data: string;
+};
 
 export const getWorkbookExport = async (
     {ctx}: ServiceArgs,
@@ -39,7 +43,13 @@ export const getWorkbookExport = async (
 
     await checkWorkbookUpdateAccessBindingsPermission({ctx, workbookId: sourceWorkbookId});
 
+    const resultData = JSON.stringify(workbookExport.data);
+
     ctx.log('GET_WORKBOOK_EXPORT_FINISH');
 
-    return workbookExport;
+    return {
+        exportId: workbookExport.exportId,
+        status: workbookExport.status,
+        data: resultData,
+    };
 };
