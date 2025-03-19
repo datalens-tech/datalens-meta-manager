@@ -1,10 +1,4 @@
-import {
-    CancellationScope,
-    defineQuery,
-    proxyActivities,
-    setHandler,
-    sleep,
-} from '@temporalio/workflow';
+import {CancellationScope, defineQuery, proxyActivities, setHandler} from '@temporalio/workflow';
 
 import type {createActivities} from './activities';
 import type {ImportWorkbookArgs, ImportWorkbookResult} from './types';
@@ -58,8 +52,6 @@ export const importWorkbook = async ({
         });
 
         await Promise.all(importConnectionPromises);
-
-        await sleep(400000);
 
         // TODO: enable when import dataset endpoint is fixed
         // const importDatasetPromises = datasetIds.map(async (mockDatasetId) => {
