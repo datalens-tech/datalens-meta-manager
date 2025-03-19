@@ -22,6 +22,7 @@ export type GetWorkbookImportStatusResult = {
     progress: number;
     errors: WorkbookImportErrors | null;
     notifications: WorkbookImportNotifications | null;
+    workbookId: string;
 };
 
 export const getWorkbookImportStatus = async (
@@ -82,5 +83,6 @@ export const getWorkbookImportStatus = async (
         errors: workbookImport.errors,
         notifications: workbookImport.notifications,
         progress,
+        workbookId,
     };
 };

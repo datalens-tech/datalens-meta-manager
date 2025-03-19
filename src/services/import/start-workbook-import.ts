@@ -14,10 +14,15 @@ type StartWorkbookImportArgs = {
     collectionId?: string;
 };
 
+export type StartWorkbookImportResult = {
+    workbookImport: WorkbookImportModel;
+    workbookId: string;
+};
+
 export const startWorkbookImport = async (
     {ctx}: ServiceArgs,
     args: StartWorkbookImportArgs,
-): Promise<WorkbookImportModel> => {
+): Promise<StartWorkbookImportResult> => {
     const {data, title, description, collectionId} = args;
 
     ctx.log('START_WORKBOOK_IMPORT_START', {
@@ -60,5 +65,5 @@ export const startWorkbookImport = async (
         workbookId,
     });
 
-    return result;
+    return {workbookImport: result, workbookId};
 };

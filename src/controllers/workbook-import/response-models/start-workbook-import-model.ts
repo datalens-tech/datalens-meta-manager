@@ -1,17 +1,22 @@
 import {z} from '../../../components/zod';
-import {WorkbookImportModel} from '../../../db/models';
+import type {StartWorkbookImportResult} from '../../../services/import';
 
 const schema = z
     .object({
         importId: z.string(),
+        workbookId: z.string(),
     })
     .describe('Start workbook import result');
 
 type StartWorkbookImportModel = z.infer<typeof schema>;
 
-const format = (workbookImport: WorkbookImportModel): StartWorkbookImportModel => {
+const format = ({
+    workbookImport,
+    workbookId,
+}: StartWorkbookImportResult): StartWorkbookImportModel => {
     return {
         importId: workbookImport.importId,
+        workbookId,
     };
 };
 
