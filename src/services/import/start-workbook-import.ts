@@ -15,7 +15,7 @@ type StartWorkbookImportArgs = {
 };
 
 export type StartWorkbookImportResult = {
-    workbookImport: WorkbookImportModel;
+    importId: string;
     workbookId: string;
 };
 
@@ -65,5 +65,5 @@ export const startWorkbookImport = async (
         workbookId,
     });
 
-    return {workbookImport: result, workbookId};
+    return {importId: result.importId, workbookId};
 };

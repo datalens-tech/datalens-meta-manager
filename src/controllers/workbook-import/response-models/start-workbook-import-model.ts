@@ -10,12 +10,9 @@ const schema = z
 
 type StartWorkbookImportModel = z.infer<typeof schema>;
 
-const format = ({
-    workbookImport,
-    workbookId,
-}: StartWorkbookImportResult): StartWorkbookImportModel => {
+const format = ({importId, workbookId}: StartWorkbookImportResult): StartWorkbookImportModel => {
     return {
-        importId: workbookImport.importId,
+        importId,
         workbookId,
     };
 };
