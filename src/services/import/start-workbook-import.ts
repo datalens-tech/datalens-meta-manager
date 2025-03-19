@@ -8,8 +8,7 @@ import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 
 type StartWorkbookImportArgs = {
-    // TODO: fix data type
-    data: any;
+    data: string;
     title: string;
     description?: string;
     collectionId?: string;
@@ -47,7 +46,7 @@ export const startWorkbookImport = async (
             createdBy: user?.userId ?? '',
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_IMPORT_EXPIRATION_DAYS]),
             meta: {workbookId},
-            data,
+            data: JSON.parse(data),
         })
         .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
 
