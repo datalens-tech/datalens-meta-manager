@@ -6,6 +6,7 @@ import {entryNotificationSchema, notificationSchema} from '../../schemas/notific
 const schema = z
     .object({
         importId: z.string(),
+        workbookId: z.string(),
         status: z.nativeEnum(ImportStatus),
         progress: z.number(),
         errors: z
@@ -26,6 +27,7 @@ type WorkbookImportStatusModel = z.infer<typeof schema>;
 
 const format = ({
     importId,
+    workbookId,
     status,
     errors,
     notifications,
@@ -33,6 +35,7 @@ const format = ({
 }: GetWorkbookImportStatusResult): WorkbookImportStatusModel => {
     return {
         importId,
+        workbookId,
         status,
         errors,
         notifications,
