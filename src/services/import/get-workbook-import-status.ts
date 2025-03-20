@@ -3,13 +3,10 @@ import {raw} from 'objection';
 
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookImportProgress} from '../../components/temporal/workflows';
-import {checkWorkbookUpdateAccessBindingsPermission} from '../../components/us/utils';
+import {checkWorkbookAccessById} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../db/models';
-import {
-    WorkbookImportErrors,
-    WorkbookImportNotifications,
-} from '../../db/models/workbook-import/types';
+import {WorkbookImportNotifications} from '../../db/models/workbook-import/types';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookImportStatusArgs = {
@@ -20,7 +17,6 @@ export type GetWorkbookImportStatusResult = {
     status: ImportStatus;
     importId: string;
     progress: number;
-    errors: WorkbookImportErrors | null;
     notifications: WorkbookImportNotifications | null;
     workbookId: string;
 };
@@ -44,17 +40,12 @@ export const getWorkbookImportStatus = async (
             ImportModelColumn.ImportId,
             ImportModelColumn.Status,
             ImportModelColumn.Meta,
-            // select errors column only if status is error
-            raw(`CASE WHEN ?? = ? THEN ?? ELSE NULL END AS ??`, [
-                ImportModelColumn.Status,
-                ImportStatus.Error,
-                ImportModelColumn.Errors,
-                ImportModelColumn.Errors,
-            ]),
             // select notifications column only if status is success
-            raw(`CASE WHEN ?? = ? THEN ?? ELSE NULL END AS ??`, [
+            raw(`CASE WHEN ?? = ? OR ?? = ? THEN ?? ELSE NULL END AS ??`, [
                 ImportModelColumn.Status,
                 ImportStatus.Success,
+                ImportModelColumn.Status,
+                ImportStatus.Error,
                 ImportModelColumn.Notifications,
                 ImportModelColumn.Notifications,
             ]),
@@ -73,14 +64,13 @@ export const getWorkbookImportStatus = async (
 
     const {workbookId} = workbookImport.meta;
 
-    await checkWorkbookUpdateAccessBindingsPermission({ctx, workbookId});
+    await checkWorkbookAccessById({ctx, workbookId});
 
     ctx.log('GET_WORKBOOK_IMPORT_STATUS_FINISH');
 
     return {
         importId: workbookImport.importId,
         status: workbookImport.status,
-        errors: workbookImport.errors,
         notifications: workbookImport.notifications,
         progress,
         workbookId,

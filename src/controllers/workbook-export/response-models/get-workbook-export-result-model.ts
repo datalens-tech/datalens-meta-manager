@@ -5,14 +5,14 @@ import {GetWorkbookExportResult} from '../../../services/export';
 const schema = z
     .object({
         exportId: z.string(),
-        data: z.string(),
+        data: z.record(z.string(), z.unknown()),
         status: z.nativeEnum(ExportStatus),
     })
     .describe('Get workbook export result');
 
-type WorkbookExportResponseModel = z.infer<typeof schema>;
+type WorkbookExportResultModel = z.infer<typeof schema>;
 
-const format = (workbookExport: GetWorkbookExportResult): WorkbookExportResponseModel => {
+const format = (workbookExport: GetWorkbookExportResult): WorkbookExportResultModel => {
     return {
         exportId: workbookExport.exportId,
         status: workbookExport.status,
@@ -20,7 +20,7 @@ const format = (workbookExport: GetWorkbookExportResult): WorkbookExportResponse
     };
 };
 
-export const getWorkbookExportModel = {
+export const getWorkbookExportResultModel = {
     schema,
     format,
 };

@@ -5,7 +5,9 @@ import {v4 as uuidv4} from 'uuid';
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
 import {NotificationLevel} from '../../../../gateway/schema/bi/types';
+import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
+import {APPLICATION_FAILURE_TYPE} from '../constants';
 
 export type ImportDatasetArgs = {
     importId: string;
@@ -54,46 +56,33 @@ export const importDataset = async (
         },
     });
 
-    const criticalNotifications = notifications.filter(
-        ({level}) => level === NotificationLevel.Critical,
-    );
-
-    if (criticalNotifications.length > 0) {
-        await WorkbookImportModel.query(WorkbookImportModel.primary)
-            .patch({
-                errors: raw(
-                    "jsonb_set(COALESCE(??, '{}'), '{criticalNotifications}', (COALESCE(??->'criticalNotifications', '[]') || ?))",
-                    [ImportModelColumn.Errors, ImportModelColumn.Errors, criticalNotifications],
-                ),
-            })
-            .where({
-                importId,
-            });
-
-        throw ApplicationFailure.create({
-            nonRetryable: true,
-            message: `Got critical notification while importing dataset: ${mockDatasetId}`,
-        });
-    }
-
     if (notifications.length > 0) {
         await WorkbookImportModel.query(WorkbookImportModel.primary)
             .patch({
-                notifications: raw(
-                    "jsonb_set(COALESCE(??, '{}'), '{datasets}', (COALESCE(??->'datasets', '[]') || ?))",
-                    [
-                        ImportModelColumn.Notifications,
-                        ImportModelColumn.Notifications,
-                        {
-                            entryId: datasetId,
-                            notifications,
-                        } satisfies WorkbookImportEntryNotifications,
-                    ],
-                ),
+                notifications: raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
+                    ImportModelColumn.Notifications,
+                    {
+                        entryId: datasetId,
+                        scope: EntryScope.Dataset,
+                        notifications,
+                    } satisfies WorkbookImportEntryNotifications,
+                ]),
             })
             .where({
                 importId,
             });
+
+        const criticalNotifications = notifications.filter(
+            ({level}) => level === NotificationLevel.Critical,
+        );
+
+        if (criticalNotifications.length > 0) {
+            throw ApplicationFailure.create({
+                nonRetryable: true,
+                message: `Got critical notification while importing dataset: ${mockDatasetId}`,
+                type: APPLICATION_FAILURE_TYPE.GOT_CRITICAL_NOTIFICATION,
+            });
+        }
     }
 
     return {datasetId};

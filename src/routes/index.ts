@@ -7,7 +7,7 @@ import healthcheck from '../controllers/healthcheck';
 import {homeController} from '../controllers/home';
 import {
     cancelWorkbookExportController,
-    getWorkbookExportController,
+    getWorkbookExportResultController,
     getWorkbookExportStatusController,
     startWorkbookExportController,
 } from '../controllers/workbook-export';
@@ -71,13 +71,13 @@ export const getRoutes = (nodekit: NodeKit, options: GetRoutesOptions) => {
             route: 'POST /workbooks/export',
             handler: startWorkbookExportController,
         }),
-        getWorkbookExport: makeRoute({
-            route: 'GET /workbooks/export/:exportId',
-            handler: getWorkbookExportController,
-        }),
         getWorkbookExportStatus: makeRoute({
-            route: 'GET /workbooks/export/:exportId/status',
+            route: 'GET /workbooks/export/:exportId',
             handler: getWorkbookExportStatusController,
+        }),
+        getWorkbookExportResult: makeRoute({
+            route: 'GET /workbooks/export/:exportId/result',
+            handler: getWorkbookExportResultController,
         }),
         cancelWorkbookExport: makeRoute({
             route: 'POST /workbooks/export/:exportId/cancel',
@@ -89,7 +89,7 @@ export const getRoutes = (nodekit: NodeKit, options: GetRoutesOptions) => {
             handler: startWorkbookImportController,
         }),
         getWorkbookImportStatus: makeRoute({
-            route: 'GET /workbooks/import/:importId/status',
+            route: 'GET /workbooks/import/:importId',
             handler: getWorkbookImportStatusController,
         }),
         cancelWorkbookImport: makeRoute({

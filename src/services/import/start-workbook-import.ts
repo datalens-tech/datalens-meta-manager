@@ -4,11 +4,12 @@ import {v4 as uuidv4} from 'uuid';
 import {startImportWorkbookWorkflow} from '../../components/temporal/client';
 import {WORKBOOK_IMPORT_EXPIRATION_DAYS} from '../../constants';
 import {WorkbookImportModel} from '../../db/models';
+import {WorkbookExportData} from '../../db/models/workbook-export/types';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 
 type StartWorkbookImportArgs = {
-    data: string;
+    data: WorkbookExportData;
     title: string;
     description?: string;
     collectionId?: string;
@@ -51,7 +52,7 @@ export const startWorkbookImport = async (
             createdBy: user?.userId ?? '',
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_IMPORT_EXPIRATION_DAYS]),
             meta: {workbookId},
-            data: JSON.parse(data),
+            data,
         })
         .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
 

@@ -1,7 +1,7 @@
 import {z} from '../../../components/zod';
 import {ImportStatus} from '../../../db/models';
 import {GetWorkbookImportStatusResult} from '../../../services/import';
-import {entryNotificationSchema, notificationSchema} from '../../schemas/notification';
+import {entryNotificationSchema} from '../../schemas/notification';
 
 const schema = z
     .object({
@@ -9,17 +9,7 @@ const schema = z
         workbookId: z.string(),
         status: z.nativeEnum(ImportStatus),
         progress: z.number(),
-        errors: z
-            .object({
-                criticalNotifications: z.array(notificationSchema).optional(),
-            })
-            .nullable(),
-        notifications: z
-            .object({
-                connections: z.array(entryNotificationSchema).optional(),
-                datasets: z.array(entryNotificationSchema).optional(),
-            })
-            .nullable(),
+        notifications: z.array(entryNotificationSchema).nullable().optional(),
     })
     .describe('Workbook import status');
 
@@ -29,7 +19,6 @@ const format = ({
     importId,
     workbookId,
     status,
-    errors,
     notifications,
     progress,
 }: GetWorkbookImportStatusResult): WorkbookImportStatusModel => {
@@ -37,8 +26,15 @@ const format = ({
         importId,
         workbookId,
         status,
-        errors,
-        notifications,
+        notifications: notifications?.flatMap((entry) =>
+            entry.notifications.map((notification) => ({
+                entryId: entry.entryId,
+                scope: entry.scope,
+                code: notification.code,
+                message: notification.message,
+                level: notification.level,
+            })),
+        ),
         progress,
     };
 };

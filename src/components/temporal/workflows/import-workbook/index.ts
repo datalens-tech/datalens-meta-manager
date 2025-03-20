@@ -1,4 +1,12 @@
-import {CancellationScope, defineQuery, proxyActivities, setHandler} from '@temporalio/workflow';
+import {
+    ActivityFailure,
+    ApplicationFailure,
+    CancellationScope,
+    defineQuery,
+    proxyActivities,
+    setHandler,
+    sleep,
+} from '@temporalio/workflow';
 
 import type {createActivities} from './activities';
 import type {ImportWorkbookArgs, ImportWorkbookResult} from './types';
@@ -69,8 +77,18 @@ export const importWorkbook = async ({
 
         await finishImportSuccess({importId});
     } catch (error) {
+        let failureType: string | undefined;
+
+        if (error instanceof ActivityFailure && error.cause instanceof ApplicationFailure) {
+            failureType = error.cause.type || undefined;
+        }
+
         await CancellationScope.nonCancellable(async () => {
-            await Promise.all([deleteWorkbook({workbookId}), finishImportError({importId, error})]);
+            await finishImportError({importId, failureType});
+
+            await sleep(60 * 1000 * 5);
+
+            await deleteWorkbook({workbookId});
         });
 
         throw error;

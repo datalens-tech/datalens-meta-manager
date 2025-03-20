@@ -2,6 +2,7 @@ import {raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
 import {startExportWorkbookWorkflow} from '../../components/temporal/client';
+import {checkWorkbookAccessByPermissions} from '../../components/us/utils';
 import {WORKBOOK_EXPORT_DATA_VERSION, WORKBOOK_EXPORT_EXPIRATION_DAYS} from '../../constants';
 import {WorkbookExportModel} from '../../db/models';
 import {registry} from '../../registry';
@@ -29,6 +30,8 @@ export const startWorkbookExport = async (
         requestId: ctx.get('requestId') ?? uuidv4(),
         args: {workbookId, includePermissionsInfo: true},
     });
+
+    checkWorkbookAccessByPermissions({permissions: responseData.permissions});
 
     const user = ctx.get('user');
 

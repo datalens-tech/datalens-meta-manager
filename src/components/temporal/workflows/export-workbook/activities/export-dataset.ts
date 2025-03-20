@@ -8,7 +8,9 @@ import type {
     WorkbookExportEntryNotifications,
 } from '../../../../../db/models/workbook-export/types';
 import {NotificationLevel} from '../../../../gateway/schema/bi/types';
+import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
+import {APPLICATION_FAILURE_TYPE} from '../constants';
 
 export type ExportDatasetArgs = {
     exportId: string;
@@ -31,63 +33,40 @@ export const exportDataset = async (
         args: {datasetId, idMapping},
     });
 
-    const criticalNotifications = notifications.filter(
-        ({level}) => level === NotificationLevel.Critical,
-    );
-
-    if (criticalNotifications.length > 0) {
-        await WorkbookExportModel.query(WorkbookExportModel.primary)
-            .patch({
-                errors: raw(
-                    "jsonb_set(COALESCE(??, '{}'), '{criticalNotifications}', (COALESCE(??->'criticalNotifications', '[]') || ?))",
-                    [
-                        ExportModelColumn.Errors,
-                        ExportModelColumn.Errors,
-                        {
-                            entryId: datasetId,
-                            notifications: criticalNotifications,
-                        } satisfies WorkbookExportEntryNotifications,
-                    ],
-                ),
-            })
-            .where({
-                exportId,
-            });
-
-        throw ApplicationFailure.create({
-            nonRetryable: true,
-            message: `Got critical notification while exporting dataset: ${datasetId}`,
-        });
-    }
-
     const update: PartialModelObject<WorkbookExportModel> = {
-        data: raw(
-            "jsonb_set(??, '{datasets}', (COALESCE(??->'datasets', '{}'::jsonb) || ?::jsonb))",
-            [
-                ExportModelColumn.Data,
-                ExportModelColumn.Data,
-                {
-                    [mockDatasetId]: dataset,
-                } satisfies WorkbookExportEntriesData,
-            ],
-        ),
+        data: raw("jsonb_set(??, '{datasets}', (COALESCE(??->'datasets', '{}') || ?))", [
+            ExportModelColumn.Data,
+            ExportModelColumn.Data,
+            {
+                [mockDatasetId]: dataset,
+            } satisfies WorkbookExportEntriesData,
+        ]),
     };
 
     if (notifications.length > 0) {
-        update.notifications = raw(
-            "jsonb_set(COALESCE(??, '{}'), '{datasets}', (COALESCE(??->'datasets', '[]') || ?))",
-            [
-                ExportModelColumn.Notifications,
-                ExportModelColumn.Notifications,
-                {
-                    entryId: datasetId,
-                    notifications,
-                } satisfies WorkbookExportEntryNotifications,
-            ],
-        );
+        update.notifications = raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
+            ExportModelColumn.Notifications,
+            {
+                entryId: datasetId,
+                scope: EntryScope.Dataset,
+                notifications,
+            } satisfies WorkbookExportEntryNotifications,
+        ]);
     }
 
     await WorkbookExportModel.query(WorkbookExportModel.primary).patch(update).where({
         exportId,
     });
+
+    const criticalNotifications = notifications.filter(
+        ({level}) => level === NotificationLevel.Critical,
+    );
+
+    if (criticalNotifications.length > 0) {
+        throw ApplicationFailure.create({
+            nonRetryable: true,
+            message: `Got critical notification while exporting dataset: ${datasetId}`,
+            type: APPLICATION_FAILURE_TYPE.GOT_CRITICAL_NOTIFICATION,
+        });
+    }
 };
