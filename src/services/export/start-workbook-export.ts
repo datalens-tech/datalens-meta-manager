@@ -1,5 +1,4 @@
 import {raw} from 'objection';
-import {v4 as uuidv4} from 'uuid';
 
 import {startExportWorkbookWorkflow} from '../../components/temporal/client';
 import {checkWorkbookAccessByPermissions} from '../../components/us/utils';
@@ -7,6 +6,7 @@ import {WORKBOOK_EXPORT_DATA_VERSION, WORKBOOK_EXPORT_EXPIRATION_DAYS} from '../
 import {WorkbookExportModel} from '../../db/models';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
+import {getCtxRequestIdWithFallback} from '../../utils/ctx';
 
 type StartWorkbookExportArgs = {
     workbookId: string;
@@ -27,7 +27,7 @@ export const startWorkbookExport = async (
     const {responseData} = await gatewayApi.us.getWorkbook({
         ctx,
         headers: {},
-        requestId: ctx.get('requestId') ?? uuidv4(),
+        requestId: getCtxRequestIdWithFallback(ctx),
         args: {workbookId, includePermissionsInfo: true},
     });
 

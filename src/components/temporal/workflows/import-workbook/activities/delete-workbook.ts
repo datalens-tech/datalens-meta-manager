@@ -1,5 +1,4 @@
-import {v4 as uuidv4} from 'uuid';
-
+import {getCtxRequestIdWithFallback} from '../../../../../utils/ctx';
 import type {ActivitiesDeps} from '../../../types';
 
 export type DeleteWorkbookArgs = {
@@ -14,7 +13,7 @@ export const deleteWorkbook = async (
         ctx,
         headers: {},
         authArgs: {},
-        requestId: uuidv4(),
+        requestId: getCtxRequestIdWithFallback(ctx),
         args: {
             workbookId,
         },

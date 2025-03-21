@@ -1,6 +1,5 @@
 import {AppError} from '@gravity-ui/nodekit';
 import {raw} from 'objection';
-import {v4 as uuidv4} from 'uuid';
 
 import {startImportWorkbookWorkflow} from '../../components/temporal/client';
 import {
@@ -12,6 +11,7 @@ import {WorkbookImportModel} from '../../db/models';
 import {WorkbookExportData} from '../../db/models/workbook-export/types';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
+import {getCtxRequestIdWithFallback} from '../../utils/ctx';
 
 type StartWorkbookImportArgs = {
     data: WorkbookExportData;
@@ -51,7 +51,7 @@ export const startWorkbookImport = async (
         ctx,
         headers: {},
         authArgs: {},
-        requestId: uuidv4(),
+        requestId: getCtxRequestIdWithFallback(ctx),
         // TODO: create workbook in pending status, add importId to workbook meta
         args: {title, description, collectionId},
     });
