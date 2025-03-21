@@ -91,6 +91,17 @@ export const prepareErrorResponse = (
                 };
             }
 
+            case TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED: {
+                return {
+                    code: 422,
+                    response: {
+                        code: TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED,
+                        message:
+                            'The provided export data version is outdated. Please export the data again.',
+                    },
+                };
+            }
+
             case TRANSFER_ERROR.WORKBOOK_OPERATION_FORBIDDEN: {
                 return {
                     code: 403,
