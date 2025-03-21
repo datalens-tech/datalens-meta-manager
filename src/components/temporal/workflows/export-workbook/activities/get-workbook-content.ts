@@ -1,5 +1,4 @@
-import {v4 as uuidv4} from 'uuid';
-
+import {getCtxRequestIdWithFallback} from '../../../../../utils/ctx';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
 
@@ -32,7 +31,7 @@ export const getWorkbookContent = async (
             ctx,
             headers: {},
             authArgs: {},
-            requestId: uuidv4(),
+            requestId: getCtxRequestIdWithFallback(ctx),
             args: {workbookId, page},
         });
 

@@ -1,8 +1,8 @@
 import {AppContext, AppError} from '@gravity-ui/nodekit';
-import {v4 as uuidv4} from 'uuid';
 
 import {TRANSFER_ERROR} from '../../../constants';
 import {registry} from '../../../registry';
+import {getCtxRequestIdWithFallback} from '../../../utils/ctx';
 import {WorkbookPermissions} from '../../gateway/schema/us/types/workbook';
 
 export const checkWorkbookAccessByPermissions = ({
@@ -34,7 +34,7 @@ export const checkWorkbookAccessById = async ({
     } = await gatewayApi.us.getWorkbook({
         ctx,
         headers: {},
-        requestId: ctx.get('requestId') ?? uuidv4(),
+        requestId: getCtxRequestIdWithFallback(ctx),
         args: {workbookId, includePermissionsInfo: true},
     });
 
