@@ -1,8 +1,13 @@
+import {AppError} from '@gravity-ui/nodekit';
 import {raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
 import {startImportWorkbookWorkflow} from '../../components/temporal/client';
-import {WORKBOOK_IMPORT_EXPIRATION_DAYS} from '../../constants';
+import {
+    TRANSFER_ERROR,
+    WORKBOOK_EXPORT_DATA_VERSION,
+    WORKBOOK_IMPORT_EXPIRATION_DAYS,
+} from '../../constants';
 import {WorkbookImportModel} from '../../db/models';
 import {WorkbookExportData} from '../../db/models/workbook-export/types';
 import {registry} from '../../registry';
@@ -31,6 +36,12 @@ export const startWorkbookImport = async (
         description,
         collectionId,
     });
+
+    if (data.version !== WORKBOOK_EXPORT_DATA_VERSION) {
+        throw new AppError(TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED, {
+            code: TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED,
+        });
+    }
 
     const {gatewayApi} = registry.getGatewayApi();
 
