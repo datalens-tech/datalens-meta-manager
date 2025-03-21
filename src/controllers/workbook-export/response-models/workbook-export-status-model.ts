@@ -8,11 +8,7 @@ const schema = z
         exportId: z.string(),
         status: z.nativeEnum(ExportStatus),
         progress: z.number(),
-        errors: z
-            .object({
-                criticalNotifications: z.array(entryNotificationSchema).optional(),
-            })
-            .nullable(),
+        notifications: z.array(entryNotificationSchema).nullable().optional(),
     })
     .describe('Workbook export status');
 
@@ -22,13 +18,21 @@ const format = ({
     exportId,
     status,
     progress,
-    errors,
+    notifications,
 }: GetWorkbookExportStatusResult): WorkbookExportStatusModel => {
     return {
         exportId,
         status,
+        notifications: notifications?.flatMap((entry) =>
+            entry.notifications.map((notification) => ({
+                entryId: entry.entryId,
+                scope: entry.scope,
+                code: notification.code,
+                message: notification.message,
+                level: notification.level,
+            })),
+        ),
         progress,
-        errors,
     };
 };
 

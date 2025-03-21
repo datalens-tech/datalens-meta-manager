@@ -10,7 +10,6 @@ export const ImportModelColumn = {
     Meta: 'meta',
     Data: 'data',
     Notifications: 'notifications',
-    Errors: 'errors',
     CreatedBy: 'createdBy',
     CreatedAt: 'createdAt',
     UpdatedAt: 'updatedAt',
@@ -20,8 +19,7 @@ export const ImportModelColumn = {
 export class ImportModel<
     Meta extends Record<string, unknown>,
     Data extends Record<string, unknown>,
-    Notifications extends Record<string, unknown>,
-    Errors extends Record<string, unknown>,
+    Notifications extends Record<string, unknown> | Array<unknown>,
 > extends Model {
     static get tableName() {
         return 'imports';
@@ -36,7 +34,6 @@ export class ImportModel<
     meta!: Meta;
     data!: Data;
     notifications!: Notifications | null;
-    errors!: Errors | null;
     createdBy!: string;
     createdAt!: string;
     updatedAt!: string;

@@ -1,4 +1,11 @@
-import {CancellationScope, defineQuery, proxyActivities, setHandler} from '@temporalio/workflow';
+import {
+    ActivityFailure,
+    ApplicationFailure,
+    CancellationScope,
+    defineQuery,
+    proxyActivities,
+    setHandler,
+} from '@temporalio/workflow';
 
 import type {createActivities} from './activities';
 import type {ExportWorkbookArgs, ExportWorkbookResult} from './types';
@@ -78,7 +85,13 @@ export const exportWorkbook = async ({
 
         await finishExportSuccess({exportId});
     } catch (error) {
-        await CancellationScope.nonCancellable(() => finishExportError({exportId, error}));
+        let failureType: string | undefined;
+
+        if (error instanceof ActivityFailure && error.cause instanceof ApplicationFailure) {
+            failureType = error.cause.type || undefined;
+        }
+
+        await CancellationScope.nonCancellable(() => finishExportError({exportId, failureType}));
 
         throw error;
     }
