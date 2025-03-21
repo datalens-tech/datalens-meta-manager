@@ -1,7 +1,7 @@
 import {AppError} from '@gravity-ui/nodekit';
 
 import {getClient} from '../../components/temporal/client';
-import {checkWorkbookUpdateAccessBindingsPermission} from '../../components/us/utils';
+import {checkWorkbookAccessById} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ExportModelColumn, WorkbookExportModel} from '../../db/models';
 import {ServiceArgs} from '../../types/service';
@@ -40,7 +40,7 @@ export const cancelWorkbookExport = async (
 
     const {sourceWorkbookId} = workbookExport.meta;
 
-    await checkWorkbookUpdateAccessBindingsPermission({ctx, workbookId: sourceWorkbookId});
+    await checkWorkbookAccessById({ctx, workbookId: sourceWorkbookId});
 
     const client = await getClient();
     const handle = client.workflow.getHandle(exportId);

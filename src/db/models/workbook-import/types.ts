@@ -1,21 +1,22 @@
-import type {Notification} from '../../../components/gateway/schema/bi/types';
+import {EntryScope} from '../../../components/gateway/schema/us/types/entry';
+import {NotificationLevel} from '../../../types/models';
 
 type EntryId = string;
 
+type WorkbookImportNotification = {
+    code: string;
+    message: string;
+    level: NotificationLevel;
+};
+
 export type WorkbookImportEntryNotifications = {
-    entryId: EntryId;
-    notifications: Notification[];
+    entryId?: EntryId;
+    scope?: EntryScope;
+    notifications: WorkbookImportNotification[];
 };
 
 export type WorkbookImportMeta = {
     workbookId: string;
 };
 
-export type WorkbookImportErrors = {
-    criticalNotifications?: Notification[];
-};
-
-export type WorkbookImportNotifications = {
-    connections?: WorkbookImportEntryNotifications[];
-    datasets?: WorkbookImportEntryNotifications[];
-};
+export type WorkbookImportNotifications = WorkbookImportEntryNotifications[];
