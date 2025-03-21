@@ -1,24 +1,34 @@
+import {AppError} from '@gravity-ui/nodekit';
 import {raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
 import {startImportWorkbookWorkflow} from '../../components/temporal/client';
-import {WORKBOOK_IMPORT_EXPIRATION_DAYS} from '../../constants';
+import {
+    TRANSFER_ERROR,
+    WORKBOOK_EXPORT_DATA_VERSION,
+    WORKBOOK_IMPORT_EXPIRATION_DAYS,
+} from '../../constants';
 import {WorkbookImportModel} from '../../db/models';
+import {WorkbookExportData} from '../../db/models/workbook-export/types';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 
 type StartWorkbookImportArgs = {
-    // TODO: fix data type
-    data: any;
+    data: WorkbookExportData;
     title: string;
     description?: string;
     collectionId?: string;
 };
 
+export type StartWorkbookImportResult = {
+    importId: string;
+    workbookId: string;
+};
+
 export const startWorkbookImport = async (
     {ctx}: ServiceArgs,
     args: StartWorkbookImportArgs,
-): Promise<WorkbookImportModel> => {
+): Promise<StartWorkbookImportResult> => {
     const {data, title, description, collectionId} = args;
 
     ctx.log('START_WORKBOOK_IMPORT_START', {
@@ -26,6 +36,12 @@ export const startWorkbookImport = async (
         description,
         collectionId,
     });
+
+    if (data.version !== WORKBOOK_EXPORT_DATA_VERSION) {
+        throw new AppError(TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED, {
+            code: TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED,
+        });
+    }
 
     const {gatewayApi} = registry.getGatewayApi();
 
@@ -61,5 +77,5 @@ export const startWorkbookImport = async (
         workbookId,
     });
 
-    return result;
+    return {importId: result.importId, workbookId};
 };

@@ -27,3 +27,9 @@ export type GetWorkbookContentResponse = {
     entries: Entry[];
     nextPageToken?: string;
 };
+
+export type DeleteWorkbookParams = {
+    workbookId: string;
+};
+
+export type DeleteWorkbookResponse = Workbook;

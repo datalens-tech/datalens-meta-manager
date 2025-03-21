@@ -8,7 +8,9 @@ import {
     WorkbookExportEntryNotifications,
 } from '../../../../../db/models/workbook-export/types';
 import {NotificationLevel} from '../../../../gateway/schema/bi/types';
+import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
+import {APPLICATION_FAILURE_TYPE} from '../constants';
 
 export type ExportConnectionArgs = {
     exportId: string;
@@ -30,35 +32,6 @@ export const exportConnection = async (
         args: {connectionId},
     });
 
-    const criticalNotifications = notifications.filter(
-        ({level}) => level === NotificationLevel.Critical,
-    );
-
-    if (criticalNotifications.length > 0) {
-        await WorkbookExportModel.query(WorkbookExportModel.primary)
-            .patch({
-                errors: raw(
-                    "jsonb_set(COALESCE(??, '{}'), '{criticalNotifications}', (COALESCE(??->'criticalNotifications', '[]') || ?))",
-                    [
-                        ExportModelColumn.Errors,
-                        ExportModelColumn.Errors,
-                        {
-                            entryId: connectionId,
-                            notifications: criticalNotifications,
-                        } satisfies WorkbookExportEntryNotifications,
-                    ],
-                ),
-            })
-            .where({
-                exportId,
-            });
-
-        throw ApplicationFailure.create({
-            nonRetryable: true,
-            message: `Got critical notification while exporting connection: ${connectionId}`,
-        });
-    }
-
     const update: PartialModelObject<WorkbookExportModel> = {
         data: raw("jsonb_set(??, '{connections}', (COALESCE(??->'connections', '{}') || ?))", [
             ExportModelColumn.Data,
@@ -70,20 +43,29 @@ export const exportConnection = async (
     };
 
     if (notifications.length > 0) {
-        update.notifications = raw(
-            "jsonb_set(COALESCE(??, '{}'), '{connections}', (COALESCE(??->'connections', '[]') || ?))",
-            [
-                ExportModelColumn.Notifications,
-                ExportModelColumn.Notifications,
-                {
-                    entryId: connectionId,
-                    notifications,
-                } satisfies WorkbookExportEntryNotifications,
-            ],
-        );
+        update.notifications = raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
+            ExportModelColumn.Notifications,
+            {
+                entryId: connectionId,
+                scope: EntryScope.Connection,
+                notifications,
+            } satisfies WorkbookExportEntryNotifications,
+        ]);
     }
 
     await WorkbookExportModel.query(WorkbookExportModel.primary).patch(update).where({
         exportId,
     });
+
+    const criticalNotifications = notifications.filter(
+        ({level}) => level === NotificationLevel.Critical,
+    );
+
+    if (criticalNotifications.length > 0) {
+        throw ApplicationFailure.create({
+            nonRetryable: true,
+            message: `Got critical notification while exporting connection: ${connectionId}`,
+            type: APPLICATION_FAILURE_TYPE.GOT_CRITICAL_NOTIFICATION,
+        });
+    }
 };

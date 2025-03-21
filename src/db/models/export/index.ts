@@ -10,7 +10,6 @@ export const ExportModelColumn = {
     Meta: 'meta',
     Data: 'data',
     Notifications: 'notifications',
-    Errors: 'errors',
     CreatedBy: 'createdBy',
     CreatedAt: 'createdAt',
     UpdatedAt: 'updatedAt',
@@ -20,8 +19,7 @@ export const ExportModelColumn = {
 export class ExportModel<
     Meta extends Record<string, unknown>,
     Data extends Record<string, unknown>,
-    Errors extends Record<string, unknown>,
-    Notifications extends Record<string, unknown>,
+    Notifications extends Record<string, unknown> | Array<unknown>,
 > extends Model {
     static get tableName() {
         return 'exports';
@@ -35,7 +33,6 @@ export class ExportModel<
     status!: ExportStatus;
     meta!: Meta;
     data!: Data;
-    errors!: Errors | null;
     notifications!: Notifications | null;
     createdBy!: string;
     createdAt!: string;

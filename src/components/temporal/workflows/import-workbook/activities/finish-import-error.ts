@@ -1,15 +1,42 @@
-import {ImportStatus, WorkbookImportModel} from '../../../../../db/models';
+import {PartialModelObject, raw} from 'objection';
+
+import {TRANSFER_NOTIFICATION_CODE} from '../../../../../constants';
+import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../../../../db/models';
+import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
+import {NotificationLevel} from '../../../../../types/models';
 import type {ActivitiesDeps} from '../../../types';
+import {APPLICATION_FAILURE_TYPE} from '../constants';
 
 export type FinishImportErrorArgs = {
     importId: string;
-    error: unknown;
+    failureType?: string;
 };
 
 export const finishImportError = async (
     _: ActivitiesDeps,
-    {importId}: FinishImportErrorArgs,
+    {importId, failureType}: FinishImportErrorArgs,
 ): Promise<void> => {
+    const update: PartialModelObject<WorkbookImportModel> = {
+        status: ImportStatus.Error,
+    };
+
+    const isUnexpectedError = failureType !== APPLICATION_FAILURE_TYPE.GOT_CRITICAL_NOTIFICATION;
+
+    if (isUnexpectedError) {
+        update.notifications = raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
+            ImportModelColumn.Notifications,
+            {
+                notifications: [
+                    {
+                        code: TRANSFER_NOTIFICATION_CODE.UNEXPECTED_WORKFLOW_ERROR,
+                        level: NotificationLevel.Critical,
+                        message: 'Unexpected error while importing the workbook.',
+                    },
+                ],
+            } satisfies WorkbookImportEntryNotifications,
+        ]);
+    }
+
     await WorkbookImportModel.query(WorkbookImportModel.primary)
         .patch({
             status: ImportStatus.Error,

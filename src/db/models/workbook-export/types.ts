@@ -1,11 +1,19 @@
-import type {Notification} from '../../../components/gateway/schema/bi/types';
+import {EntryScope} from '../../../components/gateway/schema/us/types/entry';
+import {NotificationLevel} from '../../../types/models';
 
 type EntryId = string;
 type MockEntryId = string;
 
+type WorkbookExportNotification = {
+    code: string;
+    message: string;
+    level: NotificationLevel;
+};
+
 export type WorkbookExportEntryNotifications = {
-    entryId: EntryId;
-    notifications: Notification[];
+    entryId?: EntryId;
+    scope?: EntryScope;
+    notifications: WorkbookExportNotification[];
 };
 
 export type WorkbookExportMeta = {
@@ -20,11 +28,4 @@ export type WorkbookExportData = {
     datasets?: WorkbookExportEntriesData;
 };
 
-export type WorkbookExportErrors = {
-    criticalNotifications?: WorkbookExportEntryNotifications[];
-};
-
-export type WorkbookExportNotifications = {
-    connections?: WorkbookExportEntryNotifications[];
-    datasets?: WorkbookExportEntryNotifications[];
-};
+export type WorkbookExportNotifications = WorkbookExportEntryNotifications[];

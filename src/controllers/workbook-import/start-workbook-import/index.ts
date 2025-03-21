@@ -2,12 +2,13 @@ import {AppRouteHandler} from '@gravity-ui/expresskit';
 
 import {ApiTag, CONTENT_TYPE_JSON} from '../../../components/api-docs';
 import {makeReqParser, z} from '../../../components/zod';
+import {WorkbookExportData} from '../../../db/models/workbook-export/types';
 import {startWorkbookImport} from '../../../services/import';
 import {startWorkbookImportModel} from '../response-models';
 
 const requestSchema = {
     body: z.object({
-        data: z.any(),
+        data: z.object({}).passthrough(),
         title: z.string(),
         description: z.string().optional(),
         collectionId: z.string().optional(),
@@ -22,7 +23,8 @@ export const startWorkbookImportController: AppRouteHandler = async (req, res) =
     const result = await startWorkbookImport(
         {ctx: req.ctx},
         {
-            data: body.data,
+            // TODO: validate data
+            data: body.data as WorkbookExportData,
             title: body.title,
             description: body.description,
             collectionId: body.collectionId,

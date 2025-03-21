@@ -1,4 +1,12 @@
-import {CancellationScope, defineQuery, proxyActivities, setHandler} from '@temporalio/workflow';
+import {
+    ActivityFailure,
+    ApplicationFailure,
+    CancellationScope,
+    defineQuery,
+    proxyActivities,
+    setHandler,
+    sleep,
+} from '@temporalio/workflow';
 
 import type {createActivities} from './activities';
 import type {ImportWorkbookArgs, ImportWorkbookResult} from './types';
@@ -9,17 +17,23 @@ export const importWorkbook = async ({
     importId,
     workbookId,
 }: ImportWorkbookArgs): Promise<ImportWorkbookResult> => {
-    const {finishImportSuccess, finishImportError, getImportDataEntriesInfo, importConnection} =
-        proxyActivities<ReturnType<typeof createActivities>>({
-            // TODO: check config values
-            retry: {
-                initialInterval: '1 sec',
-                maximumInterval: '4 sec',
-                backoffCoefficient: 2,
-                maximumAttempts: 1,
-            },
-            startToCloseTimeout: '1 min',
-        });
+    const {
+        finishImportSuccess,
+        finishImportError,
+        getImportDataEntriesInfo,
+        importConnection,
+        deleteWorkbook,
+        importDataset,
+    } = proxyActivities<ReturnType<typeof createActivities>>({
+        // TODO: check config values
+        retry: {
+            initialInterval: '1 sec',
+            maximumInterval: '4 sec',
+            backoffCoefficient: 2,
+            maximumAttempts: 1,
+        },
+        startToCloseTimeout: '1 min',
+    });
 
     let entriesCount = 0;
     let processedEntriesCount = 0;
@@ -48,9 +62,34 @@ export const importWorkbook = async ({
 
         await Promise.all(importConnectionPromises);
 
+        const importDatasetPromises = datasetIds.map(async (mockDatasetId) => {
+            await importDataset({
+                importId,
+                workbookId,
+                mockDatasetId,
+                idMapping: connectionIdMapping,
+            });
+
+            processedEntriesCount++;
+        });
+
+        await Promise.all(importDatasetPromises);
+
         await finishImportSuccess({importId});
     } catch (error) {
-        await CancellationScope.nonCancellable(() => finishImportError({importId, error}));
+        let failureType: string | undefined;
+
+        if (error instanceof ActivityFailure && error.cause instanceof ApplicationFailure) {
+            failureType = error.cause.type || undefined;
+        }
+
+        await CancellationScope.nonCancellable(async () => {
+            await finishImportError({importId, failureType});
+
+            await sleep(60 * 1000 * 5);
+
+            await deleteWorkbook({workbookId});
+        });
 
         throw error;
     }

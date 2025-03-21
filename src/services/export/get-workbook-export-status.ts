@@ -1,11 +1,12 @@
 import {AppError} from '@gravity-ui/nodekit';
+import {raw} from 'objection';
 
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookExportProgress} from '../../components/temporal/workflows';
-import {checkWorkbookUpdatePermission} from '../../components/us/utils';
+import {checkWorkbookAccessById} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
-import {WorkbookExportErrors} from '../../db/models/workbook-export/types';
+import {WorkbookExportNotifications} from '../../db/models/workbook-export/types';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookExportStatusArgs = {
@@ -16,7 +17,7 @@ export type GetWorkbookExportStatusResult = {
     status: ExportStatus;
     exportId: string;
     progress: number;
-    errors: WorkbookExportErrors | null;
+    notifications: WorkbookExportNotifications | null;
 };
 
 export const getWorkbookExportStatus = async (
@@ -36,8 +37,16 @@ export const getWorkbookExportStatus = async (
         .select([
             ExportModelColumn.ExportId,
             ExportModelColumn.Status,
-            ExportModelColumn.Errors,
             ExportModelColumn.Meta,
+            // select notifications column only if status is success or error
+            raw(`CASE WHEN ?? = ? OR ?? = ? THEN ?? ELSE NULL END AS ??`, [
+                ExportModelColumn.Status,
+                ExportStatus.Success,
+                ExportModelColumn.Status,
+                ExportStatus.Error,
+                ExportModelColumn.Notifications,
+                ExportModelColumn.Notifications,
+            ]),
         ])
         .where({
             [ExportModelColumn.ExportId]: exportId,
@@ -51,21 +60,21 @@ export const getWorkbookExportStatus = async (
     ]);
 
     if (!workbookExport) {
-        throw new AppError(TRANSFER_ERROR.EXPORT_NOT_EXIST, {
-            code: TRANSFER_ERROR.EXPORT_NOT_EXIST,
+        throw new AppError(TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST, {
+            code: TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST,
         });
     }
 
     const {sourceWorkbookId} = workbookExport.meta;
 
-    await checkWorkbookUpdatePermission({ctx, workbookId: sourceWorkbookId});
+    await checkWorkbookAccessById({ctx, workbookId: sourceWorkbookId});
 
     ctx.log('GET_WORKBOOK_EXPORT_STATUS_FINISH');
 
     return {
         exportId: workbookExport.exportId,
         status: workbookExport.status,
+        notifications: workbookExport.notifications,
         progress,
-        errors: workbookExport.errors,
     };
 };

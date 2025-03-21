@@ -1,32 +1,31 @@
 import {AppError} from '@gravity-ui/nodekit';
 
+import {getClient} from '../../components/temporal/client';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
-import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
+import {ExportModelColumn, WorkbookExportModel} from '../../db/models';
 import {ServiceArgs} from '../../types/service';
 
-type GetWorkbookExportArgs = {
+type CancelWorkbookExportArgs = {
     exportId: string;
 };
 
-export type GetWorkbookExportResult = {
+export type CancelWorkbookExportResult = {
     exportId: string;
-    status: ExportStatus;
-    data: Record<string, unknown>;
 };
 
-export const getWorkbookExport = async (
+export const cancelWorkbookExport = async (
     {ctx}: ServiceArgs,
-    args: GetWorkbookExportArgs,
-): Promise<GetWorkbookExportResult> => {
+    args: CancelWorkbookExportArgs,
+): Promise<CancelWorkbookExportResult> => {
     const {exportId} = args;
 
-    ctx.log('GET_WORKBOOK_EXPORT_START', {
+    ctx.log('CANCEL_WORKBOOK_EXPORT_START', {
         exportId,
     });
 
     const workbookExport = await WorkbookExportModel.query(WorkbookExportModel.replica)
-        .select()
+        .select([ExportModelColumn.ExportId, ExportModelColumn.Meta])
         .where({
             [ExportModelColumn.ExportId]: exportId,
         })
@@ -39,21 +38,16 @@ export const getWorkbookExport = async (
         });
     }
 
-    if (workbookExport.status !== ExportStatus.Success) {
-        throw new AppError(TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED, {
-            code: TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED,
-        });
-    }
-
     const {sourceWorkbookId} = workbookExport.meta;
 
     await checkWorkbookAccessById({ctx, workbookId: sourceWorkbookId});
 
-    ctx.log('GET_WORKBOOK_EXPORT_FINISH');
+    const client = await getClient();
+    const handle = client.workflow.getHandle(exportId);
 
-    return {
-        exportId: workbookExport.exportId,
-        status: workbookExport.status,
-        data: workbookExport.data,
-    };
+    await handle.cancel();
+
+    ctx.log('CANCEL_WORKBOOK_EXPORT_FINISH');
+
+    return {exportId};
 };
