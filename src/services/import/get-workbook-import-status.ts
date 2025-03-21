@@ -57,8 +57,8 @@ export const getWorkbookImportStatus = async (
         .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookImport) {
-        throw new AppError(TRANSFER_ERROR.IMPORT_NOT_EXIST, {
-            code: TRANSFER_ERROR.IMPORT_NOT_EXIST,
+        throw new AppError(TRANSFER_ERROR.WORKBOOK_IMPORT_NOT_EXIST, {
+            code: TRANSFER_ERROR.WORKBOOK_IMPORT_NOT_EXIST,
         });
     }
 
