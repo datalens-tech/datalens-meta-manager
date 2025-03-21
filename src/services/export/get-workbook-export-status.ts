@@ -60,8 +60,8 @@ export const getWorkbookExportStatus = async (
     ]);
 
     if (!workbookExport) {
-        throw new AppError(TRANSFER_ERROR.EXPORT_NOT_EXIST, {
-            code: TRANSFER_ERROR.EXPORT_NOT_EXIST,
+        throw new AppError(TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST, {
+            code: TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST,
         });
     }
 
