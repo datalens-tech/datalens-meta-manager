@@ -23,6 +23,7 @@ export const importWorkbook = async ({
         getImportDataEntriesInfo,
         importConnection,
         deleteWorkbook,
+        importDataset,
     } = proxyActivities<ReturnType<typeof createActivities>>({
         // TODO: check config values
         retry: {
@@ -61,19 +62,18 @@ export const importWorkbook = async ({
 
         await Promise.all(importConnectionPromises);
 
-        // TODO: enable when import dataset endpoint is fixed
-        // const importDatasetPromises = datasetIds.map(async (mockDatasetId) => {
-        //     await importDataset({
-        //         importId,
-        //         workbookId,
-        //         mockDatasetId,
-        //         idMapping: connectionIdMapping,
-        //     });
+        const importDatasetPromises = datasetIds.map(async (mockDatasetId) => {
+            await importDataset({
+                importId,
+                workbookId,
+                mockDatasetId,
+                idMapping: connectionIdMapping,
+            });
 
-        //     processedEntriesCount++;
-        // });
+            processedEntriesCount++;
+        });
 
-        // await Promise.all(importDatasetPromises);
+        await Promise.all(importDatasetPromises);
 
         await finishImportSuccess({importId});
     } catch (error) {
