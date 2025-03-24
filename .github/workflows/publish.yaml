@@ -27,7 +27,7 @@ jobs:
         run: |
           COMMIT_NAME=$(git log -n 1 --pretty=format:%s)
 
-          LAST_RELEASE_VERSION=$(curl -L https://api.github.com/repos/$GITHUB_REPOSITORY/releases | jq -r '.|=sort_by(.name|ltrimstr("v")|split(".")|map(tonumber)|[.[0],.[1],-.[2]])|.[-1].name' | sed 's|v||')
+          LAST_RELEASE_VERSION=$(curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -L https://api.github.com/repos/$GITHUB_REPOSITORY/releases | jq -r '.|=sort_by(.name|ltrimstr("v")|split(".")|map(tonumber)|[.[0],.[1],-.[2]])|.[-1].name' | sed 's|v||')
           REPO=$GITHUB_REPOSITORY
           echo "Last release version: ${LAST_RELEASE_VERSION}"
           echo "Q: ${REPO}"
