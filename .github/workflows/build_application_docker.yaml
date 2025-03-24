@@ -26,9 +26,6 @@ jobs:
     name: datalens-transfer
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == '' || github.event.workflow_run.conclusion == 'success' }}
-    permissions:
-      contents: read
-      packages: write
     steps:
       - name: Download Artifacts
         uses: dawidd6/action-download-artifact@v6
@@ -80,5 +77,5 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        #   cache-from: type=gha
+        #   cache-to: type=gha,mode=max
