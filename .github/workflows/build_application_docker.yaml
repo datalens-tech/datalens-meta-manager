@@ -1,10 +1,5 @@
 on:
-  workflow_dispatch:
-  workflow_run:
-    workflows:
-      - 'Publish'
-    types:
-      - completed
+  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}
@@ -15,6 +10,11 @@ name: Build Application Docker
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+
+permissions:
+  contents: read
+  packages: write
+  actions: read
 
 jobs:
   build:
