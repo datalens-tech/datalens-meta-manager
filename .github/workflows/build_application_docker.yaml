@@ -1,5 +1,10 @@
 on:
-  pull_request:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - 'Publish'
+    types:
+      - completed
 
 concurrency:
   group: ${{ github.workflow }}
