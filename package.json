@@ -11,7 +11,7 @@
   },
   "main": "dist/index.js",
   "scripts": {
-    "build:workflow": "ts-node scripts/temporal/build-workflow-bundle.ts",
+    "build:workflow": "ts-node src/components/temporal/scripts/build-workflow-bundle.ts",
     "build": "npm run clear:dist && npm run build:workflow && tsc",
     "dev": "npm run clear:dist && APP_DEV_MODE=1 tsc-watch --onSuccess 'node dist/server'",
     "clear:dist": "rm -rf ./dist/server",
