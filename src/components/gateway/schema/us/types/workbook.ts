@@ -11,6 +11,10 @@ export enum WorkbookPermission {
     Delete = 'delete',
 }
 
+export enum WorkbookStatus {
+    Importing = 'importing',
+}
+
 export type WorkbookPermissions = Record<WorkbookPermission, boolean>;
 
 export type Workbook = {

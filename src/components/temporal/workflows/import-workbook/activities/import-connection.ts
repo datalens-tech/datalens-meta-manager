@@ -23,7 +23,7 @@ export const importConnection = async (
     {ctx, gatewayApi}: ActivitiesDeps,
     {importId, workbookId, mockConnectionId}: ImportConnectionArgs,
 ): Promise<ImportConnectionResult> => {
-    const result = (await WorkbookImportModel.query(WorkbookImportModel.primary)
+    const result = (await WorkbookImportModel.query(WorkbookImportModel.replica)
         .select(
             raw('??->?->? as connection', [
                 ImportModelColumn.Data,

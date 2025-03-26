@@ -24,7 +24,7 @@ export const importDataset = async (
     {ctx, gatewayApi}: ActivitiesDeps,
     {importId, workbookId, mockDatasetId, idMapping}: ImportDatasetArgs,
 ): Promise<ImportDatasetResult> => {
-    const result = (await WorkbookImportModel.query(WorkbookImportModel.primary)
+    const result = (await WorkbookImportModel.query(WorkbookImportModel.replica)
         .select(raw('??->?->? as dataset', [ImportModelColumn.Data, 'datasets', mockDatasetId]))
         .first()
         .where({
