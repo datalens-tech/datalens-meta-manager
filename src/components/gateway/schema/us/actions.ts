@@ -10,6 +10,8 @@ import {
     GetWorkbookContentResponse,
     GetWorkbookParams,
     GetWorkbookResponse,
+    UpdateWorkbookParams,
+    UpdateWorkbookResponse,
 } from './types';
 
 export const actions = {
@@ -35,6 +37,20 @@ export const actions = {
                 collectionId,
                 title,
                 description,
+            },
+        }),
+    }),
+
+    updateWorkbook: createAction<UpdateWorkbookResponse, UpdateWorkbookParams>({
+        method: 'POST',
+        path: ({workbookId}) => `/v2/workbooks/${workbookId}/update`,
+        params: ({title, description, status, meta}, headers) => ({
+            headers,
+            body: {
+                title,
+                description,
+                status,
+                meta,
             },
         }),
     }),

@@ -16,7 +16,7 @@ export const getImportDataEntriesInfo = async (
     _: ActivitiesDeps,
     {importId}: GetImportDataEntriesInfoArgs,
 ): Promise<GetImportDataEntriesInfoResult> => {
-    const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.primary)
+    const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.replica)
         .select()
         .where({
             [ImportModelColumn.ImportId]: importId,

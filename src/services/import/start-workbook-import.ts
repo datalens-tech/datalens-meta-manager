@@ -1,6 +1,7 @@
 import {AppError} from '@gravity-ui/nodekit';
 import {raw} from 'objection';
 
+import {WorkbookStatus} from '../../components/gateway/schema/us/types/workbook';
 import {startImportWorkbookWorkflow} from '../../components/temporal/client';
 import {
     TRANSFER_ERROR,
@@ -45,37 +46,44 @@ export const startWorkbookImport = async (
 
     const {gatewayApi} = registry.getGatewayApi();
 
-    const {
-        responseData: {workbookId},
-    } = await gatewayApi.us.createWorkbook({
+    const {responseData: workbook} = await gatewayApi.us.createWorkbook({
         ctx,
         headers: {},
-        authArgs: {},
         requestId: getCtxRequestIdWithFallback(ctx),
-        // TODO: create workbook in pending status, add importId to workbook meta
         args: {title, description, collectionId},
     });
 
     const user = ctx.get('user');
 
-    const result = await WorkbookImportModel.query(WorkbookImportModel.replica)
+    const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.primary)
         .insert({
             createdBy: user?.userId ?? '',
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_IMPORT_EXPIRATION_DAYS]),
-            meta: {workbookId},
+            meta: {workbookId: workbook.workbookId},
             data,
         })
         .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
 
+    await gatewayApi.us.updateWorkbook({
+        ctx,
+        headers: {},
+        requestId: getCtxRequestIdWithFallback(ctx),
+        args: {
+            workbookId: workbook.workbookId,
+            status: WorkbookStatus.Importing,
+            meta: {...workbook.meta, importId: workbookImport.importId},
+        },
+    });
+
     await startImportWorkbookWorkflow({
-        importId: result.importId,
-        workbookId,
+        importId: workbookImport.importId,
+        workbookId: workbook.workbookId,
     });
 
     ctx.log('START_WORKBOOK_IMPORT_FINISH', {
-        importId: result.importId,
-        workbookId,
+        importId: workbookImport.importId,
+        workbookId: workbook.workbookId,
     });
 
-    return {importId: result.importId, workbookId};
+    return {importId: workbookImport.importId, workbookId: workbook.workbookId};
 };

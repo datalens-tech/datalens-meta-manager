@@ -9,7 +9,7 @@ export async function up(knex: Knex): Promise<void> {
             our_epoch bigint := 1514754000000;
             seq_id bigint;
             now_millis bigint;
-            shard_id int := 11;
+            shard_id int := 1;
         BEGIN
             SELECT nextval('counter_seq') % 4096 INTO seq_id;
 
