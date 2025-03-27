@@ -13,7 +13,7 @@ const buildWorkflowBundle = async () => {
     console.log(`Bundle written to ${bundlePath}`);
 };
 
-buildWorkflowBundle().catch((err) => {
-    console.error(err);
+buildWorkflowBundle().catch((error) => {
+    console.error(error);
     process.exit(1);
 });
