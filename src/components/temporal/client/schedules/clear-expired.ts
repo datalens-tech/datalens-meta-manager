@@ -2,7 +2,7 @@ import {clearExpired} from '../../workflows/clear-expired';
 import {CLEAR_EXPIRED_QUEUE_NAME} from '../../workflows/clear-expired/constants';
 import {getClient} from '../client';
 
-const SCHEDULE_ID = 'clear-expired-v1';
+const SCHEDULE_ID = 'clear-expired';
 
 export const createClearExpiredSchedule = async () => {
     const client = await getClient();
