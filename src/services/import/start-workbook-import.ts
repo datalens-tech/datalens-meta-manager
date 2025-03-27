@@ -9,13 +9,14 @@ import {
     WORKBOOK_IMPORT_EXPIRATION_DAYS,
 } from '../../constants';
 import {WorkbookImportModel} from '../../db/models';
-import {WorkbookExportData} from '../../db/models/workbook-export/types';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
+import {WorkbookExportDataWithHash} from '../../types/workbook-export';
 import {getCtxRequestIdWithFallback} from '../../utils/ctx';
+import {getExportDataVerificationHash} from '../../utils/get-export-data-verification-hash';
 
 type StartWorkbookImportArgs = {
-    data: WorkbookExportData;
+    data: WorkbookExportDataWithHash;
     title: string;
     description?: string;
     collectionId?: string;
@@ -38,10 +39,20 @@ export const startWorkbookImport = async (
         collectionId,
     });
 
-    if (data.version !== WORKBOOK_EXPORT_DATA_VERSION) {
+    if (data.export.version !== WORKBOOK_EXPORT_DATA_VERSION) {
         throw new AppError(TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED, {
             code: TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED,
         });
+    }
+
+    if (
+        data.hash !==
+        getExportDataVerificationHash({
+            data: data.export,
+            secret: ctx.config.exportDataVerificationKey,
+        })
+    ) {
+        ctx.logWarn('WORKBOOK_IMPORT_DATA_HASH_MISMATCH');
     }
 
     const {gatewayApi} = registry.getGatewayApi();
@@ -60,7 +71,7 @@ export const startWorkbookImport = async (
             createdBy: user?.userId ?? '',
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_IMPORT_EXPIRATION_DAYS]),
             meta: {workbookId: workbook.workbookId},
-            data,
+            data: data.export,
         })
         .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
 

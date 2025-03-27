@@ -6,6 +6,7 @@ export interface PlatformAppConfig {
     features: FeaturesConfig;
     usMasterToken: string;
     swaggerEnabled?: boolean;
+    exportDataVerificationKey: string;
 
     // auth
     isAuthEnabled?: boolean;

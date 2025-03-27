@@ -4,6 +4,8 @@ import {checkWorkbookAccessById} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
 import {ServiceArgs} from '../../types/service';
+import {WorkbookExportDataWithHash} from '../../types/workbook-export';
+import {getExportDataVerificationHash} from '../../utils/get-export-data-verification-hash';
 
 type GetWorkbookExportArgs = {
     exportId: string;
@@ -12,7 +14,7 @@ type GetWorkbookExportArgs = {
 export type GetWorkbookExportResult = {
     exportId: string;
     status: ExportStatus;
-    data: Record<string, unknown>;
+    data: WorkbookExportDataWithHash;
 };
 
 export const getWorkbookExport = async (
@@ -49,11 +51,19 @@ export const getWorkbookExport = async (
 
     await checkWorkbookAccessById({ctx, workbookId: sourceWorkbookId});
 
+    const hash = getExportDataVerificationHash({
+        data: workbookExport.data,
+        secret: ctx.config.exportDataVerificationKey,
+    });
+
     ctx.log('GET_WORKBOOK_EXPORT_FINISH');
 
     return {
         exportId: workbookExport.exportId,
         status: workbookExport.status,
-        data: workbookExport.data,
+        data: {
+            export: workbookExport.data,
+            hash,
+        },
     };
 };
