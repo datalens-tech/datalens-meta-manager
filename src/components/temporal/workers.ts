@@ -1,6 +1,6 @@
 import {NativeConnection, Worker} from '@temporalio/worker';
 
-import {isTruthyString} from '../../utils';
+import {isTruthyEnvVariable} from '../../utils';
 
 import {NAMESPACE} from './constants';
 import {ActivitiesDeps} from './types';
@@ -11,14 +11,13 @@ import {EXPORT_WORKBOOK_QUEUE_NAME} from './workflows/export-workbook/constants'
 import {createActivities as createImportWorkbookActivities} from './workflows/import-workbook/activities';
 import {IMPORT_WORKBOOK_QUEUE_NAME} from './workflows/import-workbook/constants';
 
-const WORKFLOWS_SOURCES =
-    process.env.APP_DEV_MODE && isTruthyString(process.env.APP_DEV_MODE)
-        ? {workflowsPath: require.resolve('./workflows')}
-        : {
-              workflowBundle: {
-                  codePath: require.resolve('../../../workflow-bundle.js'),
-              },
-          };
+const WORKFLOWS_SOURCES = isTruthyEnvVariable('APP_DEV_MODE')
+    ? {workflowsPath: require.resolve('./workflows')}
+    : {
+          workflowBundle: {
+              codePath: require.resolve('../../../workflow-bundle.js'),
+          },
+      };
 
 export const initWorkers = async (deps: ActivitiesDeps) => {
     const connection = await NativeConnection.connect({address: process.env.TEMPORAL_ENDPOINT});
