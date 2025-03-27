@@ -3,11 +3,12 @@ import type {ActivitiesDeps} from '../../../types';
 import {clearExports} from './clear-exports';
 import {clearImports} from './clear-imports';
 
-export const createActivities = (deps: ActivitiesDeps) => ({
+export const createActivities = (_: ActivitiesDeps) => ({
     async clearExports() {
-        return clearExports(deps);
+        return clearExports();
     },
+
     async clearImports() {
-        return clearImports(deps);
+        return clearImports();
     },
 });
