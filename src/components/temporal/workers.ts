@@ -53,6 +53,7 @@ export const initWorkers = async (deps: ActivitiesDeps) => {
             activities: createClearExpiredActivities(deps),
             namespace: NAMESPACE,
             taskQueue: CLEAR_EXPIRED_QUEUE_NAME,
+            connection,
         });
 
         await worker.run();
