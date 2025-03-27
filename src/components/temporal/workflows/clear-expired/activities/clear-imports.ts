@@ -1,18 +1,15 @@
 import {raw} from 'objection';
 
-import {ImportModelColumn} from '../../../../../db/models';
-import type {ActivitiesDeps} from '../../../types';
+import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
 
 const LIMIT = 1000;
 
-export const clearImports = async ({
-    models: {ImportModel},
-}: ActivitiesDeps): Promise<{deletedTotal: number; limitReached: boolean}> => {
-    const deletedTotal = await ImportModel.query(ImportModel.primary)
+export const clearImports = async (): Promise<{deletedTotal: number; limitReached: boolean}> => {
+    const deletedTotal = await WorkbookImportModel.query(WorkbookImportModel.primary)
         .delete()
         .where(ImportModelColumn.ExpiredAt, '<', raw('CURRENT_TIMESTAMP'))
         .limit(1000)
-        .timeout(ImportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
 
     return {deletedTotal, limitReached: deletedTotal === LIMIT};
 };
