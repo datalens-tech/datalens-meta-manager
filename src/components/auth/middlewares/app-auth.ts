@@ -42,8 +42,8 @@ export const appAuth = async (req: Request, res: Response, next: NextFunction) =
 
                 next();
                 return;
-            } catch (err) {
-                req.ctx.logError('CHECK_ACCESS_TOKEN_ERROR', err);
+            } catch (error) {
+                req.ctx.logError('CHECK_ACCESS_TOKEN_ERROR', error);
             }
         }
     }

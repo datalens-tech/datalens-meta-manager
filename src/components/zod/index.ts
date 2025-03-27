@@ -6,14 +6,14 @@ import {TRANSFER_ERROR} from '../../constants';
 
 extendZodWithOpenApi(z);
 
-const prepareError = (err: unknown): Error => {
-    if (err instanceof ZodError) {
+const prepareError = (error: unknown): Error => {
+    if (error instanceof ZodError) {
         return new AppError('Validation error', {
             code: TRANSFER_ERROR.VALIDATION_ERROR,
-            details: err.issues,
+            details: error.issues,
         });
     } else {
-        return err as Error;
+        return error as Error;
     }
 };
 
@@ -67,8 +67,8 @@ export const makeReqParser =
             ]);
 
             return {params, query, body};
-        } catch (err) {
-            throw prepareError(err);
+        } catch (error) {
+            throw prepareError(error);
         }
     };
 
