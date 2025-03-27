@@ -10,14 +10,9 @@ export const createClearExpiredSchedule = async () => {
     const handle = client.schedule.getHandle(SCHEDULE_ID);
     let scheduleExists = false;
 
-    await handle
-        .describe()
-        .then(() => {
-            scheduleExists = true;
-        })
-        .catch();
-
     try {
+        await handle.describe();
+        scheduleExists = true;
     } catch (error) {}
 
     if (!scheduleExists) {

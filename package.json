@@ -49,7 +49,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@gravity-ui/eslint-config": "^3.3.0",
+    "@gravity-ui/eslint-config": "^3.2.0",
     "@gravity-ui/prettier-config": "^1.1.0",
     "@gravity-ui/tsconfig": "^1.0.0",
     "@types/express": "^5.0.0",
