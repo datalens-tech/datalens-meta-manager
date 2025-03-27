@@ -1,5 +1,6 @@
 import {z} from '../../../components/zod';
-import {ExportModel, ExportStatus} from '../../../db/models';
+import {ExportStatus} from '../../../db/models';
+import {GetWorkbookExportResult} from '../../../services/export';
 
 const schema = z
     .object({
@@ -7,11 +8,11 @@ const schema = z
         data: z.record(z.string(), z.unknown()),
         status: z.nativeEnum(ExportStatus),
     })
-    .describe('Workbook export');
+    .describe('Get workbook export result');
 
-type WorkbookExportModel = z.infer<typeof schema>;
+type WorkbookExportResultModel = z.infer<typeof schema>;
 
-const format = (workbookExport: ExportModel): WorkbookExportModel => {
+const format = (workbookExport: GetWorkbookExportResult): WorkbookExportResultModel => {
     return {
         exportId: workbookExport.exportId,
         status: workbookExport.status,
@@ -19,7 +20,7 @@ const format = (workbookExport: ExportModel): WorkbookExportModel => {
     };
 };
 
-export const workbookExportModel = {
+export const getWorkbookExportResultModel = {
     schema,
     format,
 };

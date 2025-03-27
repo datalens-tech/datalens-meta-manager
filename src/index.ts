@@ -1,4 +1,4 @@
-// eslint-disable-next-line import/order
+/* eslint-disable import/order */
 import {nodekit} from './nodekit';
 
 import {AppMiddleware, ExpressKit} from '@gravity-ui/expresskit';
@@ -7,25 +7,29 @@ import {initSwagger} from './components/api-docs';
 import {finalRequestHandler} from './components/middlewares';
 import {initNamespace as initTemporalNamespace} from './components/temporal/utils';
 import {initWorkers as initTemporalWorkers} from './components/temporal/workers';
-import {ExportModel, ImportModel} from './db/models';
+import {appAuth} from './components/auth/middlewares/app-auth';
 import {registry} from './registry';
 import {getAppRoutes} from './routes';
 
 const beforeAuth: AppMiddleware[] = [];
 const afterAuth: AppMiddleware[] = [];
 
+if (nodekit.config.isAuthEnabled) {
+    nodekit.config.appAuthHandler = appAuth;
+}
+
 nodekit.config.appFinalErrorHandler = finalRequestHandler;
 
 const {gatewayApi} = registry.getGatewayApi();
 
-initTemporalNamespace()
-    .then(() =>
-        initTemporalWorkers({models: {ExportModel, ImportModel}, ctx: nodekit.ctx, gatewayApi}),
-    )
-    .catch((error: unknown) => {
-        nodekit.ctx.logError('TEMPORAL_INIT_FAIL', error);
-        process.exit(1);
-    });
+if (require.main === module) {
+    initTemporalNamespace()
+        .then(() => initTemporalWorkers({ctx: nodekit.ctx, gatewayApi}))
+        .catch((error: unknown) => {
+            nodekit.ctx.logError('TEMPORAL_INIT_FAIL', error);
+            process.exit(1);
+        });
+}
 
 const routes = getAppRoutes(nodekit, {beforeAuth, afterAuth});
 

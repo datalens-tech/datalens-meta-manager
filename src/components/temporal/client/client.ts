@@ -7,7 +7,7 @@ let _client: Client;
 
 const initClient = async () => {
     if (!_client) {
-        const connection = await Connection.connect();
+        const connection = await Connection.connect({address: process.env.TEMPORAL_ENDPOINT});
 
         const {namespaces} = await connection.workflowService.listNamespaces({});
         const namespaceInited = namespaces.some(

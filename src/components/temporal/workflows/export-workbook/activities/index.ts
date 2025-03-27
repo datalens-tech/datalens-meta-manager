@@ -2,12 +2,17 @@ import type {ActivitiesDeps} from '../../../types';
 
 import {ExportConnectionArgs, exportConnection} from './export-connection';
 import {ExportDatasetArgs, exportDataset} from './export-dataset';
-import {FinishExportArgs, finishExport} from './finish-export';
+import {FinishExportErrorArgs, finishExportError} from './finish-export-error';
+import {FinishExportSuccessArgs, finishExportSuccess} from './finish-export-success';
 import {GetWorkbookContentArgs, getWorkbookContent} from './get-workbook-content';
 
 export const createActivities = (deps: ActivitiesDeps) => ({
-    async finishExport(args: FinishExportArgs) {
-        return finishExport(deps, args);
+    async finishExportSuccess(args: FinishExportSuccessArgs) {
+        return finishExportSuccess(deps, args);
+    },
+
+    async finishExportError(args: FinishExportErrorArgs) {
+        return finishExportError(deps, args);
     },
 
     async getWorkbookContent(args: GetWorkbookContentArgs) {

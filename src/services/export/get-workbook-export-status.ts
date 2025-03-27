@@ -1,9 +1,12 @@
 import {AppError} from '@gravity-ui/nodekit';
+import {raw} from 'objection';
 
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookExportProgress} from '../../components/temporal/workflows';
+import {checkWorkbookAccessById} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
-import {ExportModel, ExportModelColumn, ExportStatus} from '../../db/models';
+import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
+import {WorkbookExportNotifications} from '../../db/models/workbook-export/types';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookExportStatusArgs = {
@@ -14,7 +17,7 @@ export type GetWorkbookExportStatusResult = {
     status: ExportStatus;
     exportId: string;
     progress: number;
-    error: Record<string, unknown> | null;
+    notifications: WorkbookExportNotifications | null;
 };
 
 export const getWorkbookExportStatus = async (
@@ -29,32 +32,49 @@ export const getWorkbookExportStatus = async (
 
     const client = await getClient();
     const handle = client.workflow.getHandle(exportId);
-    const progress = await handle.query(getWorkbookExportProgress);
 
-    const workbookExport = await ExportModel.query(ExportModel.replica)
-        .select([ExportModelColumn.ExportId, ExportModelColumn.Status, ExportModelColumn.Error])
+    const workbookExportPromise = WorkbookExportModel.query(WorkbookExportModel.replica)
+        .select([
+            ExportModelColumn.ExportId,
+            ExportModelColumn.Status,
+            ExportModelColumn.Meta,
+            // select notifications column only if status is success or error
+            raw(`CASE WHEN ?? = ? OR ?? = ? THEN ?? ELSE NULL END AS ??`, [
+                ExportModelColumn.Status,
+                ExportStatus.Success,
+                ExportModelColumn.Status,
+                ExportStatus.Error,
+                ExportModelColumn.Notifications,
+                ExportModelColumn.Notifications,
+            ]),
+        ])
         .where({
             [ExportModelColumn.ExportId]: exportId,
         })
         .first()
-        .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(WorkbookExportModel.DEFAULT_QUERY_TIMEOUT);
+
+    const [progress, workbookExport] = await Promise.all([
+        handle.query(getWorkbookExportProgress),
+        workbookExportPromise,
+    ]);
 
     if (!workbookExport) {
-        throw new AppError(TRANSFER_ERROR.EXPORT_NOT_EXIST, {
-            code: TRANSFER_ERROR.EXPORT_NOT_EXIST,
+        throw new AppError(TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST, {
+            code: TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST,
         });
     }
 
-    ctx.log('GET_WORKBOOK_EXPORT_STATUS_FINISH', {
-        exportId: workbookExport.exportId,
-        status: workbookExport.status,
-        progress,
-    });
+    const {sourceWorkbookId} = workbookExport.meta;
+
+    await checkWorkbookAccessById({ctx, workbookId: sourceWorkbookId});
+
+    ctx.log('GET_WORKBOOK_EXPORT_STATUS_FINISH');
 
     return {
         exportId: workbookExport.exportId,
         status: workbookExport.status,
+        notifications: workbookExport.notifications,
         progress,
-        error: workbookExport.error,
     };
 };

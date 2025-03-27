@@ -1,9 +1,12 @@
 import {AppError} from '@gravity-ui/nodekit';
+import {raw} from 'objection';
 
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookImportProgress} from '../../components/temporal/workflows';
+import {checkWorkbookAccessById} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
-import {ImportModel, ImportModelColumn, ImportStatus} from '../../db/models';
+import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../db/models';
+import {WorkbookImportNotifications} from '../../db/models/workbook-import/types';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookImportStatusArgs = {
@@ -14,7 +17,8 @@ export type GetWorkbookImportStatusResult = {
     status: ImportStatus;
     importId: string;
     progress: number;
-    error: Record<string, unknown> | null;
+    notifications: WorkbookImportNotifications | null;
+    workbookId: string;
 };
 
 export const getWorkbookImportStatus = async (
@@ -31,30 +35,44 @@ export const getWorkbookImportStatus = async (
     const handle = client.workflow.getHandle(importId);
     const progress = await handle.query(getWorkbookImportProgress);
 
-    const workbookImport = await ImportModel.query(ImportModel.replica)
-        .select([ImportModelColumn.ImportId, ImportModelColumn.Status, ImportModelColumn.Error])
+    const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.replica)
+        .select([
+            ImportModelColumn.ImportId,
+            ImportModelColumn.Status,
+            ImportModelColumn.Meta,
+            // select notifications column only if status is success
+            raw(`CASE WHEN ?? = ? OR ?? = ? THEN ?? ELSE NULL END AS ??`, [
+                ImportModelColumn.Status,
+                ImportStatus.Success,
+                ImportModelColumn.Status,
+                ImportStatus.Error,
+                ImportModelColumn.Notifications,
+                ImportModelColumn.Notifications,
+            ]),
+        ])
         .where({
             [ImportModelColumn.ImportId]: importId,
         })
         .first()
-        .timeout(ImportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookImport) {
-        throw new AppError(TRANSFER_ERROR.IMPORT_NOT_EXIST, {
-            code: TRANSFER_ERROR.IMPORT_NOT_EXIST,
+        throw new AppError(TRANSFER_ERROR.WORKBOOK_IMPORT_NOT_EXIST, {
+            code: TRANSFER_ERROR.WORKBOOK_IMPORT_NOT_EXIST,
         });
     }
 
-    ctx.log('GET_WORKBOOK_IMPORT_STATUS_FINISH', {
-        importId: workbookImport.importId,
-        status: workbookImport.status,
-        progress,
-    });
+    const {workbookId} = workbookImport.meta;
+
+    await checkWorkbookAccessById({ctx, workbookId});
+
+    ctx.log('GET_WORKBOOK_IMPORT_STATUS_FINISH');
 
     return {
         importId: workbookImport.importId,
         status: workbookImport.status,
+        notifications: workbookImport.notifications,
         progress,
-        error: workbookImport.error,
+        workbookId,
     };
 };

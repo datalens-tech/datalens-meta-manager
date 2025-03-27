@@ -60,22 +60,54 @@ export const prepareErrorResponse = (
                 };
             }
 
-            case TRANSFER_ERROR.EXPORT_NOT_EXIST: {
+            case TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST: {
                 return {
                     code: 404,
                     response: {
-                        code: TRANSFER_ERROR.EXPORT_NOT_EXIST,
+                        code: TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST,
                         message: "The export doesn't exist",
                     },
                 };
             }
 
-            case TRANSFER_ERROR.IMPORT_NOT_EXIST: {
+            case TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED: {
+                return {
+                    code: 409,
+                    response: {
+                        code: TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED,
+                        message:
+                            'The export is not completed. It is either still in progress or has failed.',
+                    },
+                };
+            }
+
+            case TRANSFER_ERROR.WORKBOOK_IMPORT_NOT_EXIST: {
                 return {
                     code: 404,
                     response: {
-                        code: TRANSFER_ERROR.IMPORT_NOT_EXIST,
+                        code: TRANSFER_ERROR.WORKBOOK_IMPORT_NOT_EXIST,
                         message: "The import doesn't exist",
+                    },
+                };
+            }
+
+            case TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED: {
+                return {
+                    code: 422,
+                    response: {
+                        code: TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED,
+                        message:
+                            'The provided export data version is outdated. Please export the data again.',
+                    },
+                };
+            }
+
+            case TRANSFER_ERROR.WORKBOOK_OPERATION_FORBIDDEN: {
+                return {
+                    code: 403,
+                    response: {
+                        code,
+                        message,
                     },
                 };
             }

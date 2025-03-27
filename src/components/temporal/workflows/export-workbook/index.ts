@@ -1,13 +1,24 @@
-import {defineQuery, proxyActivities, setHandler} from '@temporalio/workflow';
+import {
+    ActivityFailure,
+    ApplicationFailure,
+    CancellationScope,
+    defineQuery,
+    proxyActivities,
+    setHandler,
+} from '@temporalio/workflow';
 
 import type {createActivities} from './activities';
 import type {ExportWorkbookArgs, ExportWorkbookResult} from './types';
 
 export const getWorkbookExportProgress = defineQuery<number, []>('getProgress');
 
-const {finishExport, getWorkbookContent, exportConnection, exportDataset} = proxyActivities<
-    ReturnType<typeof createActivities>
->({
+const {
+    finishExportSuccess,
+    finishExportError,
+    getWorkbookContent,
+    exportConnection,
+    exportDataset,
+} = proxyActivities<ReturnType<typeof createActivities>>({
     // TODO: check config values
     retry: {
         initialInterval: '1 sec',
@@ -29,33 +40,61 @@ export const exportWorkbook = async ({
         return entriesCount > 0 ? Math.floor((processedEntriesCount * 100) / entriesCount) : 0;
     });
 
-    const {connections, datasets, charts, dashboards, reports} = await getWorkbookContent({
-        workbookId,
-    });
+    try {
+        const {connections, datasets, charts, dashboards, reports} = await getWorkbookContent({
+            workbookId,
+        });
 
-    entriesCount =
-        connections.length + datasets.length + charts.length + dashboards.length + reports.length;
+        entriesCount =
+            connections.length +
+            datasets.length +
+            charts.length +
+            dashboards.length +
+            reports.length;
 
-    const connectionIdMapping: Record<string, string> = {};
+        const connectionIdMapping: Record<string, string> = {};
 
-    for (let i = 0; i < connections.length; i++) {
-        const connectionId = connections[i];
+        const exportConnectionPromises = connections.map(async (connectionId, index) => {
+            const mockConnectionId = `connectionId_${index}`;
 
-        await exportConnection({exportId, connectionId});
+            await exportConnection({exportId, connectionId, mockConnectionId});
 
-        connectionIdMapping[connectionId] = `connectionId_${i}`;
-        processedEntriesCount++;
+            processedEntriesCount++;
+            connectionIdMapping[connectionId] = mockConnectionId;
+        });
+
+        await Promise.all(exportConnectionPromises);
+
+        const datasetIdMapping: Record<string, string> = {};
+
+        const exportDatasetPromises = datasets.map(async (datasetId, index) => {
+            const mockDatasetId = `datasetId_${index}`;
+
+            await exportDataset({
+                exportId,
+                datasetId,
+                mockDatasetId,
+                idMapping: connectionIdMapping,
+            });
+
+            processedEntriesCount++;
+            datasetIdMapping[datasetId] = mockDatasetId;
+        });
+
+        await Promise.all(exportDatasetPromises);
+
+        await finishExportSuccess({exportId});
+    } catch (error) {
+        let failureType: string | undefined;
+
+        if (error instanceof ActivityFailure && error.cause instanceof ApplicationFailure) {
+            failureType = error.cause.type || undefined;
+        }
+
+        await CancellationScope.nonCancellable(() => finishExportError({exportId, failureType}));
+
+        throw error;
     }
-
-    for (let i = 0; i < datasets.length; i++) {
-        const datasetId = datasets[i];
-
-        await exportDataset({exportId, datasetId, idMapping: connectionIdMapping});
-
-        processedEntriesCount++;
-    }
-
-    await finishExport({exportId});
 
     return {exportId};
 };

@@ -1,4 +1,4 @@
-enum WorkbookPermission {
+export enum WorkbookPermission {
     ListAccessBindings = 'listAccessBindings',
     UpdateAccessBindings = 'updateAccessBindings',
     LimitedView = 'limitedView',
@@ -9,6 +9,10 @@ enum WorkbookPermission {
     Publish = 'publish',
     Embed = 'embed',
     Delete = 'delete',
+}
+
+export enum WorkbookStatus {
+    Importing = 'importing',
 }
 
 export type WorkbookPermissions = Record<WorkbookPermission, boolean>;

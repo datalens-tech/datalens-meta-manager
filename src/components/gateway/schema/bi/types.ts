@@ -1,11 +1,11 @@
-enum NotificationLevel {
+export enum NotificationLevel {
     Info = 'info',
     Warning = 'warning',
     Critical = 'critical',
 }
 
-type Notification = {
-    code?: string;
+export type Notification = {
+    code: string;
     message: string;
     level: NotificationLevel;
 };
@@ -15,14 +15,14 @@ export type ExportConnectionParams = {
 };
 
 export type ExportConnectionResponse = {
-    connection: Record<string, unknown>;
+    connection: unknown;
     notifications: Notification[];
 };
 
 export type ImportConnectionParams = {
     data: {
         workbookId: string;
-        connection: Record<string, unknown>;
+        connection: unknown;
     };
 };
 
@@ -37,14 +37,14 @@ export type ExportDatasetParams = {
 };
 
 export type ExportDatasetResponse = {
-    dataset: Record<string, unknown>;
+    dataset: unknown;
     notifications: Notification[];
 };
 
 export type ImportDatasetParams = {
     data: {
         workbookId: string;
-        dataset: Record<string, unknown>;
+        dataset: unknown;
     };
     idMapping: Record<string, string>;
 };

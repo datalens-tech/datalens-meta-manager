@@ -1,0 +1,45 @@
+import {AppRouteHandler} from '@gravity-ui/expresskit';
+
+import {ApiTag, CONTENT_TYPE_JSON} from '../../../components/api-docs';
+import {makeReqParser, z} from '../../../components/zod';
+import {cancelWorkbookExport} from '../../../services/export';
+import {cancelWorkbookExportModel} from '../response-models';
+
+const requestSchema = {
+    params: z.object({
+        exportId: z.string(),
+    }),
+};
+
+const parseReq = makeReqParser(requestSchema);
+
+export const cancelWorkbookExportController: AppRouteHandler = async (req, res) => {
+    const {params} = await parseReq(req);
+
+    const result = await cancelWorkbookExport(
+        {ctx: req.ctx},
+        {
+            exportId: params.exportId,
+        },
+    );
+
+    res.status(200).send(cancelWorkbookExportModel.format(result));
+};
+
+cancelWorkbookExportController.api = {
+    summary: 'Cancel workbook export',
+    tags: [ApiTag.Workbooks],
+    request: {
+        params: requestSchema.params,
+    },
+    responses: {
+        200: {
+            description: cancelWorkbookExportModel.schema.description ?? '',
+            content: {
+                [CONTENT_TYPE_JSON]: {
+                    schema: cancelWorkbookExportModel.schema,
+                },
+            },
+        },
+    },
+};

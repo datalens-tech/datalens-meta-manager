@@ -1,4 +1,4 @@
-import {Worker} from '@temporalio/worker';
+import {NativeConnection, Worker} from '@temporalio/worker';
 
 import {isTruthyString} from '../../utils';
 
@@ -20,13 +20,16 @@ const WORKFLOWS_SOURCES =
               },
           };
 
-export const initWorkers = (deps: ActivitiesDeps) => {
+export const initWorkers = async (deps: ActivitiesDeps) => {
+    const connection = await NativeConnection.connect({address: process.env.TEMPORAL_ENDPOINT});
+
     const runExportWorkbookWorker = async () => {
         const worker = await Worker.create({
             ...WORKFLOWS_SOURCES,
             activities: createExportWorkbookActivities(deps),
             namespace: NAMESPACE,
             taskQueue: EXPORT_WORKBOOK_QUEUE_NAME,
+            connection,
         });
 
         await worker.run();
@@ -38,6 +41,7 @@ export const initWorkers = (deps: ActivitiesDeps) => {
             activities: createImportWorkbookActivities(deps),
             namespace: NAMESPACE,
             taskQueue: IMPORT_WORKBOOK_QUEUE_NAME,
+            connection,
         });
 
         await worker.run();

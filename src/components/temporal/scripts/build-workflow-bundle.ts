@@ -5,9 +5,9 @@ import {bundleWorkflowCode} from '@temporalio/worker';
 
 const buildWorkflowBundle = async () => {
     const {code} = await bundleWorkflowCode({
-        workflowsPath: require.resolve('../../src/components/temporal/workflows'),
+        workflowsPath: require.resolve('../workflows'),
     });
-    const bundlePath = path.join(__dirname, '../../dist/workflow-bundle.js');
+    const bundlePath = path.join(__dirname, '../../../../dist/workflow-bundle.js');
 
     await writeFile(bundlePath, code);
     console.log(`Bundle written to ${bundlePath}`);

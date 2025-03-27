@@ -9,7 +9,7 @@ export async function up(knex: Knex): Promise<void> {
             our_epoch bigint := 1514754000000;
             seq_id bigint;
             now_millis bigint;
-            shard_id int := 11;
+            shard_id int := 1;
         BEGIN
             SELECT nextval('counter_seq') % 4096 INTO seq_id;
 
@@ -26,8 +26,9 @@ export async function up(knex: Knex): Promise<void> {
         CREATE TABLE exports (
             export_id BIGINT NOT NULL PRIMARY KEY DEFAULT get_id(),
             status EXPORT_STATUS NOT NULL DEFAULT('pending'),
+            meta jsonb DEFAULT '{}',
             data jsonb DEFAULT '{}',
-            error jsonb,
+            notifications jsonb,
             created_by TEXT NOT NULL,
             created_at TIMESTAMPTZ DEFAULT NOW(),
             updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -42,8 +43,8 @@ export async function up(knex: Knex): Promise<void> {
             import_id BIGINT NOT NULL PRIMARY KEY DEFAULT get_id(),
             status IMPORT_STATUS NOT NULL DEFAULT('pending'),
             data jsonb DEFAULT '{}',
-            ids_map jsonb DEFAULT '{}',
-            error jsonb,
+            meta jsonb DEFAULT '{}',
+            notifications jsonb,
             created_by TEXT NOT NULL,
             created_at TIMESTAMPTZ DEFAULT NOW(),
             updated_at TIMESTAMPTZ DEFAULT NOW(),

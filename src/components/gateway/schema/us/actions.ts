@@ -4,41 +4,53 @@ import {createAction} from '../utils';
 import {
     CreateWorkbookParams,
     CreateWorkbookResponse,
+    DeleteWorkbookParams,
+    DeleteWorkbookResponse,
     GetWorkbookContentParams,
     GetWorkbookContentResponse,
     GetWorkbookParams,
     GetWorkbookResponse,
+    UpdateWorkbookParams,
+    UpdateWorkbookResponse,
 } from './types';
 
 export const actions = {
-    _getWorkbook: createAction<GetWorkbookResponse, GetWorkbookParams>({
+    getWorkbook: createAction<GetWorkbookResponse, GetWorkbookParams>({
         method: 'GET',
         path: ({workbookId}) => {
-            return `/private/v2/workbooks/${workbookId}`;
+            return `/v2/workbooks/${workbookId}`;
         },
-        params: ({includePermissionsInfo}, headers, {ctx}) => ({
-            headers: {
-                ...headers,
-                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
-            },
+        params: ({includePermissionsInfo}, headers) => ({
+            headers,
             query: {
                 includePermissionsInfo,
             },
         }),
     }),
 
-    _createWorkbook: createAction<CreateWorkbookResponse, CreateWorkbookParams>({
+    createWorkbook: createAction<CreateWorkbookResponse, CreateWorkbookParams>({
         method: 'POST',
-        path: () => `/private/v2/workbooks`,
-        params: ({collectionId, title, description}, headers, {ctx}) => ({
-            headers: {
-                ...headers,
-                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
-            },
+        path: () => `/v2/workbooks`,
+        params: ({collectionId, title, description}, headers) => ({
+            headers,
             body: {
                 collectionId,
                 title,
                 description,
+            },
+        }),
+    }),
+
+    updateWorkbook: createAction<UpdateWorkbookResponse, UpdateWorkbookParams>({
+        method: 'POST',
+        path: ({workbookId}) => `/v2/workbooks/${workbookId}/update`,
+        params: ({title, description, status, meta}, headers) => ({
+            headers,
+            body: {
+                title,
+                description,
+                status,
+                meta,
             },
         }),
     }),
@@ -53,6 +65,17 @@ export const actions = {
             },
             query: {
                 page,
+            },
+        }),
+    }),
+
+    _deleteWorkbook: createAction<DeleteWorkbookResponse, DeleteWorkbookParams>({
+        method: 'DELETE',
+        path: ({workbookId}) => `/private/v2/workbooks/${workbookId}`,
+        params: (params, headers, {ctx}) => ({
+            headers: {
+                ...headers,
+                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
             },
         }),
     }),
