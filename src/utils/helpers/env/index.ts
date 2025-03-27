@@ -16,7 +16,7 @@ export const getEnvCert = (variableName: string): string | undefined => {
     return variable.replace(/\\n/g, '\n');
 };
 
-export const getRequiredEnvVariable = (variableName: string): string | undefined => {
+export const getRequiredEnvVariable = (variableName: string): string => {
     const variable = process.env[variableName];
 
     if (!variable) {
