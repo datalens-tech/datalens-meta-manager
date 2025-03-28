@@ -45,7 +45,6 @@ export const importDataset = async (
     } = await gatewayApi.bi.importDataset({
         ctx,
         headers: {},
-        authArgs: {},
         requestId: getCtxRequestIdWithFallback(ctx),
         args: {
             idMapping,

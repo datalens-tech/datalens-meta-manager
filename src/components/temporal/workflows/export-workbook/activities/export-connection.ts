@@ -27,7 +27,6 @@ export const exportConnection = async (
     } = await gatewayApi.bi.exportConnection({
         ctx,
         headers: {},
-        authArgs: {},
         requestId: getCtxRequestIdWithFallback(ctx),
         args: {connectionId},
     });

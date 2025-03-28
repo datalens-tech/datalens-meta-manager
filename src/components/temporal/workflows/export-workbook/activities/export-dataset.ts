@@ -28,7 +28,6 @@ export const exportDataset = async (
     } = await gatewayApi.bi.exportDataset({
         ctx,
         headers: {},
-        authArgs: {},
         requestId: getCtxRequestIdWithFallback(ctx),
         args: {datasetId, idMapping},
     });

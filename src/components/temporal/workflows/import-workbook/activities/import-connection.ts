@@ -50,7 +50,6 @@ export const importConnection = async (
     } = await gatewayApi.bi.importConnection({
         ctx,
         headers: {},
-        authArgs: {},
         requestId: getCtxRequestIdWithFallback(ctx),
         args: {
             data: {
