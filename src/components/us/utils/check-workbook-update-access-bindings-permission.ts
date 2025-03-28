@@ -1,8 +1,9 @@
 import {AppContext, AppError} from '@gravity-ui/nodekit';
 
-import {TRANSFER_ERROR} from '../../../constants';
+import {AUTHORIZATION_HEADER, TRANSFER_ERROR} from '../../../constants';
 import {registry} from '../../../registry';
-import {getCtxRequestIdWithFallback} from '../../../utils/ctx';
+import {createAuthHeader} from '../../../utils/auth';
+import {getCtxRequestIdWithFallback, getCtxUser} from '../../../utils/ctx';
 import {WorkbookPermissions} from '../../gateway/schema/us/types/workbook';
 
 export const checkWorkbookAccessByPermissions = ({
@@ -29,11 +30,15 @@ export const checkWorkbookAccessById = async ({
 }): Promise<void> => {
     const {gatewayApi} = registry.getGatewayApi();
 
+    const user = getCtxUser(ctx);
+
     const {
         responseData: {permissions},
     } = await gatewayApi.us.getWorkbook({
         ctx,
-        headers: {},
+        headers: {
+            [AUTHORIZATION_HEADER]: createAuthHeader(user.accessToken),
+        },
         requestId: getCtxRequestIdWithFallback(ctx),
         args: {workbookId, includePermissionsInfo: true},
     });

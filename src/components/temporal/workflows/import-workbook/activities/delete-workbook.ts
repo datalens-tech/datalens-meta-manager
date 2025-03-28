@@ -12,7 +12,6 @@ export const deleteWorkbook = async (
     await gatewayApi.us._deleteWorkbook({
         ctx,
         headers: {},
-        authArgs: {},
         requestId: getCtxRequestIdWithFallback(ctx),
         args: {
             workbookId,

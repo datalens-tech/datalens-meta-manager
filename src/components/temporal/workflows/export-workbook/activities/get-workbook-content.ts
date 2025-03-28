@@ -30,7 +30,6 @@ export const getWorkbookContent = async (
         const {responseData} = await gatewayApi.us._getWorkbookContent({
             ctx,
             headers: {},
-            authArgs: {},
             requestId: getCtxRequestIdWithFallback(ctx),
             args: {workbookId, page},
         });
