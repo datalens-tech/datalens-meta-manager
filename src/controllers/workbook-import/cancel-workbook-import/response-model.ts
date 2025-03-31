@@ -1,5 +1,6 @@
 import {z} from '../../../components/zod';
 import type {CancelWorkbookImportResult} from '../../../services/import';
+import {encodeId} from '../../../utils';
 
 const schema = z
     .object({
@@ -11,11 +12,11 @@ type CancelWorkbookImportModel = z.infer<typeof schema>;
 
 const format = ({importId}: CancelWorkbookImportResult): CancelWorkbookImportModel => {
     return {
-        importId,
+        importId: encodeId(importId),
     };
 };
 
-export const cancelWorkbookImportModel = {
+export const responseModel = {
     schema,
     format,
 };

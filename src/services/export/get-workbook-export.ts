@@ -3,16 +3,17 @@ import {AppError} from '@gravity-ui/nodekit';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
+import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {WorkbookExportDataWithHash} from '../../types/workbook-export';
-import {getExportDataVerificationHash} from '../../utils/get-export-data-verification-hash';
+import {getExportDataVerificationHash} from '../../utils/export';
 
 type GetWorkbookExportArgs = {
-    exportId: string;
+    exportId: BigIntId;
 };
 
 export type GetWorkbookExportResult = {
-    exportId: string;
+    exportId: BigIntId;
     status: ExportStatus;
     data: WorkbookExportDataWithHash;
 };

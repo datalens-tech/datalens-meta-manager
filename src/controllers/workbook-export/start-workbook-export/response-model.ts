@@ -1,5 +1,6 @@
 import {z} from '../../../components/zod';
 import {WorkbookExportModel} from '../../../db/models';
+import {encodeId} from '../../../utils';
 
 const schema = z
     .object({
@@ -11,11 +12,11 @@ type StartWorkbookExportModel = z.infer<typeof schema>;
 
 const format = (workbookExport: WorkbookExportModel): StartWorkbookExportModel => {
     return {
-        exportId: workbookExport.exportId,
+        exportId: encodeId(workbookExport.exportId),
     };
 };
 
-export const startWorkbookExportModel = {
+export const responseModel = {
     schema,
     format,
 };

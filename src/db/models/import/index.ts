@@ -1,4 +1,5 @@
 import {Model} from '../..';
+import {BigIntId} from '../../../types';
 
 import {ImportStatus} from './types';
 
@@ -29,7 +30,7 @@ export class ImportModel<
         return ImportModelColumn.ImportId;
     }
 
-    importId!: string;
+    importId!: BigIntId;
     status!: ImportStatus;
     meta!: Meta;
     data!: Data;

@@ -11,11 +11,12 @@ import {
 } from '../../constants';
 import {WorkbookImportModel} from '../../db/models';
 import {registry} from '../../registry';
+import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {WorkbookExportDataWithHash} from '../../types/workbook-export';
 import {createAuthHeader} from '../../utils/auth';
 import {getCtxRequestIdWithFallback, getCtxUser} from '../../utils/ctx';
-import {getExportDataVerificationHash} from '../../utils/get-export-data-verification-hash';
+import {getExportDataVerificationHash} from '../../utils/export';
 
 type StartWorkbookImportArgs = {
     data: WorkbookExportDataWithHash;
@@ -25,7 +26,7 @@ type StartWorkbookImportArgs = {
 };
 
 export type StartWorkbookImportResult = {
-    importId: string;
+    importId: BigIntId;
     workbookId: string;
 };
 

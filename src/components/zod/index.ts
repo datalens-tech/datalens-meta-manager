@@ -4,6 +4,8 @@ import {ZodError, ZodTypeAny, z} from 'zod';
 
 import {TRANSFER_ERROR} from '../../constants';
 
+import * as zc from './custom-types';
+
 extendZodWithOpenApi(z);
 
 const prepareError = (error: unknown): Error => {
@@ -73,3 +75,4 @@ export const makeReqParser =
     };
 
 export {z};
+export {zc};

@@ -4,14 +4,15 @@ import {getClient} from '../../components/temporal/client';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ExportModelColumn, WorkbookExportModel} from '../../db/models';
+import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 
 type CancelWorkbookExportArgs = {
-    exportId: string;
+    exportId: BigIntId;
 };
 
 export type CancelWorkbookExportResult = {
-    exportId: string;
+    exportId: BigIntId;
 };
 
 export const cancelWorkbookExport = async (

@@ -4,7 +4,8 @@ import {ApiTag, CONTENT_TYPE_JSON} from '../../../components/api-docs';
 import {makeReqParser, z} from '../../../components/zod';
 import {startWorkbookImport} from '../../../services/import';
 import {WorkbookExportDataWithHash} from '../../../types/workbook-export';
-import {startWorkbookImportModel} from '../response-models';
+
+import {responseModel} from './response-model';
 
 const requestSchema = {
     body: z.object({
@@ -31,7 +32,7 @@ export const startWorkbookImportController: AppRouteHandler = async (req, res) =
         },
     );
 
-    res.status(200).send(startWorkbookImportModel.format(result));
+    res.status(200).send(responseModel.format(result));
 };
 
 startWorkbookImportController.api = {
@@ -48,10 +49,10 @@ startWorkbookImportController.api = {
     },
     responses: {
         200: {
-            description: startWorkbookImportModel.schema.description ?? '',
+            description: responseModel.schema.description ?? '',
             content: {
                 [CONTENT_TYPE_JSON]: {
-                    schema: startWorkbookImportModel.schema,
+                    schema: responseModel.schema,
                 },
             },
         },
