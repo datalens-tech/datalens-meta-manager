@@ -3,8 +3,9 @@ import {raw} from 'objection';
 
 import {WorkbookStatus} from '../../components/gateway/schema/us/types/workbook';
 import {startImportWorkbookWorkflow} from '../../components/temporal/client';
+import {getDefaultUsHeaders} from '../../components/us/utils';
 import {
-    AUTHORIZATION_HEADER,
+    SYSTEM_USER,
     TRANSFER_ERROR,
     WORKBOOK_EXPORT_DATA_VERSION,
     WORKBOOK_IMPORT_EXPIRATION_DAYS,
@@ -14,7 +15,6 @@ import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {WorkbookExportDataWithHash} from '../../types/workbook-export';
-import {createAuthHeader} from '../../utils/auth';
 import {getCtxRequestIdWithFallback, getCtxUser} from '../../utils/ctx';
 import {getExportDataVerificationHash} from '../../utils/export';
 
@@ -64,9 +64,7 @@ export const startWorkbookImport = async (
 
     const {responseData: workbook} = await gatewayApi.us.createWorkbook({
         ctx,
-        headers: {
-            [AUTHORIZATION_HEADER]: createAuthHeader(user.accessToken),
-        },
+        headers: getDefaultUsHeaders(ctx),
         requestId: getCtxRequestIdWithFallback(ctx),
         args: {
             title,
@@ -77,7 +75,7 @@ export const startWorkbookImport = async (
 
     const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.primary)
         .insert({
-            createdBy: user.userId,
+            createdBy: user?.userId ?? SYSTEM_USER.ID,
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_IMPORT_EXPIRATION_DAYS]),
             meta: {workbookId: workbook.workbookId},
             data: data.export,
@@ -86,13 +84,11 @@ export const startWorkbookImport = async (
 
     await gatewayApi.us.updateWorkbook({
         ctx,
-        headers: {
-            [AUTHORIZATION_HEADER]: createAuthHeader(user.accessToken),
-        },
+        headers: getDefaultUsHeaders(ctx),
         requestId: getCtxRequestIdWithFallback(ctx),
         args: {
             workbookId: workbook.workbookId,
-            status: WorkbookStatus.Importing,
+            status: WorkbookStatus.Creating,
             meta: {...workbook.meta, importId: workbookImport.importId},
         },
     });
