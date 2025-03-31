@@ -12,7 +12,10 @@ export enum WorkbookPermission {
 }
 
 export enum WorkbookStatus {
-    Importing = 'importing',
+    Active = 'active',
+    Creating = 'creating',
+    Deleting = 'deleting',
+    Deleted = 'deleted',
 }
 
 export type WorkbookPermissions = Record<WorkbookPermission, boolean>;

@@ -1,16 +1,15 @@
 import {raw} from 'objection';
 
 import {startExportWorkbookWorkflow} from '../../components/temporal/client';
-import {checkWorkbookAccessByPermissions} from '../../components/us/utils';
+import {checkWorkbookAccessByPermissions, getDefaultUsHeaders} from '../../components/us/utils';
 import {
-    AUTHORIZATION_HEADER,
+    SYSTEM_USER,
     WORKBOOK_EXPORT_DATA_VERSION,
     WORKBOOK_EXPORT_EXPIRATION_DAYS,
 } from '../../constants';
 import {WorkbookExportModel} from '../../db/models';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
-import {createAuthHeader} from '../../utils/auth';
 import {getCtxRequestIdWithFallback, getCtxUser} from '../../utils/ctx';
 
 type StartWorkbookExportArgs = {
@@ -29,22 +28,20 @@ export const startWorkbookExport = async (
 
     const {gatewayApi} = registry.getGatewayApi();
 
-    const user = getCtxUser(ctx);
-
     const {responseData} = await gatewayApi.us.getWorkbook({
         ctx,
-        headers: {
-            [AUTHORIZATION_HEADER]: createAuthHeader(user.accessToken),
-        },
+        headers: getDefaultUsHeaders(ctx),
         requestId: getCtxRequestIdWithFallback(ctx),
         args: {workbookId, includePermissionsInfo: true},
     });
 
     checkWorkbookAccessByPermissions({permissions: responseData.permissions});
 
+    const user = getCtxUser(ctx);
+
     const result = await WorkbookExportModel.query(WorkbookExportModel.primary)
         .insert({
-            createdBy: user.userId,
+            createdBy: user?.userId ?? SYSTEM_USER.ID,
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),
             data: {version: WORKBOOK_EXPORT_DATA_VERSION},
             meta: {sourceWorkbookId: responseData.workbookId},
