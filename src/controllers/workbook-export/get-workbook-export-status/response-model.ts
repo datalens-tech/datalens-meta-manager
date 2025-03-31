@@ -1,30 +1,26 @@
 import {z} from '../../../components/zod';
-import {ImportStatus} from '../../../db/models';
-import {GetWorkbookImportStatusResult} from '../../../services/import';
+import {ExportStatus} from '../../../db/models';
+import {GetWorkbookExportStatusResult} from '../../../services/export';
+import {encodeId} from '../../../utils';
 import {entryNotificationSchema} from '../../schemas/notification';
 
 const schema = z
     .object({
-        importId: z.string(),
-        workbookId: z.string(),
-        status: z.nativeEnum(ImportStatus),
+        exportId: z.string(),
+        status: z.nativeEnum(ExportStatus),
         progress: z.number(),
         notifications: z.array(entryNotificationSchema).nullable().optional(),
     })
-    .describe('Workbook import status');
-
-type WorkbookImportStatusModel = z.infer<typeof schema>;
+    .describe('Workbook export status');
 
 const format = ({
-    importId,
-    workbookId,
+    exportId,
     status,
-    notifications,
     progress,
-}: GetWorkbookImportStatusResult): WorkbookImportStatusModel => {
+    notifications,
+}: GetWorkbookExportStatusResult): z.infer<typeof schema> => {
     return {
-        importId,
-        workbookId,
+        exportId: encodeId(exportId),
         status,
         notifications: notifications?.flatMap((entry) =>
             entry.notifications.map((notification) => ({
@@ -39,7 +35,7 @@ const format = ({
     };
 };
 
-export const workbookImportStatusModel = {
+export const responseModel = {
     schema,
     format,
 };

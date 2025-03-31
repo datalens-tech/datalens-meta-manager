@@ -1,13 +1,14 @@
 import {AppRouteHandler} from '@gravity-ui/expresskit';
 
 import {ApiTag, CONTENT_TYPE_JSON} from '../../../components/api-docs';
-import {makeReqParser, z} from '../../../components/zod';
+import {makeReqParser, z, zc} from '../../../components/zod';
 import {getWorkbookExportStatus} from '../../../services/export';
-import {workbookExportStatusModel} from '../response-models';
+
+import {responseModel} from './response-model';
 
 const requestSchema = {
     params: z.object({
-        exportId: z.string(),
+        exportId: zc.decodeId(),
     }),
 };
 
@@ -23,7 +24,7 @@ export const getWorkbookExportStatusController: AppRouteHandler = async (req, re
         },
     );
 
-    res.status(200).send(workbookExportStatusModel.format(result));
+    res.status(200).send(responseModel.format(result));
 };
 
 getWorkbookExportStatusController.api = {
@@ -34,10 +35,10 @@ getWorkbookExportStatusController.api = {
     },
     responses: {
         200: {
-            description: workbookExportStatusModel.schema.description ?? '',
+            description: responseModel.schema.description ?? '',
             content: {
                 [CONTENT_TYPE_JSON]: {
-                    schema: workbookExportStatusModel.schema,
+                    schema: responseModel.schema,
                 },
             },
         },

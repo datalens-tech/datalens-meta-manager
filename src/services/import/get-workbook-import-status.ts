@@ -7,15 +7,16 @@ import {checkWorkbookAccessById} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../db/models';
 import {WorkbookImportNotifications} from '../../db/models/workbook-import/types';
+import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookImportStatusArgs = {
-    importId: string;
+    importId: BigIntId;
 };
 
 export type GetWorkbookImportStatusResult = {
     status: ImportStatus;
-    importId: string;
+    importId: BigIntId;
     progress: number;
     notifications: WorkbookImportNotifications | null;
     workbookId: string;

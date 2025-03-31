@@ -1,6 +1,7 @@
 import {z} from '../../../components/zod';
 import {ExportStatus} from '../../../db/models';
 import {GetWorkbookExportResult} from '../../../services/export';
+import {encodeId} from '../../../utils';
 
 const schema = z
     .object({
@@ -10,17 +11,15 @@ const schema = z
     })
     .describe('Get workbook export result');
 
-type WorkbookExportResultModel = z.infer<typeof schema>;
-
-const format = (workbookExport: GetWorkbookExportResult): WorkbookExportResultModel => {
+const format = (workbookExport: GetWorkbookExportResult): z.infer<typeof schema> => {
     return {
-        exportId: workbookExport.exportId,
+        exportId: encodeId(workbookExport.exportId),
         status: workbookExport.status,
         data: workbookExport.data,
     };
 };
 
-export const getWorkbookExportResultModel = {
+export const responseModel = {
     schema,
     format,
 };

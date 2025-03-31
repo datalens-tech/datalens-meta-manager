@@ -7,15 +7,16 @@ import {checkWorkbookAccessById} from '../../components/us/utils';
 import {TRANSFER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
 import {WorkbookExportNotifications} from '../../db/models/workbook-export/types';
+import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 
 type GetWorkbookExportStatusArgs = {
-    exportId: string;
+    exportId: BigIntId;
 };
 
 export type GetWorkbookExportStatusResult = {
     status: ExportStatus;
-    exportId: string;
+    exportId: BigIntId;
     progress: number;
     notifications: WorkbookExportNotifications | null;
 };

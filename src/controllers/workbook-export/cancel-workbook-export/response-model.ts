@@ -1,5 +1,6 @@
 import {z} from '../../../components/zod';
 import type {CancelWorkbookExportResult} from '../../../services/export';
+import {encodeId} from '../../../utils';
 
 const schema = z
     .object({
@@ -7,15 +8,13 @@ const schema = z
     })
     .describe('Cancel workbook export result');
 
-type CancelWorkbookExportModel = z.infer<typeof schema>;
-
-const format = ({exportId}: CancelWorkbookExportResult): CancelWorkbookExportModel => {
+const format = ({exportId}: CancelWorkbookExportResult): z.infer<typeof schema> => {
     return {
-        exportId,
+        exportId: encodeId(exportId),
     };
 };
 
-export const cancelWorkbookExportModel = {
+export const responseModel = {
     schema,
     format,
 };

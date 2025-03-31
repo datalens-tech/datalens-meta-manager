@@ -1,5 +1,6 @@
 import {z} from '../../../components/zod';
 import type {StartWorkbookImportResult} from '../../../services/import';
+import {encodeId} from '../../../utils';
 
 const schema = z
     .object({
@@ -12,12 +13,12 @@ type StartWorkbookImportModel = z.infer<typeof schema>;
 
 const format = ({importId, workbookId}: StartWorkbookImportResult): StartWorkbookImportModel => {
     return {
-        importId,
+        importId: encodeId(importId),
         workbookId,
     };
 };
 
-export const startWorkbookImportModel = {
+export const responseModel = {
     schema,
     format,
 };

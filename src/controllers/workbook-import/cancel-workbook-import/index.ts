@@ -1,13 +1,14 @@
 import {AppRouteHandler} from '@gravity-ui/expresskit';
 
 import {ApiTag, CONTENT_TYPE_JSON} from '../../../components/api-docs';
-import {makeReqParser, z} from '../../../components/zod';
+import {makeReqParser, z, zc} from '../../../components/zod';
 import {cancelWorkbookImport} from '../../../services/import';
-import {cancelWorkbookImportModel} from '../response-models';
+
+import {responseModel} from './response-model';
 
 const requestSchema = {
     params: z.object({
-        importId: z.string(),
+        importId: zc.decodeId(),
     }),
 };
 
@@ -23,7 +24,7 @@ export const cancelWorkbookImportController: AppRouteHandler = async (req, res) 
         },
     );
 
-    res.status(200).send(cancelWorkbookImportModel.format(result));
+    res.status(200).send(responseModel.format(result));
 };
 
 cancelWorkbookImportController.api = {
@@ -34,10 +35,10 @@ cancelWorkbookImportController.api = {
     },
     responses: {
         200: {
-            description: cancelWorkbookImportModel.schema.description ?? '',
+            description: responseModel.schema.description ?? '',
             content: {
                 [CONTENT_TYPE_JSON]: {
-                    schema: cancelWorkbookImportModel.schema,
+                    schema: responseModel.schema,
                 },
             },
         },

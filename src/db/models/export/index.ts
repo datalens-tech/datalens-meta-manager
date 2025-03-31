@@ -1,4 +1,5 @@
 import {Model} from '../..';
+import {BigIntId} from '../../../types';
 
 import {ExportStatus} from './types';
 
@@ -26,10 +27,10 @@ export class ExportModel<
     }
 
     static get idColumn() {
-        return 'exportId';
+        return ExportModelColumn.ExportId;
     }
 
-    exportId!: string;
+    exportId!: BigIntId;
     status!: ExportStatus;
     meta!: Meta;
     data!: Data;

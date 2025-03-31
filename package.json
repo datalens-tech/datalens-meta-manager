@@ -11,20 +11,26 @@
   },
   "main": "dist/index.js",
   "scripts": {
+    "x--------------------------------------------------------Build": "exit 1",
     "build:workflow": "ts-node src/components/temporal/scripts/build-workflow-bundle.ts",
     "build": "npm run clear:dist && npm run build:workflow && tsc",
     "dev": "npm run clear:dist && APP_DEV_MODE=1 tsc-watch --onSuccess 'node dist/server'",
     "clear:dist": "rm -rf ./dist/server",
+    "x--------------------------------------------------------CI": "exit 1",
     "lint:prettier": "prettier --check '**/*.{js,ts}'",
     "lint:js": "eslint \"**/*.{js,ts}\" --quiet",
     "lint:migrations": "ts-node ./scripts/linters/migration-timestamp-consistency.ts",
     "lint": "npm run lint:prettier && npm run lint:js && npm run lint:migrations",
     "typecheck": "tsc --noEmit",
+    "x--------------------------------------------------------Database scripts": "exit 1",
     "db:migration:create": "npx knex migrate:make --migrations-directory ./src/db/migrations -x ts",
     "db:migrate": "node dist/server/db/scripts/migrate.js",
     "db:migrate-one": "node dist/server/db/scripts/migrate-one.js",
     "db:rollback": "node dist/server/db/scripts/rollback.js",
-    "db:rollback-one": "node dist/server/db/scripts/rollback-one.js"
+    "db:rollback-one": "node dist/server/db/scripts/rollback-one.js",
+    "x--------------------------------------------------------Scripts": "exit 1",
+    "decode": "ts-node ./scripts/ids.ts -h=decode",
+    "encode": "ts-node ./scripts/ids.ts -h=encode"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^7.3.0",
@@ -44,23 +50,28 @@
     "lodash": "^4.17.21",
     "objection": "^3.1.5",
     "pg-error-constants": "^1.0.0",
+    "power-radix": "^3.0.1",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@gravity-ui/eslint-config": "^3.2.0",
+    "@gravity-ui/eslint-config": "3.2.0",
     "@gravity-ui/prettier-config": "^1.1.0",
     "@gravity-ui/tsconfig": "^1.0.0",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/lodash": "^4.17.16",
+    "@types/minimist": "^1.2.5",
     "@types/node": "^22.13.9",
+    "@types/power-radix": "^2.5.2",
     "@types/swagger-ui-express": "^4.1.8",
     "eslint": "^8.57.1",
+    "minimist": "^1.2.8",
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
     "tsc-watch": "^6.2.1",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "utility-types": "^3.11.0"
   }
 }
