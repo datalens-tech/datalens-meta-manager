@@ -46,7 +46,6 @@
     "pg-error-constants": "^1.0.0",
     "power-radix": "^3.0.1",
     "swagger-ui-express": "^5.0.1",
-    "utility-types": "^3.11.0",
     "uuid": "^11.1.0",
     "zod": "^3.24.2"
   },
@@ -64,6 +63,7 @@
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
     "tsc-watch": "^6.2.1",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "utility-types": "^3.11.0"
   }
 }
