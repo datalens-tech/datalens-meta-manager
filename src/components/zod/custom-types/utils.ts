@@ -6,7 +6,7 @@ import {decodeId} from '../../../utils/id';
 export const makeIdDecoder = (ctx: z.RefinementCtx) => (val: string) => {
     try {
         return decodeId(val as StringId);
-    } catch (err) {
+    } catch (error) {
         ctx.addIssue({
             code: z.ZodIssueCode.custom,
             message: `id '${val}' has incorrect format`,
