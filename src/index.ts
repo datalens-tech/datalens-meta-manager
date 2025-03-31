@@ -4,14 +4,14 @@ import {nodekit} from './nodekit';
 import {AppMiddleware, ExpressKit} from '@gravity-ui/expresskit';
 
 import {initSwagger} from './components/api-docs';
-import {finalRequestHandler} from './components/middlewares';
+import {ctxInfo, finalRequestHandler} from './components/middlewares';
 import {initTemporal} from './components/temporal/utils';
 import {appAuth} from './components/auth/middlewares/app-auth';
 import {registry} from './registry';
 import {getAppRoutes} from './routes';
 
 const beforeAuth: AppMiddleware[] = [];
-const afterAuth: AppMiddleware[] = [];
+const afterAuth: AppMiddleware[] = [ctxInfo];
 
 const preRunPromises: Promise<unknown>[] = [];
 
