@@ -29,11 +29,13 @@ export const initTemporal = async ({ctx}: {ctx: AppContext}) => {
 
     initWorkers({ctx, gatewayApi}).catch((error) => {
         ctx.logError('TEMPORAL_WORKER_FAIL', error);
+        // TODO: Graceful shutdown
         process.exit(1);
     });
 
     initSchedules().catch((error) => {
         ctx.logError('TEMPORAL_INIT_SCHEDULES_FAIL', error);
+        // TODO: Graceful shutdown
         process.exit(1);
     });
 };
