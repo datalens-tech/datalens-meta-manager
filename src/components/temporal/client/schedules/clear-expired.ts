@@ -1,3 +1,5 @@
+import {ScheduleNotFoundError} from '@temporalio/client';
+
 import {clearExpired} from '../../workflows/clear-expired';
 import {CLEAR_EXPIRED_QUEUE_NAME} from '../../workflows/clear-expired/constants';
 import {getClient} from '../client';
@@ -8,12 +10,17 @@ export const createClearExpiredSchedule = async () => {
     const client = await getClient();
 
     const handle = client.schedule.getHandle(SCHEDULE_ID);
-    let scheduleExists = false;
+    let scheduleExists: boolean;
 
     try {
         await handle.describe();
         scheduleExists = true;
-    } catch (error) {}
+    } catch (error) {
+        if (!(error instanceof ScheduleNotFoundError)) {
+            throw error;
+        }
+        scheduleExists = false;
+    }
 
     if (!scheduleExists) {
         await client.schedule.create({

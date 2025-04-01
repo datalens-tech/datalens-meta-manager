@@ -1,8 +1,8 @@
 import {z} from '../../../components/zod';
+import {entryNotificationSchema} from '../../../components/zod/schemas/workbook-transfer';
 import {ImportStatus} from '../../../db/models';
 import {GetWorkbookImportStatusResult} from '../../../services/import';
 import {encodeId} from '../../../utils';
-import {entryNotificationSchema} from '../../schemas/notification';
 
 const schema = z
     .object({
