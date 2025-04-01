@@ -19,6 +19,17 @@ const prepareError = (error: unknown): Error => {
     }
 };
 
+export const makeParserSync =
+    <T extends ZodTypeAny>(schema: T) =>
+    (data: unknown): z.infer<T> | never => {
+        try {
+            const parsedData = schema.parse(data);
+            return parsedData;
+        } catch (err) {
+            throw prepareError(err);
+        }
+    };
+
 type MakeReqParserArgs<P, Q, B> = {
     params?: P extends ZodTypeAny ? P : undefined;
     query?: Q extends ZodTypeAny ? Q : undefined;
