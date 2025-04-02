@@ -1,6 +1,6 @@
 import {PartialModelObject, raw} from 'objection';
 
-import {TRANSFER_NOTIFICATION_CODE} from '../../../../../constants';
+import {META_MANAGER_NOTIFICATION_CODE} from '../../../../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../../../../db/models';
 import {WorkbookExportEntryNotifications} from '../../../../../db/models/workbook-export/types';
 import {NotificationLevel} from '../../../../../types/models';
@@ -28,7 +28,7 @@ export const finishExportError = async (
             {
                 notifications: [
                     {
-                        code: TRANSFER_NOTIFICATION_CODE.UNEXPECTED_WORKFLOW_ERROR,
+                        code: META_MANAGER_NOTIFICATION_CODE.UNEXPECTED_WORKFLOW_ERROR,
                         level: NotificationLevel.Critical,
                         message: 'Unexpected error while exporting the workbook.',
                     },

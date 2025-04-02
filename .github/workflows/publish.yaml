@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   build:
-    name: datalens-transfer
+    name: datalens-meta-manager
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

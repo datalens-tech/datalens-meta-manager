@@ -1,6 +1,6 @@
 import {PartialModelObject, raw} from 'objection';
 
-import {TRANSFER_NOTIFICATION_CODE} from '../../../../../constants';
+import {META_MANAGER_NOTIFICATION_CODE} from '../../../../../constants';
 import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../../../../db/models';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
 import {NotificationLevel} from '../../../../../types/models';
@@ -28,7 +28,7 @@ export const finishImportError = async (
             {
                 notifications: [
                     {
-                        code: TRANSFER_NOTIFICATION_CODE.UNEXPECTED_WORKFLOW_ERROR,
+                        code: META_MANAGER_NOTIFICATION_CODE.UNEXPECTED_WORKFLOW_ERROR,
                         level: NotificationLevel.Critical,
                         message: 'Unexpected error while importing the workbook.',
                     },

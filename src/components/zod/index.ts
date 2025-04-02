@@ -2,7 +2,7 @@ import {extendZodWithOpenApi} from '@asteasolutions/zod-to-openapi';
 import {AppError} from '@gravity-ui/nodekit';
 import {ZodError, ZodTypeAny, z} from 'zod';
 
-import {TRANSFER_ERROR} from '../../constants';
+import {META_MANAGER_ERROR} from '../../constants';
 
 import * as zc from './custom-types';
 
@@ -11,7 +11,7 @@ extendZodWithOpenApi(z);
 const prepareError = (error: unknown): Error => {
     if (error instanceof ZodError) {
         return new AppError('Validation error', {
-            code: TRANSFER_ERROR.VALIDATION_ERROR,
+            code: META_MANAGER_ERROR.VALIDATION_ERROR,
             details: error.issues,
         });
     } else {

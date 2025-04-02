@@ -6,7 +6,7 @@ import {getEnvCert, getRequiredEnvVariable, isTruthyEnvVariable} from '../utils'
 const isAuthEnabled = isTruthyEnvVariable('AUTH_ENABLED');
 
 const config: Partial<AppConfig> = {
-    appName: 'datalens-transfer',
+    appName: 'datalens-meta-manager',
     swaggerEnabled: true,
     usMasterToken: getRequiredEnvVariable('US_MASTER_TOKEN'),
     exportDataVerificationKey: getRequiredEnvVariable('EXPORT_DATA_VERIFICATION_KEY'),

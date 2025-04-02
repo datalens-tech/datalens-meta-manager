@@ -1,6 +1,6 @@
 import {AppContext, AppError} from '@gravity-ui/nodekit';
 
-import {TRANSFER_ERROR} from '../../../constants';
+import {META_MANAGER_ERROR} from '../../../constants';
 import {registry} from '../../../registry';
 import {getCtxRequestIdWithFallback} from '../../../utils/ctx';
 import {WorkbookPermissions} from '../../gateway/schema/us/types/workbook';
@@ -16,7 +16,7 @@ export const checkWorkbookAccessByPermissions = ({
         throw new AppError(
             'The user does not have sufficient permissions to perform this action.',
             {
-                code: TRANSFER_ERROR.WORKBOOK_OPERATION_FORBIDDEN,
+                code: META_MANAGER_ERROR.WORKBOOK_OPERATION_FORBIDDEN,
             },
         );
     }

@@ -1,1 +1,1 @@
-export const NAMESPACE = 'transfer';
+export const NAMESPACE = 'meta-manager';

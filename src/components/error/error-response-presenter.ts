@@ -3,7 +3,7 @@ import {WorkflowNotFoundError} from '@temporalio/common';
 import {DBError} from 'db-errors';
 import PG_ERRORS from 'pg-error-constants';
 
-import {TRANSFER_ERROR} from '../../constants';
+import {META_MANAGER_ERROR} from '../../constants';
 
 const getDBErrorCode = (error: DBError): string => {
     const nativeError = error.nativeError as Error & {code?: string};
@@ -30,7 +30,7 @@ export const prepareErrorResponse = (
                 return {
                     code: 400,
                     response: {
-                        code: TRANSFER_ERROR.DB_UNIQUE_VIOLATION,
+                        code: META_MANAGER_ERROR.DB_UNIQUE_VIOLATION,
                         message: 'The entity already exists',
                     },
                 };
@@ -49,7 +49,7 @@ export const prepareErrorResponse = (
         const {code, message, details} = error;
 
         switch (code) {
-            case TRANSFER_ERROR.VALIDATION_ERROR: {
+            case META_MANAGER_ERROR.VALIDATION_ERROR: {
                 return {
                     code: 400,
                     response: {
@@ -60,49 +60,49 @@ export const prepareErrorResponse = (
                 };
             }
 
-            case TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST: {
+            case META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_EXIST: {
                 return {
                     code: 404,
                     response: {
-                        code: TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST,
+                        code: META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_EXIST,
                         message: "The export doesn't exist",
                     },
                 };
             }
 
-            case TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED: {
+            case META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED: {
                 return {
                     code: 409,
                     response: {
-                        code: TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED,
+                        code: META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED,
                         message:
                             'The export is not completed. It is either still in progress or has failed.',
                     },
                 };
             }
 
-            case TRANSFER_ERROR.WORKBOOK_IMPORT_NOT_EXIST: {
+            case META_MANAGER_ERROR.WORKBOOK_IMPORT_NOT_EXIST: {
                 return {
                     code: 404,
                     response: {
-                        code: TRANSFER_ERROR.WORKBOOK_IMPORT_NOT_EXIST,
+                        code: META_MANAGER_ERROR.WORKBOOK_IMPORT_NOT_EXIST,
                         message: "The import doesn't exist",
                     },
                 };
             }
 
-            case TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED: {
+            case META_MANAGER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED: {
                 return {
                     code: 422,
                     response: {
-                        code: TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED,
+                        code: META_MANAGER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED,
                         message:
                             'The provided export data version is outdated. Please export the data again.',
                     },
                 };
             }
 
-            case TRANSFER_ERROR.WORKBOOK_OPERATION_FORBIDDEN: {
+            case META_MANAGER_ERROR.WORKBOOK_OPERATION_FORBIDDEN: {
                 return {
                     code: 403,
                     response: {

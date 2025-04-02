@@ -4,7 +4,7 @@ import {raw} from 'objection';
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookExportProgress} from '../../components/temporal/workflows';
 import {checkWorkbookAccessById} from '../../components/us/utils';
-import {TRANSFER_ERROR} from '../../constants';
+import {META_MANAGER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
 import {WorkbookExportNotifications} from '../../db/models/workbook-export/types';
 import {BigIntId} from '../../types';
@@ -61,8 +61,8 @@ export const getWorkbookExportStatus = async (
     ]);
 
     if (!workbookExport) {
-        throw new AppError(TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST, {
-            code: TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST,
+        throw new AppError(META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_EXIST, {
+            code: META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_EXIST,
         });
     }
 

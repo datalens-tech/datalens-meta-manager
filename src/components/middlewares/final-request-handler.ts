@@ -8,7 +8,7 @@ const logError = (error: AppError, req: Request) => {
         const {message} = error;
         req.ctx.log(message, {error});
     } else {
-        req.ctx.logError('Unhandled Transfer error', error);
+        req.ctx.logError('Unhandled Meta Manager error', error);
     }
 };
 

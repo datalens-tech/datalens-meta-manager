@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   build:
-    name: datalens-transfer
+    name: datalens-meta-manager
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == '' || github.event.workflow_run.conclusion == 'success' }}
     steps:
