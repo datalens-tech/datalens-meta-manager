@@ -4,7 +4,7 @@ import {raw} from 'objection';
 import {getClient} from '../../components/temporal/client';
 import {getWorkbookImportProgress} from '../../components/temporal/workflows';
 import {checkWorkbookAccessById} from '../../components/us/utils';
-import {TRANSFER_ERROR} from '../../constants';
+import {META_MANAGER_ERROR} from '../../constants';
 import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../db/models';
 import {WorkbookImportNotifications} from '../../db/models/workbook-import/types';
 import {BigIntId} from '../../types';
@@ -58,8 +58,8 @@ export const getWorkbookImportStatus = async (
         .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookImport) {
-        throw new AppError(TRANSFER_ERROR.WORKBOOK_IMPORT_NOT_EXIST, {
-            code: TRANSFER_ERROR.WORKBOOK_IMPORT_NOT_EXIST,
+        throw new AppError(META_MANAGER_ERROR.WORKBOOK_IMPORT_NOT_EXIST, {
+            code: META_MANAGER_ERROR.WORKBOOK_IMPORT_NOT_EXIST,
         });
     }
 

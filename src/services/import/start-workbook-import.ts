@@ -5,8 +5,8 @@ import {WorkbookStatus} from '../../components/gateway/schema/us/types/workbook'
 import {startImportWorkbookWorkflow} from '../../components/temporal/client';
 import {getDefaultUsHeaders} from '../../components/us/utils';
 import {
+    META_MANAGER_ERROR,
     SYSTEM_USER,
-    TRANSFER_ERROR,
     WORKBOOK_EXPORT_DATA_VERSION,
     WORKBOOK_IMPORT_EXPIRATION_DAYS,
 } from '../../constants';
@@ -43,8 +43,8 @@ export const startWorkbookImport = async (
     });
 
     if (data.export.version !== WORKBOOK_EXPORT_DATA_VERSION) {
-        throw new AppError(TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED, {
-            code: TRANSFER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED,
+        throw new AppError(META_MANAGER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED, {
+            code: META_MANAGER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED,
         });
     }
 

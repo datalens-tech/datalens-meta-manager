@@ -2,7 +2,7 @@ import {AppError} from '@gravity-ui/nodekit';
 
 import {getClient} from '../../components/temporal/client';
 import {checkWorkbookAccessById} from '../../components/us/utils';
-import {TRANSFER_ERROR} from '../../constants';
+import {META_MANAGER_ERROR} from '../../constants';
 import {ImportModelColumn, WorkbookImportModel} from '../../db/models';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
@@ -34,8 +34,8 @@ export const cancelWorkbookImport = async (
         .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookImport) {
-        throw new AppError(TRANSFER_ERROR.WORKBOOK_IMPORT_NOT_EXIST, {
-            code: TRANSFER_ERROR.WORKBOOK_IMPORT_NOT_EXIST,
+        throw new AppError(META_MANAGER_ERROR.WORKBOOK_IMPORT_NOT_EXIST, {
+            code: META_MANAGER_ERROR.WORKBOOK_IMPORT_NOT_EXIST,
         });
     }
 

@@ -62,7 +62,7 @@ export const initSwagger = (app: ExpressKit, routes: AppRoutes) => {
 
     const installationText = `Installation – <b>${config.appInstallation}</b>`;
     const envText = `Env – <b>${config.appEnv}</b>`;
-    const descriptionText = `<br />Service for transferring DataLens entities.`;
+    const descriptionText = `<br />Service for managing DataLens async workflows.`;
 
     setImmediate(() => {
         app.express.use(
@@ -73,7 +73,7 @@ export const initSwagger = (app: ExpressKit, routes: AppRoutes) => {
                     openapi: '3.1.0',
                     info: {
                         version: `${config.appVersion}`,
-                        title: `DataLens Transfer Service`,
+                        title: `DataLens Meta Manager Service`,
                         description: [installationText, envText, descriptionText].join('<br />'),
                     },
                     servers: [{url: '/'}],

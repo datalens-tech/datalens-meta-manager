@@ -1,1 +1,1 @@
-# datalens-transfer
+# datalens-meta-manager

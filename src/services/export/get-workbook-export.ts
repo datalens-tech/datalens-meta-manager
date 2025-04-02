@@ -1,7 +1,7 @@
 import {AppError} from '@gravity-ui/nodekit';
 
 import {checkWorkbookAccessById} from '../../components/us/utils';
-import {TRANSFER_ERROR} from '../../constants';
+import {META_MANAGER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
@@ -37,14 +37,14 @@ export const getWorkbookExport = async (
         .timeout(WorkbookExportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookExport) {
-        throw new AppError(TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST, {
-            code: TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_EXIST,
+        throw new AppError(META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_EXIST, {
+            code: META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_EXIST,
         });
     }
 
     if (workbookExport.status !== ExportStatus.Success) {
-        throw new AppError(TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED, {
-            code: TRANSFER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED,
+        throw new AppError(META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED, {
+            code: META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED,
         });
     }
 
