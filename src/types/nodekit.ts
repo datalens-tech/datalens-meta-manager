@@ -9,6 +9,7 @@ export interface PlatformAppConfig {
     usMasterToken: string;
     swaggerEnabled?: boolean;
     exportDataVerificationKey: string;
+    multitenant: boolean;
 
     // auth
     isAuthEnabled?: boolean;
@@ -18,6 +19,7 @@ export interface PlatformAppConfig {
 export interface PlatformAppContextParams {
     info: CtxInfo;
     registry: Registry;
+
     // auth
     user?: CtxUser;
 }

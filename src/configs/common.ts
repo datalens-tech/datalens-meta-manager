@@ -13,6 +13,7 @@ const config: Partial<AppConfig> = {
     isAuthEnabled,
     appAuthPolicy: isAuthEnabled ? AuthPolicy.required : AuthPolicy.disabled,
     authTokenPublicKey: getEnvCert('AUTH_TOKEN_PUBLIC_KEY'),
+    multitenant: false,
 };
 
 export default config;
