@@ -1,5 +1,6 @@
 import {AppError} from '@gravity-ui/nodekit';
 import {WorkflowNotFoundError} from '@temporalio/common';
+import {HttpStatusCode} from 'axios';
 import {DBError} from 'db-errors';
 import PG_ERRORS from 'pg-error-constants';
 
@@ -28,7 +29,7 @@ export const prepareErrorResponse = (
         switch (dbCode) {
             case PG_ERRORS.UNIQUE_VIOLATION: {
                 return {
-                    code: 400,
+                    code: HttpStatusCode.Conflict,
                     response: {
                         code: META_MANAGER_ERROR.DB_UNIQUE_VIOLATION,
                         message: 'The entity already exists',
@@ -37,7 +38,7 @@ export const prepareErrorResponse = (
             }
             default:
                 return {
-                    code: 500,
+                    code: HttpStatusCode.InternalServerError,
                     response: {
                         message: 'Database error',
                     },
@@ -51,7 +52,7 @@ export const prepareErrorResponse = (
         switch (code) {
             case META_MANAGER_ERROR.VALIDATION_ERROR: {
                 return {
-                    code: 400,
+                    code: HttpStatusCode.BadRequest,
                     response: {
                         code,
                         message,
@@ -62,7 +63,7 @@ export const prepareErrorResponse = (
 
             case META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_EXIST: {
                 return {
-                    code: 404,
+                    code: HttpStatusCode.NotFound,
                     response: {
                         code: META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_EXIST,
                         message: "The export doesn't exist",
@@ -72,7 +73,7 @@ export const prepareErrorResponse = (
 
             case META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED: {
                 return {
-                    code: 409,
+                    code: HttpStatusCode.Conflict,
                     response: {
                         code: META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED,
                         message:
@@ -83,7 +84,7 @@ export const prepareErrorResponse = (
 
             case META_MANAGER_ERROR.WORKBOOK_IMPORT_NOT_EXIST: {
                 return {
-                    code: 404,
+                    code: HttpStatusCode.NotFound,
                     response: {
                         code: META_MANAGER_ERROR.WORKBOOK_IMPORT_NOT_EXIST,
                         message: "The import doesn't exist",
@@ -93,7 +94,7 @@ export const prepareErrorResponse = (
 
             case META_MANAGER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED: {
                 return {
-                    code: 422,
+                    code: HttpStatusCode.UnprocessableEntity,
                     response: {
                         code: META_MANAGER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED,
                         message:
@@ -104,7 +105,7 @@ export const prepareErrorResponse = (
 
             case META_MANAGER_ERROR.WORKBOOK_OPERATION_FORBIDDEN: {
                 return {
-                    code: 403,
+                    code: HttpStatusCode.Forbidden,
                     response: {
                         code,
                         message,
@@ -114,7 +115,7 @@ export const prepareErrorResponse = (
 
             case META_MANAGER_ERROR.WORKBOOK_ALREADY_EXISTS: {
                 return {
-                    code: 409,
+                    code: HttpStatusCode.Conflict,
                     response: {
                         code,
                         message,
@@ -124,7 +125,7 @@ export const prepareErrorResponse = (
         }
 
         return {
-            code: 500,
+            code: HttpStatusCode.InternalServerError,
             response: {
                 message: 'Internal Server Error',
             },
@@ -133,7 +134,7 @@ export const prepareErrorResponse = (
 
     if (error instanceof WorkflowNotFoundError) {
         return {
-            code: 404,
+            code: HttpStatusCode.NotFound,
             response: {
                 message: error.message,
             },
@@ -141,7 +142,7 @@ export const prepareErrorResponse = (
     }
 
     return {
-        code: 500,
+        code: HttpStatusCode.InternalServerError,
         response: {
             message: 'Internal Server Error',
         },
