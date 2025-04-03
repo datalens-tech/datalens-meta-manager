@@ -43,6 +43,7 @@
     "@temporalio/common": "^1.11.7",
     "@temporalio/worker": "^1.11.7",
     "@temporalio/workflow": "^1.11.7",
+    "axios": "^1.8.4",
     "db-errors": "^0.2.3",
     "dotenv": "^16.4.7",
     "jsonwebtoken": "^9.0.2",
