@@ -96,6 +96,6 @@ COPY --from=native-build-stage /opt/app/dist /opt/app/dist
 USER app
 
 ENV NODE_ENV=production
-ENV APP_PORT=8083
+ENV APP_PORT=8080
 
 ENTRYPOINT ["./scripts/preflight.sh"]
