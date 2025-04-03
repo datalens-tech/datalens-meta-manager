@@ -111,6 +111,16 @@ export const prepareErrorResponse = (
                     },
                 };
             }
+
+            case META_MANAGER_ERROR.WORKBOOK_ALREADY_EXISTS: {
+                return {
+                    code: 409,
+                    response: {
+                        code,
+                        message,
+                    },
+                };
+            }
         }
 
         return {

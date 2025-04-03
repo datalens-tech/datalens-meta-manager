@@ -1,7 +1,9 @@
 import {AppError} from '@gravity-ui/nodekit';
+import {HttpStatusCode} from 'axios';
 import {raw} from 'objection';
 
-import {WorkbookStatus} from '../../components/gateway/schema/us/types/workbook';
+import {isGatewayError} from '../../components/gateway';
+import {Workbook, WorkbookStatus} from '../../components/gateway/schema/us/types/workbook';
 import {startImportWorkbookWorkflow} from '../../components/temporal/client';
 import {getDefaultUsHeaders} from '../../components/us/utils';
 import {
@@ -62,16 +64,30 @@ export const startWorkbookImport = async (
 
     const user = getCtxUser(ctx);
 
-    const {responseData: workbook} = await gatewayApi.us.createWorkbook({
-        ctx,
-        headers: getDefaultUsHeaders(ctx),
-        requestId: getCtxRequestIdWithFallback(ctx),
-        args: {
-            title,
-            description,
-            collectionId,
-        },
-    });
+    let workbook: Workbook;
+
+    try {
+        const {responseData} = await gatewayApi.us.createWorkbook({
+            ctx,
+            headers: getDefaultUsHeaders(ctx),
+            requestId: getCtxRequestIdWithFallback(ctx),
+            args: {
+                title,
+                description,
+                collectionId,
+            },
+        });
+
+        workbook = responseData;
+    } catch (error) {
+        if (isGatewayError(error) && error.error.status === HttpStatusCode.Conflict) {
+            throw new AppError(error.error.message, {
+                code: META_MANAGER_ERROR.WORKBOOK_ALREADY_EXISTS,
+            });
+        }
+
+        throw error;
+    }
 
     const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.primary)
         .insert({

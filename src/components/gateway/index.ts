@@ -23,3 +23,4 @@ export const getGatewayConfig = (
 };
 
 export type {GatewayError};
+export {isGatewayError} from './utils';
