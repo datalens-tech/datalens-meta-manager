@@ -13,8 +13,6 @@ import {getAppRoutes} from './routes';
 const beforeAuth: AppMiddleware[] = [];
 const afterAuth: AppMiddleware[] = [ctxInfo];
 
-const preRunPromises: Promise<unknown>[] = [];
-
 if (nodekit.config.isAuthEnabled) {
     nodekit.config.appAuthHandler = appAuth;
 }
@@ -22,7 +20,7 @@ if (nodekit.config.isAuthEnabled) {
 nodekit.config.appFinalErrorHandler = finalRequestHandler;
 
 if (require.main === module) {
-    preRunPromises.push(initTemporal({ctx: nodekit.ctx}));
+    initTemporal({ctx: nodekit.ctx});
 }
 
 const routes = getAppRoutes(nodekit, {beforeAuth, afterAuth});
@@ -35,9 +33,7 @@ if (nodekit.config.swaggerEnabled) {
 }
 
 if (require.main === module) {
-    Promise.all(preRunPromises).then(() => {
-        app.run();
-    });
+    app.run();
 }
 
 export default app;
