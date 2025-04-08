@@ -37,11 +37,7 @@ export const finishImportError = async (
         ]);
     }
 
-    await WorkbookImportModel.query(WorkbookImportModel.primary)
-        .patch({
-            status: ImportStatus.Error,
-        })
-        .where({
-            importId,
-        });
+    await WorkbookImportModel.query(WorkbookImportModel.primary).patch(update).where({
+        importId,
+    });
 };

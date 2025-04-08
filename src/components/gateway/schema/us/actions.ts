@@ -31,12 +31,13 @@ export const actions = {
     createWorkbook: createAction<CreateWorkbookResponse, CreateWorkbookParams>({
         method: 'POST',
         path: () => `/v2/workbooks`,
-        params: ({collectionId, title, description}, headers) => ({
+        params: ({collectionId, title, description, status}, headers) => ({
             headers,
             body: {
                 collectionId,
                 title,
                 description,
+                status,
             },
         }),
     }),
@@ -46,6 +47,23 @@ export const actions = {
         path: ({workbookId}) => `/v2/workbooks/${workbookId}/update`,
         params: ({title, description, status, meta}, headers) => ({
             headers,
+            body: {
+                title,
+                description,
+                status,
+                meta,
+            },
+        }),
+    }),
+
+    _updateWorkbook: createAction<UpdateWorkbookResponse, UpdateWorkbookParams>({
+        method: 'POST',
+        path: ({workbookId}) => `/private/v2/workbooks/${workbookId}/update`,
+        params: ({title, description, status, meta}, headers, {ctx}) => ({
+            headers: {
+                ...headers,
+                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
+            },
             body: {
                 title,
                 description,

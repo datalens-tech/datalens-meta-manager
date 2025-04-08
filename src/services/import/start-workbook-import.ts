@@ -17,7 +17,7 @@ import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {WorkbookExportDataWithHash} from '../../types/workbook-export';
-import {getCtxRequestIdWithFallback, getCtxUser} from '../../utils/ctx';
+import {getCtxInfo, getCtxRequestIdWithFallback, getCtxUser} from '../../utils/ctx';
 import {getExportDataVerificationHash} from '../../utils/export';
 
 type StartWorkbookImportArgs = {
@@ -61,6 +61,7 @@ export const startWorkbookImport = async (
     }
 
     const {gatewayApi} = registry.getGatewayApi();
+    const {tenantId} = getCtxInfo(ctx);
 
     const user = getCtxUser(ctx);
 
@@ -75,6 +76,7 @@ export const startWorkbookImport = async (
                 title,
                 description,
                 collectionId,
+                status: WorkbookStatus.Creating,
             },
         });
 
@@ -104,7 +106,6 @@ export const startWorkbookImport = async (
         requestId: getCtxRequestIdWithFallback(ctx),
         args: {
             workbookId: workbook.workbookId,
-            status: WorkbookStatus.Creating,
             meta: {...workbook.meta, importId: workbookImport.importId},
         },
     });
@@ -112,6 +113,7 @@ export const startWorkbookImport = async (
     await startImportWorkbookWorkflow({
         importId: workbookImport.importId,
         workbookId: workbook.workbookId,
+        tenantId,
     });
 
     ctx.log('START_WORKBOOK_IMPORT_FINISH', {

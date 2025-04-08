@@ -1,12 +1,12 @@
 import {ApplicationFailure} from '@temporalio/common';
 import {PartialModelObject, raw} from 'objection';
+import {v4 as uuidv4} from 'uuid';
 
 import {ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
 import type {
     WorkbookExportEntriesData,
     WorkbookExportEntryNotifications,
 } from '../../../../../db/models/workbook-export/types';
-import {getCtxRequestIdWithFallback} from '../../../../../utils/ctx';
 import {NotificationLevel} from '../../../../gateway/schema/bi/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
@@ -28,7 +28,7 @@ export const exportDataset = async (
     } = await gatewayApi.bi.exportDataset({
         ctx,
         headers: {},
-        requestId: getCtxRequestIdWithFallback(ctx),
+        requestId: uuidv4(),
         args: {datasetId, idMapping},
     });
 

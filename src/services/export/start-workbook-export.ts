@@ -10,7 +10,7 @@ import {
 import {WorkbookExportModel} from '../../db/models';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
-import {getCtxRequestIdWithFallback, getCtxUser} from '../../utils/ctx';
+import {getCtxInfo, getCtxRequestIdWithFallback, getCtxUser} from '../../utils/ctx';
 
 type StartWorkbookExportArgs = {
     workbookId: string;
@@ -27,6 +27,7 @@ export const startWorkbookExport = async (
     });
 
     const {gatewayApi} = registry.getGatewayApi();
+    const {tenantId} = getCtxInfo(ctx);
 
     const {responseData} = await gatewayApi.us.getWorkbook({
         ctx,
@@ -51,6 +52,7 @@ export const startWorkbookExport = async (
     await startExportWorkbookWorkflow({
         exportId: result.exportId,
         workbookId: responseData.workbookId,
+        tenantId,
     });
 
     ctx.log('START_WORKBOOK_EXPORT_FINISH', {
