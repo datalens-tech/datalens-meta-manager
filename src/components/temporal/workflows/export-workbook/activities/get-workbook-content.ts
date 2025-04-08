@@ -1,9 +1,12 @@
-import {getCtxRequestIdWithFallback} from '../../../../../utils/ctx';
+import {v4 as uuidv4} from 'uuid';
+
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
+import {makeTenantIdHeader} from '../../../../us/utils';
 import type {ActivitiesDeps} from '../../../types';
 
 export type GetWorkbookContentArgs = {
     workbookId: string;
+    tenantId?: string;
 };
 
 type GetWorkbookContentResult = {
@@ -16,7 +19,7 @@ type GetWorkbookContentResult = {
 
 export const getWorkbookContent = async (
     {ctx, gatewayApi}: ActivitiesDeps,
-    {workbookId}: GetWorkbookContentArgs,
+    {workbookId, tenantId}: GetWorkbookContentArgs,
 ): Promise<GetWorkbookContentResult> => {
     const connections: string[] = [];
     const datasets: string[] = [];
@@ -29,8 +32,10 @@ export const getWorkbookContent = async (
     while (typeof page === 'number') {
         const {responseData} = await gatewayApi.us._getWorkbookContent({
             ctx,
-            headers: {},
-            requestId: getCtxRequestIdWithFallback(ctx),
+            headers: {
+                ...makeTenantIdHeader(tenantId),
+            },
+            requestId: uuidv4(),
             args: {workbookId, page},
         });
 

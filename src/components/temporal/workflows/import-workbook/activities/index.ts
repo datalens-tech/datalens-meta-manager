@@ -1,3 +1,4 @@
+import {WorkbookStatus} from '../../../../gateway/schema/us/types/workbook';
 import type {ActivitiesDeps} from '../../../types';
 
 import {DeleteWorkbookArgs, deleteWorkbook} from './delete-workbook';
@@ -9,6 +10,7 @@ import {
 } from './get-import-data-entries-info';
 import {ImportConnectionArgs, importConnection} from './import-connection';
 import {ImportDatasetArgs, importDataset} from './import-dataset';
+import {UpdateWorkbookStatusArgs, updateWorkbookStatus} from './update-workbook-status';
 
 export const createActivities = (deps: ActivitiesDeps) => ({
     async finishImportSuccess(args: FinishImportSuccessArgs) {
@@ -33,5 +35,13 @@ export const createActivities = (deps: ActivitiesDeps) => ({
 
     async deleteWorkbook(args: DeleteWorkbookArgs) {
         return deleteWorkbook(deps, args);
+    },
+
+    async updateWorkbookStatusActive(args: Omit<UpdateWorkbookStatusArgs, 'status'>) {
+        return updateWorkbookStatus(deps, {...args, status: WorkbookStatus.Active});
+    },
+
+    async updateWorkbookStatusDeleting(args: Omit<UpdateWorkbookStatusArgs, 'status'>) {
+        return updateWorkbookStatus(deps, {...args, status: WorkbookStatus.Deleting});
     },
 });

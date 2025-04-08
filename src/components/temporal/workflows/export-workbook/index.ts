@@ -32,6 +32,7 @@ const {
 export const exportWorkbook = async ({
     exportId,
     workbookId,
+    tenantId,
 }: ExportWorkbookArgs): Promise<ExportWorkbookResult> => {
     let entriesCount = 0;
     let processedEntriesCount = 0;
@@ -43,6 +44,7 @@ export const exportWorkbook = async ({
     try {
         const {connections, datasets, charts, dashboards, reports} = await getWorkbookContent({
             workbookId,
+            tenantId,
         });
 
         entriesCount =

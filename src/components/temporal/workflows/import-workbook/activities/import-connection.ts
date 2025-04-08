@@ -1,9 +1,9 @@
 import {ApplicationFailure} from '@temporalio/common';
 import {raw} from 'objection';
+import {v4 as uuidv4} from 'uuid';
 
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
-import {getCtxRequestIdWithFallback} from '../../../../../utils/ctx';
 import {NotificationLevel} from '../../../../gateway/schema/bi/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
@@ -50,7 +50,7 @@ export const importConnection = async (
     } = await gatewayApi.bi.importConnection({
         ctx,
         headers: {},
-        requestId: getCtxRequestIdWithFallback(ctx),
+        requestId: uuidv4(),
         args: {
             data: {
                 workbookId,

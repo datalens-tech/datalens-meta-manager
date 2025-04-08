@@ -3,6 +3,7 @@ import {
     ApplicationFailure,
     CancellationScope,
     defineQuery,
+    log,
     proxyActivities,
     setHandler,
     sleep,
@@ -16,6 +17,7 @@ export const getWorkbookImportProgress = defineQuery<number, []>('getProgress');
 export const importWorkbook = async ({
     importId,
     workbookId,
+    tenantId,
 }: ImportWorkbookArgs): Promise<ImportWorkbookResult> => {
     const {
         finishImportSuccess,
@@ -24,6 +26,8 @@ export const importWorkbook = async ({
         importConnection,
         deleteWorkbook,
         importDataset,
+        updateWorkbookStatusActive,
+        updateWorkbookStatusDeleting,
     } = proxyActivities<ReturnType<typeof createActivities>>({
         // TODO: check config values
         retry: {
@@ -75,6 +79,8 @@ export const importWorkbook = async ({
 
         await Promise.all(importDatasetPromises);
 
+        await updateWorkbookStatusActive({workbookId, tenantId});
+
         await finishImportSuccess({importId});
     } catch (error) {
         let failureType: string | undefined;
@@ -84,11 +90,29 @@ export const importWorkbook = async ({
         }
 
         await CancellationScope.nonCancellable(async () => {
-            await finishImportError({importId, failureType});
+            try {
+                await updateWorkbookStatusDeleting({workbookId, tenantId});
+            } catch (_error) {
+                log.error('Failed to update deleting workbook status.', {error: _error});
+            }
 
+            try {
+                await finishImportError({importId, failureType});
+            } catch (_error) {
+                log.error('Failed to finish import with error.', {error: _error});
+            }
+
+            /**
+             * The workbook needs to continue to exist for some
+             * time because we use it to check access to the import.
+             */
             await sleep(60 * 1000 * 5);
 
-            await deleteWorkbook({workbookId});
+            try {
+                await deleteWorkbook({workbookId});
+            } catch (_error) {
+                log.error('Failed to delete workbook.', {error: _error});
+            }
         });
 
         throw error;
