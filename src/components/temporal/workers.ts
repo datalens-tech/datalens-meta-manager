@@ -1,3 +1,4 @@
+import {AppContext} from '@gravity-ui/nodekit';
 import {NativeConnection, Worker} from '@temporalio/worker';
 
 import {isTruthyEnvVariable} from '../../utils';
@@ -18,6 +19,46 @@ const WORKFLOWS_SOURCES = isTruthyEnvVariable('APP_DEV_MODE')
               codePath: require.resolve('../../../workflow-bundle.js'),
           },
       };
+
+const DEFAULT_WORKERS_RESTARTS_COUNT = 3;
+
+const runWorkerWithRestarts = async ({
+    ctx,
+    workerName,
+    runWorkerFn,
+    maxRestarts = DEFAULT_WORKERS_RESTARTS_COUNT,
+}: {
+    ctx: AppContext;
+    workerName: string;
+    runWorkerFn: () => Promise<void>;
+    maxRestarts?: number;
+}) => {
+    let restarts = 0;
+
+    const runWithRestart = async () => {
+        try {
+            ctx.log(`Starting ${workerName} worker (attempt ${restarts}/${maxRestarts})`);
+            await runWorkerFn();
+        } catch (error) {
+            ctx.logError(`${workerName} worker failed:`, error);
+
+            restarts++;
+
+            if (restarts <= maxRestarts) {
+                ctx.log(
+                    `Restarting ${workerName} worker (${restarts}/${maxRestarts} restarts used).`,
+                );
+                await runWithRestart();
+            } else {
+                ctx.logError(`${workerName} worker failed after ${maxRestarts} restart attempts.`);
+
+                throw error;
+            }
+        }
+    };
+
+    return runWithRestart();
+};
 
 export const initWorkers = async (deps: ActivitiesDeps) => {
     const connection = await NativeConnection.connect({address: process.env.TEMPORAL_ENDPOINT});
@@ -59,8 +100,20 @@ export const initWorkers = async (deps: ActivitiesDeps) => {
     };
 
     return Promise.all([
-        runExportWorkbookWorker(),
-        runImportWorkbookWorker(),
-        runClearExpiredWorker(),
+        runWorkerWithRestarts({
+            ctx: deps.ctx,
+            workerName: 'ExportWorkbook',
+            runWorkerFn: runExportWorkbookWorker,
+        }),
+        runWorkerWithRestarts({
+            ctx: deps.ctx,
+            workerName: 'ImportWorkbook',
+            runWorkerFn: runImportWorkbookWorker,
+        }),
+        runWorkerWithRestarts({
+            ctx: deps.ctx,
+            workerName: 'ClearExpired',
+            runWorkerFn: runClearExpiredWorker,
+        }),
     ]);
 };
