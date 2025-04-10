@@ -24,7 +24,7 @@ type StartWorkbookImportArgs = {
     data: WorkbookExportDataWithHash;
     title: string;
     description?: string;
-    collectionId?: string;
+    collectionId?: string | null;
 };
 
 export type StartWorkbookImportResult = {
