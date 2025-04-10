@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-echo "Start migration"
+echo '{"level":"INFO","msg":"Start migration"}'
 npm run db:migrate
-echo "Finish migration"
+echo '{"level":"INFO","msg":"Finish migration"}'
 
 node dist/server
