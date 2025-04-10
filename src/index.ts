@@ -9,9 +9,16 @@ import {initTemporal} from './components/temporal/utils';
 import {appAuth} from './components/auth/middlewares/app-auth';
 import {registry} from './registry';
 import {getAppRoutes} from './routes';
+import {setRegistryToContext} from './components/app-context';
+
+setRegistryToContext(nodekit, registry);
 
 const beforeAuth: AppMiddleware[] = [];
 const afterAuth: AppMiddleware[] = [ctxInfo];
+
+if (nodekit.config.appDevMode) {
+    require('source-map-support').install();
+}
 
 if (nodekit.config.isAuthEnabled) {
     nodekit.config.appAuthHandler = appAuth;
