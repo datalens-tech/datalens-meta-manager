@@ -3,7 +3,7 @@ import {AppError} from '@gravity-ui/nodekit';
 
 import {prepareErrorResponse} from '../error/error-response-presenter';
 
-const logError = (error: AppError, req: Request) => {
+export const logError = (error: AppError, req: Request) => {
     if (error instanceof AppError) {
         const {message} = error;
         req.ctx.log(message, {error});
