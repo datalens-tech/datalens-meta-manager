@@ -14,7 +14,6 @@ type GetWorkbookContentResult = {
     datasets: string[];
     charts: string[];
     dashboards: string[];
-    reports: string[];
 };
 
 export const getWorkbookContent = async (
@@ -25,7 +24,6 @@ export const getWorkbookContent = async (
     const datasets: string[] = [];
     const charts: string[] = [];
     const dashboards: string[] = [];
-    const reports: string[] = [];
 
     let page: number | undefined = 0;
 
@@ -55,9 +53,6 @@ export const getWorkbookContent = async (
                 case EntryScope.Dash:
                     dashboards.push(entry.entryId);
                     break;
-                case EntryScope.Report:
-                    reports.push(entry.entryId);
-                    break;
                 default:
                     break;
             }
@@ -66,5 +61,5 @@ export const getWorkbookContent = async (
         page = nextPageToken ? Number(nextPageToken) : undefined;
     }
 
-    return {connections, datasets, charts, dashboards, reports};
+    return {connections, datasets, charts, dashboards};
 };

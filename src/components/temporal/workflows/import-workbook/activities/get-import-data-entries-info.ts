@@ -10,6 +10,8 @@ export type GetImportDataEntriesInfoArgs = {
 type GetImportDataEntriesInfoResult = {
     connectionIds: string[];
     datasetIds: string[];
+    chartIds: string[];
+    dashIds: string[];
 };
 
 export const getImportDataEntriesInfo = async (
@@ -34,7 +36,9 @@ export const getImportDataEntriesInfo = async (
     const {data} = workbookImport;
 
     return {
-        connectionIds: data.connections ? Object.keys(data.connections) : [],
-        datasetIds: data.datasets ? Object.keys(data.datasets) : [],
+        connectionIds: data.connection ? Object.keys(data.connection) : [],
+        datasetIds: data.dataset ? Object.keys(data.dataset) : [],
+        chartIds: data.widget ? Object.keys(data.widget) : [],
+        dashIds: data.dash ? Object.keys(data.dash) : [],
     };
 };

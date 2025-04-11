@@ -1,4 +1,6 @@
-const endpoint = process.env.US_ENDPOINT || 'http://localhost:8083';
+import {getRequiredEnvVariable} from '../../../../utils';
+
+const endpoint = getRequiredEnvVariable('US_ENDPOINT');
 
 export const endpoints = {
     opensource: {

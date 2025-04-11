@@ -4,58 +4,53 @@ import {v4 as uuidv4} from 'uuid';
 
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
-import {NotificationLevel} from '../../../../gateway/schema/bi/types';
+import {NotificationLevel} from '../../../../gateway/schema/ui/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
 
-export type ImportConnectionArgs = {
+export type ImportEntryArgs = {
+    scope: EntryScope;
     importId: string;
     workbookId: string;
-    mockConnectionId: string;
+    mockEntryId: string;
+    idMapping: Record<string, string>;
 };
 
-type ImportConnectionResult = {
-    connectionId: string;
+type ImportEntryResult = {
+    entryId: string;
 };
 
-export const importConnection = async (
+export const importEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
-    {importId, workbookId, mockConnectionId}: ImportConnectionArgs,
-): Promise<ImportConnectionResult> => {
+    {importId, workbookId, mockEntryId, idMapping, scope}: ImportEntryArgs,
+): Promise<ImportEntryResult> => {
     const result = (await WorkbookImportModel.query(WorkbookImportModel.replica)
-        .select(
-            raw('??->?->? as connection', [
-                ImportModelColumn.Data,
-                'connections',
-                mockConnectionId,
-            ]),
-        )
+        .select(raw('??->?->? as data', [ImportModelColumn.Data, scope, mockEntryId]))
         .first()
         .where({
             importId,
         })) as unknown as {
-        connection: unknown | null;
+        data: Record<string, unknown> | null;
     };
 
-    if (!result.connection) {
+    if (!result.data) {
         throw ApplicationFailure.create({
             nonRetryable: true,
-            message: `No connection data for id: ${mockConnectionId}.`,
+            message: `No data for id: ${mockEntryId}.`,
         });
     }
 
     const {
-        responseData: {id: connectionId, notifications},
-    } = await gatewayApi.bi.importConnection({
+        responseData: {id: entryId, notifications},
+    } = await gatewayApi.ui.importWorkbookEntry({
         ctx,
         headers: {},
         requestId: uuidv4(),
         args: {
-            data: {
-                workbookId,
-                connection: result.connection,
-            },
+            idMapping,
+            entryData: result.data,
+            workbookId,
         },
     });
 
@@ -65,8 +60,8 @@ export const importConnection = async (
                 notifications: raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
                     ImportModelColumn.Notifications,
                     {
-                        entryId: connectionId,
-                        scope: EntryScope.Connection,
+                        entryId,
+                        scope,
                         notifications,
                     } satisfies WorkbookImportEntryNotifications,
                 ]),
@@ -82,11 +77,11 @@ export const importConnection = async (
         if (criticalNotifications.length > 0) {
             throw ApplicationFailure.create({
                 nonRetryable: true,
-                message: `Got critical notification while importing connection: ${mockConnectionId}`,
+                message: `Got critical notification while importing entry: ${mockEntryId}`,
                 type: APPLICATION_FAILURE_TYPE.GOT_CRITICAL_NOTIFICATION,
             });
         }
     }
 
-    return {connectionId};
+    return {entryId};
 };

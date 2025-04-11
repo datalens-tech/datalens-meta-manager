@@ -7,24 +7,22 @@ import {
     setHandler,
 } from '@temporalio/workflow';
 
+import {EntryScope} from '../../../gateway/schema/us/types/entry';
+
 import type {createActivities} from './activities';
 import type {ExportWorkbookArgs, ExportWorkbookResult} from './types';
 
 export const getWorkbookExportProgress = defineQuery<number, []>('getProgress');
 
-const {
-    finishExportSuccess,
-    finishExportError,
-    getWorkbookContent,
-    exportConnection,
-    exportDataset,
-} = proxyActivities<ReturnType<typeof createActivities>>({
+const {finishExportSuccess, finishExportError, getWorkbookContent, exportEntry} = proxyActivities<
+    ReturnType<typeof createActivities>
+>({
     // TODO: check config values
     retry: {
         initialInterval: '1 sec',
         maximumInterval: '4 sec',
         backoffCoefficient: 2,
-        maximumAttempts: 1,
+        maximumAttempts: 3,
     },
     startToCloseTimeout: '1 min',
 });
@@ -42,48 +40,86 @@ export const exportWorkbook = async ({
     });
 
     try {
-        const {connections, datasets, charts, dashboards, reports} = await getWorkbookContent({
+        const {connections, datasets, charts, dashboards} = await getWorkbookContent({
             workbookId,
             tenantId,
         });
 
-        entriesCount =
-            connections.length +
-            datasets.length +
-            charts.length +
-            dashboards.length +
-            reports.length;
+        entriesCount = connections.length + datasets.length + charts.length + dashboards.length;
 
-        const connectionIdMapping: Record<string, string> = {};
+        const idMapping: Record<string, string> = {};
 
         const exportConnectionPromises = connections.map(async (connectionId, index) => {
             const mockConnectionId = `connectionId_${index}`;
 
-            await exportConnection({exportId, connectionId, mockConnectionId});
+            await exportEntry({
+                exportId,
+                entryId: connectionId,
+                mockEntryId: mockConnectionId,
+                scope: EntryScope.Connection,
+                idMapping,
+                workbookId,
+            });
 
             processedEntriesCount++;
-            connectionIdMapping[connectionId] = mockConnectionId;
+            idMapping[connectionId] = mockConnectionId;
         });
 
         await Promise.all(exportConnectionPromises);
 
-        const datasetIdMapping: Record<string, string> = {};
-
         const exportDatasetPromises = datasets.map(async (datasetId, index) => {
             const mockDatasetId = `datasetId_${index}`;
 
-            await exportDataset({
+            await exportEntry({
                 exportId,
-                datasetId,
-                mockDatasetId,
-                idMapping: connectionIdMapping,
+                entryId: datasetId,
+                mockEntryId: mockDatasetId,
+                scope: EntryScope.Dataset,
+                idMapping,
+                workbookId,
             });
 
             processedEntriesCount++;
-            datasetIdMapping[datasetId] = mockDatasetId;
+            idMapping[datasetId] = mockDatasetId;
         });
 
         await Promise.all(exportDatasetPromises);
+
+        const exportChartPromises = charts.map(async (chartId, index) => {
+            const mockChartId = `chartId_${index}`;
+
+            await exportEntry({
+                exportId,
+                entryId: chartId,
+                mockEntryId: mockChartId,
+                scope: EntryScope.Widget,
+                idMapping,
+                workbookId,
+            });
+
+            processedEntriesCount++;
+            idMapping[chartId] = mockChartId;
+        });
+
+        await Promise.all(exportChartPromises);
+
+        const exportDashboardPromises = dashboards.map(async (dashId, index) => {
+            const mockDashId = `dashId_${index}`;
+
+            await exportEntry({
+                exportId,
+                entryId: dashId,
+                mockEntryId: mockDashId,
+                scope: EntryScope.Dash,
+                idMapping,
+                workbookId,
+            });
+
+            processedEntriesCount++;
+            idMapping[dashId] = mockDashId;
+        });
+
+        await Promise.all(exportDashboardPromises);
 
         await finishExportSuccess({exportId});
     } catch (error) {

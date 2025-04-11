@@ -6,7 +6,7 @@ export const entryNotificationSchema = z.object({
     entryId: z.string().optional(),
     scope: z.nativeEnum(EntryScope).optional(),
     code: z.string(),
-    message: z.string(),
+    message: z.string().optional(),
     level: z.string(),
 });
 

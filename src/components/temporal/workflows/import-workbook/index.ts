@@ -9,6 +9,8 @@ import {
     sleep,
 } from '@temporalio/workflow';
 
+import {EntryScope} from '../../../gateway/schema/us/types/entry';
+
 import type {createActivities} from './activities';
 import type {ImportWorkbookArgs, ImportWorkbookResult} from './types';
 
@@ -23,18 +25,17 @@ export const importWorkbook = async ({
         finishImportSuccess,
         finishImportError,
         getImportDataEntriesInfo,
-        importConnection,
         deleteWorkbook,
-        importDataset,
         updateWorkbookStatusActive,
         updateWorkbookStatusDeleting,
+        importEntry,
     } = proxyActivities<ReturnType<typeof createActivities>>({
         // TODO: check config values
         retry: {
             initialInterval: '1 sec',
             maximumInterval: '4 sec',
             backoffCoefficient: 2,
-            maximumAttempts: 1,
+            maximumAttempts: 3,
         },
         startToCloseTimeout: '1 min',
     });
@@ -47,37 +48,73 @@ export const importWorkbook = async ({
     });
 
     try {
-        const {connectionIds, datasetIds} = await getImportDataEntriesInfo({importId});
+        const {connectionIds, datasetIds, chartIds, dashIds} = await getImportDataEntriesInfo({
+            importId,
+        });
 
-        entriesCount = connectionIds.length + datasetIds.length;
+        entriesCount = connectionIds.length + datasetIds.length + chartIds.length + dashIds.length;
 
-        const connectionIdMapping: Record<string, string> = {};
+        const idMapping: Record<string, string> = {};
 
         const importConnectionPromises = connectionIds.map(async (mockConnectionId) => {
-            const {connectionId} = await importConnection({
+            const {entryId} = await importEntry({
                 importId,
                 workbookId,
-                mockConnectionId,
+                mockEntryId: mockConnectionId,
+                scope: EntryScope.Connection,
+                idMapping,
             });
 
             processedEntriesCount++;
-            connectionIdMapping[mockConnectionId] = connectionId;
+            idMapping[mockConnectionId] = entryId;
         });
 
         await Promise.all(importConnectionPromises);
 
         const importDatasetPromises = datasetIds.map(async (mockDatasetId) => {
-            await importDataset({
+            const {entryId} = await importEntry({
                 importId,
                 workbookId,
-                mockDatasetId,
-                idMapping: connectionIdMapping,
+                mockEntryId: mockDatasetId,
+                scope: EntryScope.Dataset,
+                idMapping,
             });
 
             processedEntriesCount++;
+            idMapping[mockDatasetId] = entryId;
         });
 
         await Promise.all(importDatasetPromises);
+
+        const importChartPromises = chartIds.map(async (mockChartId) => {
+            const {entryId} = await importEntry({
+                importId,
+                workbookId,
+                mockEntryId: mockChartId,
+                scope: EntryScope.Widget,
+                idMapping,
+            });
+
+            processedEntriesCount++;
+            idMapping[mockChartId] = entryId;
+        });
+
+        await Promise.all(importChartPromises);
+
+        const importDashPromises = dashIds.map(async (mockDashId) => {
+            const {entryId} = await importEntry({
+                importId,
+                workbookId,
+                mockEntryId: mockDashId,
+                scope: EntryScope.Dash,
+                idMapping,
+            });
+
+            processedEntriesCount++;
+            idMapping[mockDashId] = entryId;
+        });
+
+        await Promise.all(importDashPromises);
 
         await updateWorkbookStatusActive({workbookId, tenantId});
 

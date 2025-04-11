@@ -6,7 +6,7 @@ type MockEntryId = string;
 
 type WorkbookExportNotification = {
     code: string;
-    message: string;
+    message?: string;
     level: NotificationLevel;
 };
 
@@ -24,8 +24,10 @@ export type WorkbookExportEntriesData = Record<MockEntryId, unknown>;
 
 export type WorkbookExportData = {
     version: string;
-    connections?: WorkbookExportEntriesData;
-    datasets?: WorkbookExportEntriesData;
+    connection?: WorkbookExportEntriesData;
+    dataset?: WorkbookExportEntriesData;
+    widget?: WorkbookExportEntriesData;
+    dash?: WorkbookExportEntriesData;
 };
 
 export type WorkbookExportNotifications = WorkbookExportEntryNotifications[];

@@ -8,8 +8,7 @@ import {
     GetImportDataEntriesInfoArgs,
     getImportDataEntriesInfo,
 } from './get-import-data-entries-info';
-import {ImportConnectionArgs, importConnection} from './import-connection';
-import {ImportDatasetArgs, importDataset} from './import-dataset';
+import {ImportEntryArgs, importEntry} from './import-entry';
 import {UpdateWorkbookStatusArgs, updateWorkbookStatus} from './update-workbook-status';
 
 export const createActivities = (deps: ActivitiesDeps) => ({
@@ -25,12 +24,8 @@ export const createActivities = (deps: ActivitiesDeps) => ({
         return getImportDataEntriesInfo(deps, args);
     },
 
-    async importConnection(args: ImportConnectionArgs) {
-        return importConnection(deps, args);
-    },
-
-    async importDataset(args: ImportDatasetArgs) {
-        return importDataset(deps, args);
+    async importEntry(args: ImportEntryArgs) {
+        return importEntry(deps, args);
     },
 
     async deleteWorkbook(args: DeleteWorkbookArgs) {
