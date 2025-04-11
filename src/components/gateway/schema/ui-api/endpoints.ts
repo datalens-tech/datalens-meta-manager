@@ -1,4 +1,6 @@
-const endpoint = process.env.BI_API_ENDPOINT || 'http://localhost:8081';
+import {getRequiredEnvVariable} from '../../../../utils';
+
+const endpoint = getRequiredEnvVariable('UI_API_ENDPOINT');
 
 export const endpoints = {
     opensource: {

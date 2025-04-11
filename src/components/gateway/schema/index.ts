@@ -1,7 +1,7 @@
-import {bi} from './bi';
+import {uiApi} from './ui-api';
 import {us} from './us';
 
 export const schema = {
-    bi,
+    uiApi,
     us,
 };

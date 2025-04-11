@@ -3,41 +3,45 @@ import {PartialModelObject, raw} from 'objection';
 import {v4 as uuidv4} from 'uuid';
 
 import {ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
-import type {
+import {
     WorkbookExportEntriesData,
     WorkbookExportEntryNotifications,
 } from '../../../../../db/models/workbook-export/types';
-import {NotificationLevel} from '../../../../gateway/schema/bi/types';
+import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
 
-export type ExportDatasetArgs = {
+export type ExportEntryArgs = {
     exportId: string;
-    datasetId: string;
-    mockDatasetId: string;
+    entryId: string;
+    mockEntryId: string;
+    scope: EntryScope;
     idMapping: Record<string, string>;
+    workbookId: string;
 };
 
-export const exportDataset = async (
+export const exportEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
-    {exportId, datasetId, mockDatasetId, idMapping}: ExportDatasetArgs,
+    {exportId, entryId, mockEntryId, scope, idMapping, workbookId}: ExportEntryArgs,
 ): Promise<void> => {
     const {
-        responseData: {dataset, notifications},
-    } = await gatewayApi.bi.exportDataset({
+        responseData: {entryData, notifications},
+    } = await gatewayApi.uiApi.exportWorkbookEntry({
         ctx,
         headers: {},
         requestId: uuidv4(),
-        args: {datasetId, idMapping},
+        args: {exportId: entryId, scope, idMapping, workbookId},
     });
 
     const update: PartialModelObject<WorkbookExportModel> = {
-        data: raw("jsonb_set(??, '{datasets}', (COALESCE(??->'datasets', '{}') || ?))", [
+        data: raw("jsonb_set(??, '{??}', (COALESCE(??->?, '{}') || ?))", [
             ExportModelColumn.Data,
+            scope,
             ExportModelColumn.Data,
+            scope,
             {
-                [mockDatasetId]: dataset,
+                [mockEntryId]: entryData,
             } satisfies WorkbookExportEntriesData,
         ]),
     };
@@ -46,8 +50,8 @@ export const exportDataset = async (
         update.notifications = raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
             ExportModelColumn.Notifications,
             {
-                entryId: datasetId,
-                scope: EntryScope.Dataset,
+                entryId,
+                scope,
                 notifications,
             } satisfies WorkbookExportEntryNotifications,
         ]);
@@ -64,7 +68,7 @@ export const exportDataset = async (
     if (criticalNotifications.length > 0) {
         throw ApplicationFailure.create({
             nonRetryable: true,
-            message: `Got critical notification while exporting dataset: ${datasetId}`,
+            message: `Got critical notification while exporting entry: ${entryId}`,
             type: APPLICATION_FAILURE_TYPE.GOT_CRITICAL_NOTIFICATION,
         });
     }

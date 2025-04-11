@@ -5,7 +5,7 @@ type EntryId = string;
 
 type WorkbookImportNotification = {
     code: string;
-    message: string;
+    message?: string;
     level: NotificationLevel;
 };
 
