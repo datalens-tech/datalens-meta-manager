@@ -4,6 +4,8 @@ import type {NodeKit} from '@gravity-ui/nodekit';
 import {initDB as initPostgresDB} from '@gravity-ui/postgreskit';
 import type {Knex} from 'knex';
 
+import {isTruthyEnvVariable} from '../utils';
+
 import {convertCamelCase} from './utils/camel-case';
 
 const DEFAULT_QUERY_TIMEOUT = 40000;
@@ -49,10 +51,12 @@ export const getKnexOptions = (): Knex.Config => ({
 export const initDB = (nodekit: NodeKit) => {
     const dsnList = process.env.POSTGRES_DSN_LIST as string;
 
+    const suppressStatusLogs = isTruthyEnvVariable('SUPPRESS_DB_STATUS_LOGS');
+
     const dispatcherOptions = {
         healthcheckInterval: 5000,
         healthcheckTimeout: 2000,
-        suppressStatusLogs: true,
+        suppressStatusLogs,
     };
 
     const {db, CoreBaseModel, helpers} = initPostgresDB({
