@@ -1,10 +1,15 @@
 import {US_MASTER_TOKEN_HEADER} from '../../../../constants';
 import {createAction} from '../utils';
 
-import type {ExportParams, ExportResponse, ImportParams, ImportResponse} from './types';
+import type {
+    ExportWorkbookEntryParams,
+    ExportWorkbookEntryResponse,
+    ImportWorkbookEntryParams,
+    ImportWorkbookEntryResponse,
+} from './types';
 
 export const actions = {
-    exportWorkbookEntry: createAction<ExportResponse, ExportParams>({
+    exportWorkbookEntry: createAction<ExportWorkbookEntryResponse, ExportWorkbookEntryParams>({
         method: 'POST',
         path: () => {
             return `/api/internal/v1/workbooks/export`;
@@ -23,7 +28,7 @@ export const actions = {
         }),
     }),
 
-    importWorkbookEntry: createAction<ImportResponse, ImportParams>({
+    importWorkbookEntry: createAction<ImportWorkbookEntryResponse, ImportWorkbookEntryParams>({
         method: 'POST',
         path: () => {
             return `/api/internal/v1/workbooks/import`;

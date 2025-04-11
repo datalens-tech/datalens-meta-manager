@@ -116,7 +116,6 @@ export const exportWorkbook = async ({
             });
 
             processedEntriesCount++;
-            idMapping[dashId] = mockDashId;
         });
 
         await Promise.all(exportDashboardPromises);

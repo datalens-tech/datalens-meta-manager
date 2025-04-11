@@ -12,26 +12,26 @@ export type Notification = {
     level: NotificationLevel;
 };
 
-export type ExportParams = {
+export type ExportWorkbookEntryParams = {
     exportId: string;
     scope: EntryScope;
     idMapping: Record<string, string>;
     workbookId: string;
 };
 
-export type ExportResponse = {
+export type ExportWorkbookEntryResponse = {
     connection: unknown;
     notifications: Notification[];
     entryData: Record<string, unknown> | null;
 };
 
-export type ImportParams = {
+export type ImportWorkbookEntryParams = {
     idMapping: Record<string, string>;
     entryData: Record<string, unknown>;
     workbookId: string;
 };
 
-export type ImportResponse = {
+export type ImportWorkbookEntryResponse = {
     id: string;
     notifications: Notification[];
 };

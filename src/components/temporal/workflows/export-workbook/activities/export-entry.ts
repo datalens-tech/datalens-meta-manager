@@ -7,7 +7,7 @@ import {
     WorkbookExportEntriesData,
     WorkbookExportEntryNotifications,
 } from '../../../../../db/models/workbook-export/types';
-import {NotificationLevel} from '../../../../gateway/schema/ui/types';
+import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
@@ -27,7 +27,7 @@ export const exportEntry = async (
 ): Promise<void> => {
     const {
         responseData: {entryData, notifications},
-    } = await gatewayApi.ui.exportWorkbookEntry({
+    } = await gatewayApi.uiApi.exportWorkbookEntry({
         ctx,
         headers: {},
         requestId: uuidv4(),

@@ -1,8 +1,8 @@
 import {actions} from './actions';
 import {endpoints} from './endpoints';
 
-export const ui = {
-    serviceName: 'ui',
+export const uiApi = {
+    serviceName: 'uiApi',
     actions,
     endpoints,
 };

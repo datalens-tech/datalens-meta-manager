@@ -4,7 +4,7 @@ import {v4 as uuidv4} from 'uuid';
 
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
-import {NotificationLevel} from '../../../../gateway/schema/ui/types';
+import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
@@ -43,7 +43,7 @@ export const importEntry = async (
 
     const {
         responseData: {id: entryId, notifications},
-    } = await gatewayApi.ui.importWorkbookEntry({
+    } = await gatewayApi.uiApi.importWorkbookEntry({
         ctx,
         headers: {},
         requestId: uuidv4(),

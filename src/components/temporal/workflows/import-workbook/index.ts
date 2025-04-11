@@ -102,7 +102,7 @@ export const importWorkbook = async ({
         await Promise.all(importChartPromises);
 
         const importDashPromises = dashIds.map(async (mockDashId) => {
-            const {entryId} = await importEntry({
+            await importEntry({
                 importId,
                 workbookId,
                 mockEntryId: mockDashId,
@@ -111,7 +111,6 @@ export const importWorkbook = async ({
             });
 
             processedEntriesCount++;
-            idMapping[mockDashId] = entryId;
         });
 
         await Promise.all(importDashPromises);
