@@ -1,23 +1,23 @@
-import {v4 as uuidv4} from 'uuid';
-
 import {makeTenantIdHeader} from '../../../../us/utils';
 import type {ActivitiesDeps} from '../../../types';
+import {ImportWorkbookArgs} from '../types';
 
 export type DeleteWorkbookArgs = {
-    workbookId: string;
-    tenantId?: string;
+    workflowArgs: ImportWorkbookArgs;
 };
 
 export const deleteWorkbook = async (
     {ctx, gatewayApi}: ActivitiesDeps,
-    {workbookId, tenantId}: DeleteWorkbookArgs,
+    {workflowArgs}: DeleteWorkbookArgs,
 ): Promise<void> => {
+    const {workbookId, tenantId, requestId} = workflowArgs;
+
     await gatewayApi.us._deleteWorkbook({
         ctx,
         headers: {
             ...makeTenantIdHeader(tenantId),
         },
-        requestId: uuidv4(),
+        requestId,
         args: {
             workbookId,
         },

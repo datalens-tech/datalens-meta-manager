@@ -27,11 +27,11 @@ const {finishExportSuccess, finishExportError, getWorkbookContent, exportEntry} 
     startToCloseTimeout: '1 min',
 });
 
-export const exportWorkbook = async ({
-    exportId,
-    workbookId,
-    tenantId,
-}: ExportWorkbookArgs): Promise<ExportWorkbookResult> => {
+export const exportWorkbook = async (
+    workflowArgs: ExportWorkbookArgs,
+): Promise<ExportWorkbookResult> => {
+    const {exportId} = workflowArgs;
+
     let entriesCount = 0;
     let processedEntriesCount = 0;
 
@@ -41,8 +41,7 @@ export const exportWorkbook = async ({
 
     try {
         const {connections, datasets, charts, dashboards} = await getWorkbookContent({
-            workbookId,
-            tenantId,
+            workflowArgs,
         });
 
         entriesCount = connections.length + datasets.length + charts.length + dashboards.length;
@@ -53,12 +52,11 @@ export const exportWorkbook = async ({
             const mockConnectionId = `connectionId_${index}`;
 
             await exportEntry({
-                exportId,
+                workflowArgs,
                 entryId: connectionId,
                 mockEntryId: mockConnectionId,
                 scope: EntryScope.Connection,
                 idMapping,
-                workbookId,
             });
 
             processedEntriesCount++;
@@ -71,12 +69,11 @@ export const exportWorkbook = async ({
             const mockDatasetId = `datasetId_${index}`;
 
             await exportEntry({
-                exportId,
+                workflowArgs,
                 entryId: datasetId,
                 mockEntryId: mockDatasetId,
                 scope: EntryScope.Dataset,
                 idMapping,
-                workbookId,
             });
 
             processedEntriesCount++;
@@ -89,12 +86,11 @@ export const exportWorkbook = async ({
             const mockChartId = `chartId_${index}`;
 
             await exportEntry({
-                exportId,
+                workflowArgs,
                 entryId: chartId,
                 mockEntryId: mockChartId,
                 scope: EntryScope.Widget,
                 idMapping,
-                workbookId,
             });
 
             processedEntriesCount++;
@@ -107,12 +103,11 @@ export const exportWorkbook = async ({
             const mockDashId = `dashId_${index}`;
 
             await exportEntry({
-                exportId,
+                workflowArgs,
                 entryId: dashId,
                 mockEntryId: mockDashId,
                 scope: EntryScope.Dash,
                 idMapping,
-                workbookId,
             });
 
             processedEntriesCount++;
@@ -120,7 +115,7 @@ export const exportWorkbook = async ({
 
         await Promise.all(exportDashboardPromises);
 
-        await finishExportSuccess({exportId});
+        await finishExportSuccess({workflowArgs});
     } catch (error) {
         let failureType: string | undefined;
 
@@ -128,7 +123,9 @@ export const exportWorkbook = async ({
             failureType = error.cause.type || undefined;
         }
 
-        await CancellationScope.nonCancellable(() => finishExportError({exportId, failureType}));
+        await CancellationScope.nonCancellable(() =>
+            finishExportError({workflowArgs, failureType}),
+        );
 
         throw error;
     }

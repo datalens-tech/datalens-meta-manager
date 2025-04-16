@@ -1,14 +1,17 @@
 import {ImportStatus, WorkbookImportModel} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
+import {ImportWorkbookArgs} from '../types';
 
 export type FinishImportSuccessArgs = {
-    importId: string;
+    workflowArgs: ImportWorkbookArgs;
 };
 
 export const finishImportSuccess = async (
     _: ActivitiesDeps,
-    {importId}: FinishImportSuccessArgs,
+    {workflowArgs}: FinishImportSuccessArgs,
 ): Promise<void> => {
+    const {importId} = workflowArgs;
+
     await WorkbookImportModel.query(WorkbookImportModel.primary)
         .patch({
             status: ImportStatus.Success,

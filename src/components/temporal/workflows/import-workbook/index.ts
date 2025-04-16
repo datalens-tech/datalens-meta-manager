@@ -16,29 +16,29 @@ import type {ImportWorkbookArgs, ImportWorkbookResult} from './types';
 
 export const getWorkbookImportProgress = defineQuery<number, []>('getProgress');
 
-export const importWorkbook = async ({
-    importId,
-    workbookId,
-    tenantId,
-}: ImportWorkbookArgs): Promise<ImportWorkbookResult> => {
-    const {
-        finishImportSuccess,
-        finishImportError,
-        getImportDataEntriesInfo,
-        deleteWorkbook,
-        updateWorkbookStatusActive,
-        updateWorkbookStatusDeleting,
-        importEntry,
-    } = proxyActivities<ReturnType<typeof createActivities>>({
-        // TODO: check config values
-        retry: {
-            initialInterval: '1 sec',
-            maximumInterval: '4 sec',
-            backoffCoefficient: 2,
-            maximumAttempts: 3,
-        },
-        startToCloseTimeout: '1 min',
-    });
+const {
+    finishImportSuccess,
+    finishImportError,
+    getImportDataEntriesInfo,
+    deleteWorkbook,
+    updateWorkbookStatusActive,
+    updateWorkbookStatusDeleting,
+    importEntry,
+} = proxyActivities<ReturnType<typeof createActivities>>({
+    // TODO: check config values
+    retry: {
+        initialInterval: '1 sec',
+        maximumInterval: '4 sec',
+        backoffCoefficient: 2,
+        maximumAttempts: 3,
+    },
+    startToCloseTimeout: '1 min',
+});
+
+export const importWorkbook = async (
+    workflowArgs: ImportWorkbookArgs,
+): Promise<ImportWorkbookResult> => {
+    const {importId} = workflowArgs;
 
     let entriesCount = 0;
     let processedEntriesCount = 0;
@@ -49,7 +49,7 @@ export const importWorkbook = async ({
 
     try {
         const {connectionIds, datasetIds, chartIds, dashIds} = await getImportDataEntriesInfo({
-            importId,
+            workflowArgs,
         });
 
         entriesCount = connectionIds.length + datasetIds.length + chartIds.length + dashIds.length;
@@ -58,8 +58,7 @@ export const importWorkbook = async ({
 
         const importConnectionPromises = connectionIds.map(async (mockConnectionId) => {
             const {entryId} = await importEntry({
-                importId,
-                workbookId,
+                workflowArgs,
                 mockEntryId: mockConnectionId,
                 scope: EntryScope.Connection,
                 idMapping,
@@ -73,8 +72,7 @@ export const importWorkbook = async ({
 
         const importDatasetPromises = datasetIds.map(async (mockDatasetId) => {
             const {entryId} = await importEntry({
-                importId,
-                workbookId,
+                workflowArgs,
                 mockEntryId: mockDatasetId,
                 scope: EntryScope.Dataset,
                 idMapping,
@@ -88,8 +86,7 @@ export const importWorkbook = async ({
 
         const importChartPromises = chartIds.map(async (mockChartId) => {
             const {entryId} = await importEntry({
-                importId,
-                workbookId,
+                workflowArgs,
                 mockEntryId: mockChartId,
                 scope: EntryScope.Widget,
                 idMapping,
@@ -103,8 +100,7 @@ export const importWorkbook = async ({
 
         const importDashPromises = dashIds.map(async (mockDashId) => {
             await importEntry({
-                importId,
-                workbookId,
+                workflowArgs,
                 mockEntryId: mockDashId,
                 scope: EntryScope.Dash,
                 idMapping,
@@ -115,9 +111,9 @@ export const importWorkbook = async ({
 
         await Promise.all(importDashPromises);
 
-        await updateWorkbookStatusActive({workbookId, tenantId});
+        await updateWorkbookStatusActive({workflowArgs});
 
-        await finishImportSuccess({importId});
+        await finishImportSuccess({workflowArgs});
     } catch (error) {
         let failureType: string | undefined;
 
@@ -127,25 +123,25 @@ export const importWorkbook = async ({
 
         await CancellationScope.nonCancellable(async () => {
             try {
-                await updateWorkbookStatusDeleting({workbookId, tenantId});
+                await updateWorkbookStatusDeleting({workflowArgs});
             } catch (_error) {
                 log.error('Failed to update deleting workbook status.', {error: _error});
             }
 
             try {
-                await finishImportError({importId, failureType});
+                await finishImportError({workflowArgs, failureType});
             } catch (_error) {
                 log.error('Failed to finish import with error.', {error: _error});
             }
 
             /**
-             * The workbook needs to continue to exist for some
-             * time because we use it to check access to the import.
+             * The workbook needs to continue to exist for some time
+             * because we use it to check access to the import.
              */
-            await sleep(60 * 1000 * 5);
+            await sleep(30 * 1000);
 
             try {
-                await deleteWorkbook({workbookId});
+                await deleteWorkbook({workflowArgs});
             } catch (_error) {
                 log.error('Failed to delete workbook.', {error: _error});
             }

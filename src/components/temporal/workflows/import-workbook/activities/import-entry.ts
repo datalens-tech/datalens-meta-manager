@@ -1,6 +1,5 @@
 import {ApplicationFailure} from '@temporalio/common';
 import {raw} from 'objection';
-import {v4 as uuidv4} from 'uuid';
 
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
@@ -8,11 +7,11 @@ import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
+import {ImportWorkbookArgs} from '../types';
 
 export type ImportEntryArgs = {
+    workflowArgs: ImportWorkbookArgs;
     scope: EntryScope;
-    importId: string;
-    workbookId: string;
     mockEntryId: string;
     idMapping: Record<string, string>;
 };
@@ -23,8 +22,10 @@ type ImportEntryResult = {
 
 export const importEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
-    {importId, workbookId, mockEntryId, idMapping, scope}: ImportEntryArgs,
+    {workflowArgs, mockEntryId, idMapping, scope}: ImportEntryArgs,
 ): Promise<ImportEntryResult> => {
+    const {importId, workbookId, requestId} = workflowArgs;
+
     const result = (await WorkbookImportModel.query(WorkbookImportModel.replica)
         .select(raw('??->?->? as data', [ImportModelColumn.Data, scope, mockEntryId]))
         .first()
@@ -46,7 +47,7 @@ export const importEntry = async (
     } = await gatewayApi.uiApi.importWorkbookEntry({
         ctx,
         headers: {},
-        requestId: uuidv4(),
+        requestId,
         args: {
             idMapping,
             entryData: result.data,

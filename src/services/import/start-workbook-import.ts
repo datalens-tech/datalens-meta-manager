@@ -64,6 +64,7 @@ export const startWorkbookImport = async (
     const {tenantId} = getCtxInfo(ctx);
 
     const user = getCtxUser(ctx);
+    const requestId = getCtxRequestIdWithFallback(ctx);
 
     let workbook: Workbook;
 
@@ -71,7 +72,7 @@ export const startWorkbookImport = async (
         const {responseData} = await gatewayApi.us.createWorkbook({
             ctx,
             headers: getDefaultUsHeaders(ctx),
-            requestId: getCtxRequestIdWithFallback(ctx),
+            requestId,
             args: {
                 title,
                 description,
@@ -103,7 +104,7 @@ export const startWorkbookImport = async (
     await gatewayApi.us.updateWorkbook({
         ctx,
         headers: getDefaultUsHeaders(ctx),
-        requestId: getCtxRequestIdWithFallback(ctx),
+        requestId,
         args: {
             workbookId: workbook.workbookId,
             meta: {...workbook.meta, importId: workbookImport.importId},
@@ -114,6 +115,7 @@ export const startWorkbookImport = async (
         importId: workbookImport.importId,
         workbookId: workbook.workbookId,
         tenantId,
+        requestId,
     });
 
     ctx.log('START_WORKBOOK_IMPORT_FINISH', {

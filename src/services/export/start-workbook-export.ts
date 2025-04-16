@@ -26,13 +26,15 @@ export const startWorkbookExport = async (
         workbookId,
     });
 
+    const requestId = getCtxRequestIdWithFallback(ctx);
+
     const {gatewayApi} = registry.getGatewayApi();
     const {tenantId} = getCtxInfo(ctx);
 
     const {responseData} = await gatewayApi.us.getWorkbook({
         ctx,
         headers: getDefaultUsHeaders(ctx),
-        requestId: getCtxRequestIdWithFallback(ctx),
+        requestId,
         args: {workbookId, includePermissionsInfo: true},
     });
 
@@ -53,6 +55,7 @@ export const startWorkbookExport = async (
         exportId: result.exportId,
         workbookId: responseData.workbookId,
         tenantId,
+        requestId,
     });
 
     ctx.log('START_WORKBOOK_EXPORT_FINISH', {

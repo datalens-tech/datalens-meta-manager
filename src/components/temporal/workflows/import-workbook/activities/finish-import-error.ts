@@ -6,16 +6,19 @@ import {WorkbookImportEntryNotifications} from '../../../../../db/models/workboo
 import {NotificationLevel} from '../../../../../types/models';
 import type {ActivitiesDeps} from '../../../types';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
+import {ImportWorkbookArgs} from '../types';
 
 export type FinishImportErrorArgs = {
-    importId: string;
+    workflowArgs: ImportWorkbookArgs;
     failureType?: string;
 };
 
 export const finishImportError = async (
     _: ActivitiesDeps,
-    {importId, failureType}: FinishImportErrorArgs,
+    {workflowArgs, failureType}: FinishImportErrorArgs,
 ): Promise<void> => {
+    const {importId} = workflowArgs;
+
     const update: PartialModelObject<WorkbookImportModel> = {
         status: ImportStatus.Error,
     };
