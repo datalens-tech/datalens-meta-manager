@@ -1,12 +1,10 @@
-import {v4 as uuidv4} from 'uuid';
-
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import {makeTenantIdHeader} from '../../../../us/utils';
 import type {ActivitiesDeps} from '../../../types';
+import {ExportWorkbookArgs} from '../types';
 
 export type GetWorkbookContentArgs = {
-    workbookId: string;
-    tenantId?: string;
+    workflowArgs: ExportWorkbookArgs;
 };
 
 type GetWorkbookContentResult = {
@@ -18,8 +16,10 @@ type GetWorkbookContentResult = {
 
 export const getWorkbookContent = async (
     {ctx, gatewayApi}: ActivitiesDeps,
-    {workbookId, tenantId}: GetWorkbookContentArgs,
+    {workflowArgs}: GetWorkbookContentArgs,
 ): Promise<GetWorkbookContentResult> => {
+    const {workbookId, tenantId, requestId} = workflowArgs;
+
     const connections: string[] = [];
     const datasets: string[] = [];
     const charts: string[] = [];
@@ -33,7 +33,7 @@ export const getWorkbookContent = async (
             headers: {
                 ...makeTenantIdHeader(tenantId),
             },
-            requestId: uuidv4(),
+            requestId,
             args: {workbookId, page},
         });
 

@@ -1,6 +1,5 @@
 import {ApplicationFailure} from '@temporalio/common';
 import {PartialModelObject, raw} from 'objection';
-import {v4 as uuidv4} from 'uuid';
 
 import {ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
 import {
@@ -11,26 +10,28 @@ import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
+import {ExportWorkbookArgs} from '../types';
 
 export type ExportEntryArgs = {
-    exportId: string;
+    workflowArgs: ExportWorkbookArgs;
     entryId: string;
     mockEntryId: string;
     scope: EntryScope;
     idMapping: Record<string, string>;
-    workbookId: string;
 };
 
 export const exportEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
-    {exportId, entryId, mockEntryId, scope, idMapping, workbookId}: ExportEntryArgs,
+    {workflowArgs, entryId, mockEntryId, scope, idMapping}: ExportEntryArgs,
 ): Promise<void> => {
+    const {workbookId, exportId, requestId} = workflowArgs;
+
     const {
         responseData: {entryData, notifications},
     } = await gatewayApi.uiApi.exportWorkbookEntry({
         ctx,
         headers: {},
-        requestId: uuidv4(),
+        requestId,
         args: {exportId: entryId, scope, idMapping, workbookId},
     });
 

@@ -2,9 +2,10 @@ import {ApplicationFailure} from '@temporalio/common';
 
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
 import type {ActivitiesDeps} from '../../../types';
+import {ImportWorkbookArgs} from '../types';
 
 export type GetImportDataEntriesInfoArgs = {
-    importId: string;
+    workflowArgs: ImportWorkbookArgs;
 };
 
 type GetImportDataEntriesInfoResult = {
@@ -16,8 +17,10 @@ type GetImportDataEntriesInfoResult = {
 
 export const getImportDataEntriesInfo = async (
     _: ActivitiesDeps,
-    {importId}: GetImportDataEntriesInfoArgs,
+    {workflowArgs}: GetImportDataEntriesInfoArgs,
 ): Promise<GetImportDataEntriesInfoResult> => {
+    const {importId} = workflowArgs;
+
     const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.replica)
         .select()
         .where({

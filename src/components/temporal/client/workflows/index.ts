@@ -8,15 +8,17 @@ export const startExportWorkbookWorkflow = async ({
     exportId,
     workbookId,
     tenantId,
+    requestId,
 }: {
     exportId: string;
     workbookId: string;
     tenantId?: string;
+    requestId: string;
 }) => {
     const client = await getClient();
 
     await client.workflow.start(exportWorkbook, {
-        args: [{exportId, workbookId, tenantId}],
+        args: [{exportId, workbookId, tenantId, requestId}],
         taskQueue: EXPORT_WORKBOOK_QUEUE_NAME,
         workflowId: exportId,
     });
@@ -26,15 +28,17 @@ export const startImportWorkbookWorkflow = async ({
     importId,
     workbookId,
     tenantId,
+    requestId,
 }: {
     importId: string;
     workbookId: string;
     tenantId?: string;
+    requestId: string;
 }) => {
     const client = await getClient();
 
     await client.workflow.start(importWorkbook, {
-        args: [{importId, workbookId, tenantId}],
+        args: [{importId, workbookId, tenantId, requestId}],
         taskQueue: IMPORT_WORKBOOK_QUEUE_NAME,
         workflowId: importId,
     });
