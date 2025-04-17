@@ -9,6 +9,7 @@ import {
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
+import {prepareGatewayRestError} from '../../utils';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
 import {ExportWorkbookArgs} from '../types';
 
@@ -26,14 +27,22 @@ export const exportEntry = async (
 ): Promise<void> => {
     const {workbookId, exportId, requestId} = workflowArgs;
 
+    let data;
+
+    try {
+        data = await gatewayApi.uiApi.exportWorkbookEntry({
+            ctx,
+            headers: {},
+            requestId,
+            args: {exportId: entryId, scope, idMapping, workbookId},
+        });
+    } catch (error: unknown) {
+        throw prepareGatewayRestError(error);
+    }
+
     const {
         responseData: {entryData, notifications},
-    } = await gatewayApi.uiApi.exportWorkbookEntry({
-        ctx,
-        headers: {},
-        requestId,
-        args: {exportId: entryId, scope, idMapping, workbookId},
-    });
+    } = data;
 
     const update: PartialModelObject<WorkbookExportModel> = {
         data: raw("jsonb_set(??, '{??}', (COALESCE(??->?, '{}') || ?))", [

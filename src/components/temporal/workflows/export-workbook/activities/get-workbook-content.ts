@@ -1,6 +1,7 @@
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import {makeTenantIdHeader} from '../../../../us/utils';
 import type {ActivitiesDeps} from '../../../types';
+import {prepareGatewayRestError} from '../../utils';
 import {ExportWorkbookArgs} from '../types';
 
 export type GetWorkbookContentArgs = {
@@ -28,16 +29,24 @@ export const getWorkbookContent = async (
     let page: number | undefined = 0;
 
     while (typeof page === 'number') {
-        const {responseData} = await gatewayApi.us._getWorkbookContent({
-            ctx,
-            headers: {
-                ...makeTenantIdHeader(tenantId),
-            },
-            requestId,
-            args: {workbookId, page},
-        });
+        let data;
 
-        const {entries, nextPageToken} = responseData;
+        try {
+            data = await gatewayApi.us._getWorkbookContent({
+                ctx,
+                headers: {
+                    ...makeTenantIdHeader(tenantId),
+                },
+                requestId,
+                args: {workbookId, page},
+            });
+        } catch (error: unknown) {
+            throw prepareGatewayRestError(error);
+        }
+
+        const {
+            responseData: {entries, nextPageToken},
+        } = data;
 
         entries.forEach((entry) => {
             switch (entry.scope) {

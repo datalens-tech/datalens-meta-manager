@@ -1,5 +1,6 @@
 import {makeTenantIdHeader} from '../../../../us/utils';
 import type {ActivitiesDeps} from '../../../types';
+import {prepareGatewayRestError} from '../../utils';
 import {ImportWorkbookArgs} from '../types';
 
 export type DeleteWorkbookArgs = {
@@ -12,14 +13,18 @@ export const deleteWorkbook = async (
 ): Promise<void> => {
     const {workbookId, tenantId, requestId} = workflowArgs;
 
-    await gatewayApi.us._deleteWorkbook({
-        ctx,
-        headers: {
-            ...makeTenantIdHeader(tenantId),
-        },
-        requestId,
-        args: {
-            workbookId,
-        },
-    });
+    try {
+        await gatewayApi.us._deleteWorkbook({
+            ctx,
+            headers: {
+                ...makeTenantIdHeader(tenantId),
+            },
+            requestId,
+            args: {
+                workbookId,
+            },
+        });
+    } catch (error: unknown) {
+        throw prepareGatewayRestError(error);
+    }
 };
