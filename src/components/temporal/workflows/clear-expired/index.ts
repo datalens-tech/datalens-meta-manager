@@ -3,14 +3,13 @@ import {continueAsNew, proxyActivities} from '@temporalio/workflow';
 import type {createActivities} from './activities';
 
 const {clearExports, clearImports} = proxyActivities<ReturnType<typeof createActivities>>({
-    // TODO: check config values
     retry: {
         initialInterval: '1 sec',
-        maximumInterval: '10 sec',
-        backoffCoefficient: 2,
+        maximumInterval: '20 sec',
+        backoffCoefficient: 3,
         maximumAttempts: 5,
     },
-    startToCloseTimeout: '1 minute',
+    startToCloseTimeout: '20 sec',
 });
 
 export const clearExpired = async (): Promise<void> => {

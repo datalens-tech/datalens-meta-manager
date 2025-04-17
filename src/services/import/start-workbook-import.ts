@@ -50,16 +50,6 @@ export const startWorkbookImport = async (
         });
     }
 
-    if (
-        data.hash !==
-        getExportDataVerificationHash({
-            data: data.export,
-            secret: ctx.config.exportDataVerificationKey,
-        })
-    ) {
-        ctx.logWarn('WORKBOOK_IMPORT_DATA_HASH_MISMATCH');
-    }
-
     const {gatewayApi} = registry.getGatewayApi();
     const {tenantId} = getCtxInfo(ctx);
 
@@ -100,6 +90,19 @@ export const startWorkbookImport = async (
             data: data.export,
         })
         .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
+
+    if (
+        data.hash !==
+        getExportDataVerificationHash({
+            data: data.export,
+            secret: ctx.config.exportDataVerificationKey,
+        })
+    ) {
+        ctx.logWarn('WORKBOOK_IMPORT_DATA_HASH_MISMATCH', {
+            importId: workbookImport.importId,
+            workbookId: workbook.workbookId,
+        });
+    }
 
     await gatewayApi.us.updateWorkbook({
         ctx,

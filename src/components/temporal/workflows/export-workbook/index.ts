@@ -17,14 +17,13 @@ export const getWorkbookExportProgress = defineQuery<number, []>('getProgress');
 const {finishExportSuccess, finishExportError, getWorkbookContent, exportEntry} = proxyActivities<
     ReturnType<typeof createActivities>
 >({
-    // TODO: check config values
     retry: {
         initialInterval: '1 sec',
-        maximumInterval: '4 sec',
-        backoffCoefficient: 2,
-        maximumAttempts: 3,
+        maximumInterval: '20 sec',
+        backoffCoefficient: 3,
+        maximumAttempts: 5,
     },
-    startToCloseTimeout: '1 min',
+    startToCloseTimeout: '20 sec',
 });
 
 export const exportWorkbook = async (
