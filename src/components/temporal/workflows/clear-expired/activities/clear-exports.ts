@@ -3,7 +3,7 @@ import {raw} from 'objection';
 import {ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
 import {ActivitiesDeps} from '../../../types';
 
-const LIMIT = 1000;
+const LIMIT = 500;
 
 export const clearExports = async (
     _: ActivitiesDeps,
