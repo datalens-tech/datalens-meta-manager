@@ -1,9 +1,8 @@
 import {AppContext} from '@gravity-ui/nodekit';
 
-import {registry} from '../../registry';
-
-import {initSchedules} from './client/schedules';
-import {initWorkers} from './workers';
+import {registry} from '../../../registry';
+import {initSchedules} from '../client/schedules';
+import {initWorkers} from '../workers';
 
 export const initTemporal = ({ctx}: {ctx: AppContext}) => {
     const {gatewayApi} = registry.getGatewayApi();

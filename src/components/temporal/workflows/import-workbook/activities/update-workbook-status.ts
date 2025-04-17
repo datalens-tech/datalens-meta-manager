@@ -1,6 +1,7 @@
 import {WorkbookStatus} from '../../../../gateway/schema/us/types/workbook';
 import {makeTenantIdHeader} from '../../../../us/utils';
 import type {ActivitiesDeps} from '../../../types';
+import {prepareGatewayRestError} from '../../utils';
 import {ImportWorkbookArgs} from '../types';
 
 export type UpdateWorkbookStatusArgs = {
@@ -14,15 +15,19 @@ export const updateWorkbookStatus = async (
 ): Promise<void> => {
     const {workbookId, tenantId, requestId} = workflowArgs;
 
-    await gatewayApi.us._updateWorkbook({
-        ctx,
-        headers: {
-            ...makeTenantIdHeader(tenantId),
-        },
-        requestId,
-        args: {
-            workbookId,
-            status,
-        },
-    });
+    try {
+        await gatewayApi.us._updateWorkbook({
+            ctx,
+            headers: {
+                ...makeTenantIdHeader(tenantId),
+            },
+            requestId,
+            args: {
+                workbookId,
+                status,
+            },
+        });
+    } catch (error: unknown) {
+        throw prepareGatewayRestError(error);
+    }
 };

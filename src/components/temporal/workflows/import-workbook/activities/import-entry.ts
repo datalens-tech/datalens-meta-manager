@@ -6,6 +6,7 @@ import {WorkbookImportEntryNotifications} from '../../../../../db/models/workboo
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
+import {prepareGatewayRestError} from '../../utils';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
 import {ImportWorkbookArgs} from '../types';
 
@@ -42,18 +43,26 @@ export const importEntry = async (
         });
     }
 
+    let data;
+
+    try {
+        data = await gatewayApi.uiApi.importWorkbookEntry({
+            ctx,
+            headers: {},
+            requestId,
+            args: {
+                idMapping,
+                entryData: result.data,
+                workbookId,
+            },
+        });
+    } catch (error: unknown) {
+        throw prepareGatewayRestError(error);
+    }
+
     const {
         responseData: {id: entryId, notifications},
-    } = await gatewayApi.uiApi.importWorkbookEntry({
-        ctx,
-        headers: {},
-        requestId,
-        args: {
-            idMapping,
-            entryData: result.data,
-            workbookId,
-        },
-    });
+    } = data;
 
     if (notifications.length > 0) {
         await WorkbookImportModel.query(WorkbookImportModel.primary)
