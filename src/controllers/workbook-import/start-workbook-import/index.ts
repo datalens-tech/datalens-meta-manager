@@ -1,11 +1,11 @@
 import {AppRouteHandler} from '@gravity-ui/expresskit';
 
 import {ApiTag, CONTENT_TYPE_JSON} from '../../../components/api-docs';
-import {makeParserSync, makeReqParser, z} from '../../../components/zod';
-import {workbookExportDataWithHashSchema} from '../../../components/zod/schemas/workbook-transfer';
+import {makeReqParser, z} from '../../../components/zod';
 import {startWorkbookImport} from '../../../services/import';
 
 import {responseModel} from './response-model';
+import {validateWorkbookExportDataWithHash} from './utils';
 
 const requestSchema = {
     body: z.object({
@@ -17,8 +17,6 @@ const requestSchema = {
 
 const parseReq = makeReqParser(requestSchema);
 
-const parseData = makeParserSync(workbookExportDataWithHashSchema);
-
 export const startWorkbookImportController: AppRouteHandler = async (req, res) => {
     const {body} = await parseReq(req);
 
@@ -26,9 +24,9 @@ export const startWorkbookImportController: AppRouteHandler = async (req, res) =
      * Zod performs a deep clone of the object.
      * However, we need to keep the original object to properly
      * verify its hash in the startWorkbookImport function.
-     * Therefore, we are only validating the object without using the parse result.
+     * Therefore, we validate data separately.
      */
-    parseData(req.body.data);
+    validateWorkbookExportDataWithHash(req.body.data);
 
     const result = await startWorkbookImport(
         {ctx: req.ctx},
@@ -51,7 +49,7 @@ startWorkbookImportController.api = {
             content: {
                 [CONTENT_TYPE_JSON]: {
                     schema: requestSchema.body.extend({
-                        data: workbookExportDataWithHashSchema,
+                        data: z.object({}),
                     }),
                 },
             },
