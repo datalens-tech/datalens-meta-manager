@@ -8,13 +8,16 @@ import {
     setHandler,
     sleep,
 } from '@temporalio/workflow';
-
-import {EntryScope} from '../../../gateway/schema/us/types/entry';
+import pLimit from 'p-limit';
 
 import type {createActivities} from './activities';
 import type {ImportWorkbookArgs, ImportWorkbookResult} from './types';
 
 export const getWorkbookImportProgress = defineQuery<number, []>('getProgress');
+
+const IMPORT_REQUESTS_CONCURRENCY = 20;
+
+const limit = pLimit(IMPORT_REQUESTS_CONCURRENCY);
 
 const {
     finishImportSuccess,
@@ -24,6 +27,7 @@ const {
     updateWorkbookStatusActive,
     updateWorkbookStatusDeleting,
     importEntry,
+    getImportCapabilities,
 } = proxyActivities<ReturnType<typeof createActivities>>({
     retry: {
         initialInterval: '1 sec',
@@ -47,68 +51,45 @@ export const importWorkbook = async (
     });
 
     try {
-        const {connectionIds, datasetIds, chartIds, dashIds} = await getImportDataEntriesInfo({
-            workflowArgs,
-        });
+        const [{entryIdsByScope, total}, {importOrder, availableScopes}] = await Promise.all([
+            getImportDataEntriesInfo({
+                workflowArgs,
+            }),
+            getImportCapabilities({workflowArgs}),
+        ]);
 
-        entriesCount = connectionIds.length + datasetIds.length + chartIds.length + dashIds.length;
+        entriesCount = total;
 
         const idMapping: Record<string, string> = {};
 
-        const importConnectionPromises = connectionIds.map(async (mockConnectionId) => {
-            const {entryId} = await importEntry({
-                workflowArgs,
-                mockEntryId: mockConnectionId,
-                scope: EntryScope.Connection,
-                idMapping,
-            });
+        for (const scopesBatch of importOrder) {
+            const importEntryPromises = [];
 
-            processedEntriesCount++;
-            idMapping[mockConnectionId] = entryId;
-        });
+            for (const scope of scopesBatch) {
+                if (!entryIdsByScope[scope]) {
+                    continue;
+                }
 
-        await Promise.all(importConnectionPromises);
+                // eslint-disable-next-line @typescript-eslint/no-loop-func
+                const scopeImportEntryPromises = entryIdsByScope[scope].map(async (mockEntryId) =>
+                    limit(async () => {
+                        const {entryId} = await importEntry({
+                            workflowArgs,
+                            mockEntryId,
+                            scope,
+                            idMapping,
+                        });
 
-        const importDatasetPromises = datasetIds.map(async (mockDatasetId) => {
-            const {entryId} = await importEntry({
-                workflowArgs,
-                mockEntryId: mockDatasetId,
-                scope: EntryScope.Dataset,
-                idMapping,
-            });
+                        processedEntriesCount++;
+                        idMapping[mockEntryId] = entryId;
+                    }),
+                );
 
-            processedEntriesCount++;
-            idMapping[mockDatasetId] = entryId;
-        });
+                importEntryPromises.push(...scopeImportEntryPromises);
+            }
 
-        await Promise.all(importDatasetPromises);
-
-        const importChartPromises = chartIds.map(async (mockChartId) => {
-            const {entryId} = await importEntry({
-                workflowArgs,
-                mockEntryId: mockChartId,
-                scope: EntryScope.Widget,
-                idMapping,
-            });
-
-            processedEntriesCount++;
-            idMapping[mockChartId] = entryId;
-        });
-
-        await Promise.all(importChartPromises);
-
-        const importDashPromises = dashIds.map(async (mockDashId) => {
-            await importEntry({
-                workflowArgs,
-                mockEntryId: mockDashId,
-                scope: EntryScope.Dash,
-                idMapping,
-            });
-
-            processedEntriesCount++;
-        });
-
-        await Promise.all(importDashPromises);
+            await Promise.all(importEntryPromises);
+        }
 
         await updateWorkbookStatusActive({workflowArgs});
 

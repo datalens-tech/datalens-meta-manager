@@ -35,3 +35,7 @@ export type ImportWorkbookEntryResponse = {
     id: string;
     notifications: Notification[];
 };
+
+export type GetWorkbooksTransferCapabilitiesResponse = {
+    dependencies: Record<EntryScope, EntryScope[]>;
+};

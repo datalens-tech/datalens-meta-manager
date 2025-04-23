@@ -1,5 +1,6 @@
 import {AppError} from '@gravity-ui/nodekit';
 
+import {EntryScope} from '../../../components/gateway/schema/us/types/entry';
 import {META_MANAGER_ERROR} from '../../../constants';
 import {WorkbookExportDataWithHash} from '../../../types/workbook-export';
 import {isObject} from '../../../utils';
@@ -53,10 +54,17 @@ export const validateWorkbookExportDataWithHash = (
         });
     }
 
-    validateWorkbookExportEntriesData(obj.export.connection, 'connection');
-    validateWorkbookExportEntriesData(obj.export.dataset, 'dataset');
-    validateWorkbookExportEntriesData(obj.export.widget, 'widget');
-    validateWorkbookExportEntriesData(obj.export.dash, 'dash');
+    if (!isObject(obj.export.entries)) {
+        throw new AppError(`data.export.entries must be an object.`, {
+            code: META_MANAGER_ERROR.VALIDATION_ERROR,
+        });
+    }
+
+    const entries = obj.export.entries;
+
+    Object.keys(entries).forEach((scope) => {
+        validateWorkbookExportEntriesData(entries[scope as EntryScope], scope);
+    });
 
     return true;
 };

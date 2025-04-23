@@ -50,6 +50,7 @@
     "knex": "^3.1.0",
     "lodash": "^4.17.21",
     "objection": "^3.1.5",
+    "p-limit": "^3.1.0",
     "pg-error-constants": "^1.0.0",
     "power-radix": "^3.0.1",
     "source-map-support": "^0.5.21",

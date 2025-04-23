@@ -24,10 +24,9 @@ export type WorkbookExportEntriesData = Record<MockEntryId, unknown>;
 
 export type WorkbookExportData = {
     version: string;
-    connection?: WorkbookExportEntriesData;
-    dataset?: WorkbookExportEntriesData;
-    widget?: WorkbookExportEntriesData;
-    dash?: WorkbookExportEntriesData;
+    entries: {
+        [key in EntryScope]?: WorkbookExportEntriesData;
+    };
 };
 
 export type WorkbookExportNotifications = WorkbookExportEntryNotifications[];

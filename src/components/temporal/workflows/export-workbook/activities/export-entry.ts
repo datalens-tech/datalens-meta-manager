@@ -16,14 +16,13 @@ import {ExportWorkbookArgs} from '../types';
 export type ExportEntryArgs = {
     workflowArgs: ExportWorkbookArgs;
     entryId: string;
-    mockEntryId: string;
     scope: EntryScope;
     idMapping: Record<string, string>;
 };
 
 export const exportEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
-    {workflowArgs, entryId, mockEntryId, scope, idMapping}: ExportEntryArgs,
+    {workflowArgs, entryId, scope, idMapping}: ExportEntryArgs,
 ): Promise<void> => {
     const {workbookId, exportId, requestId} = workflowArgs;
 
@@ -44,11 +43,15 @@ export const exportEntry = async (
         responseData: {entryData, notifications},
     } = data;
 
+    const mockEntryId = idMapping[entryId];
+
     const update: PartialModelObject<WorkbookExportModel> = {
-        data: raw("jsonb_set(??, '{??}', (COALESCE(??->?, '{}') || ?))", [
+        data: raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
             ExportModelColumn.Data,
+            'entries',
             scope,
             ExportModelColumn.Data,
+            'entries',
             scope,
             {
                 [mockEntryId]: entryData,

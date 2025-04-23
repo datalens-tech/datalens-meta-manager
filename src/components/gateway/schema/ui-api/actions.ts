@@ -4,6 +4,7 @@ import {createAction} from '../utils';
 import type {
     ExportWorkbookEntryParams,
     ExportWorkbookEntryResponse,
+    GetWorkbooksTransferCapabilitiesResponse,
     ImportWorkbookEntryParams,
     ImportWorkbookEntryResponse,
 } from './types';
@@ -42,6 +43,19 @@ export const actions = {
                 idMapping,
                 workbookId,
                 entryData,
+            },
+        }),
+    }),
+
+    getWorkbooksTransferCapabilities: createAction<GetWorkbooksTransferCapabilitiesResponse>({
+        method: 'GET',
+        path: () => {
+            return `/api/internal/v1/workbooks/meta-manager/capabilities`;
+        },
+        params: (_, headers, {ctx}) => ({
+            headers: {
+                ...headers,
+                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
             },
         }),
     }),

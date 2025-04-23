@@ -1,6 +1,7 @@
 import {ApplicationFailure} from '@temporalio/common';
 
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
+import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
 import {ImportWorkbookArgs} from '../types';
 
@@ -9,10 +10,8 @@ export type GetImportDataEntriesInfoArgs = {
 };
 
 type GetImportDataEntriesInfoResult = {
-    connectionIds: string[];
-    datasetIds: string[];
-    chartIds: string[];
-    dashIds: string[];
+    entryIdsByScope: {[key in EntryScope]?: string[]};
+    total: number;
 };
 
 export const getImportDataEntriesInfo = async (
@@ -36,12 +35,22 @@ export const getImportDataEntriesInfo = async (
         });
     }
 
-    const {data} = workbookImport;
+    const {
+        data: {entries},
+    } = workbookImport;
+
+    const entryIdsByScope: {[key in EntryScope]?: string[]} = {};
+    let total = 0;
+
+    for (const scope of Object.keys(entries) as EntryScope[]) {
+        const ids = entries[scope] ? Object.keys(entries[scope]) : [];
+
+        entryIdsByScope[scope] = ids;
+        total += ids.length;
+    }
 
     return {
-        connectionIds: data.connection ? Object.keys(data.connection) : [],
-        datasetIds: data.dataset ? Object.keys(data.dataset) : [],
-        chartIds: data.widget ? Object.keys(data.widget) : [],
-        dashIds: data.dash ? Object.keys(data.dash) : [],
+        entryIdsByScope,
+        total,
     };
 };
