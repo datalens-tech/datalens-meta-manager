@@ -10,6 +10,8 @@ import {
 } from '@temporalio/workflow';
 import pLimit from 'p-limit';
 
+import {EntryScope} from '../../../gateway/schema/us/types/entry';
+
 import type {createActivities} from './activities';
 import type {ImportWorkbookArgs, ImportWorkbookResult} from './types';
 
@@ -28,6 +30,7 @@ const {
     updateWorkbookStatusDeleting,
     importEntry,
     getImportCapabilities,
+    checkScopesAvailability,
 } = proxyActivities<ReturnType<typeof createActivities>>({
     retry: {
         initialInterval: '1 sec',
@@ -51,12 +54,13 @@ export const importWorkbook = async (
     });
 
     try {
-        const [{entryIdsByScope, total}, {importOrder, availableScopes}] = await Promise.all([
-            getImportDataEntriesInfo({
-                workflowArgs,
-            }),
-            getImportCapabilities({workflowArgs}),
-        ]);
+        const [{entryIdsByScope, total}, {importOrder, installationAvailableScopes}] =
+            await Promise.all([
+                getImportDataEntriesInfo({
+                    workflowArgs,
+                }),
+                getImportCapabilities({workflowArgs}),
+            ]);
 
         entriesCount = total;
 
@@ -90,6 +94,18 @@ export const importWorkbook = async (
 
             await Promise.all(importEntryPromises);
         }
+
+        await checkScopesAvailability({
+            workflowArgs,
+            installationAvailableScopes,
+            exportedScopes: Object.keys(entryIdsByScope) as EntryScope[],
+        });
+
+        /**
+         *  If some scopes not available for current installation,
+         *  some entries will be skipped therefore we must push forward progress.
+         */
+        processedEntriesCount = entriesCount;
 
         await updateWorkbookStatusActive({workflowArgs});
 

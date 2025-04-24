@@ -2,6 +2,7 @@ import {ApplicationFailure} from '@temporalio/common';
 import {raw} from 'objection';
 
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
+import {WORKBOOK_EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/workbook-export/constants';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
@@ -28,7 +29,14 @@ export const importEntry = async (
     const {importId, workbookId, requestId} = workflowArgs;
 
     const result = (await WorkbookImportModel.query(WorkbookImportModel.replica)
-        .select(raw('??->?->? as data', [ImportModelColumn.Data, scope, mockEntryId]))
+        .select(
+            raw('??->?->?->? as data', [
+                ImportModelColumn.Data,
+                WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
+                scope,
+                mockEntryId,
+            ]),
+        )
         .first()
         .where({
             importId,

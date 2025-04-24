@@ -2,6 +2,7 @@ import {ApplicationFailure} from '@temporalio/common';
 import {PartialModelObject, raw} from 'objection';
 
 import {ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
+import {WORKBOOK_EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/workbook-export/constants';
 import {
     WorkbookExportEntriesData,
     WorkbookExportEntryNotifications,
@@ -48,10 +49,10 @@ export const exportEntry = async (
     const update: PartialModelObject<WorkbookExportModel> = {
         data: raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
             ExportModelColumn.Data,
-            'entries',
+            WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
             scope,
             ExportModelColumn.Data,
-            'entries',
+            WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
             scope,
             {
                 [mockEntryId]: entryData,

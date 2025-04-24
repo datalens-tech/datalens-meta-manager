@@ -1,6 +1,8 @@
 import {EntryScope} from '../../../components/gateway/schema/us/types/entry';
 import {NotificationLevel} from '../../../types/models';
 
+import {WORKBOOK_EXPORT_DATA_ENTRIES_FIELD} from './constants';
+
 type EntryId = string;
 type MockEntryId = string;
 
@@ -24,7 +26,7 @@ export type WorkbookExportEntriesData = Record<MockEntryId, unknown>;
 
 export type WorkbookExportData = {
     version: string;
-    entries: {
+    [WORKBOOK_EXPORT_DATA_ENTRIES_FIELD]: {
         [key in EntryScope]?: WorkbookExportEntriesData;
     };
 };

@@ -13,7 +13,7 @@ type ImportOrder = EntryScope[][];
 
 type GetImportCapabilitiesResult = {
     importOrder: ImportOrder;
-    availableScopes: EntryScope[];
+    installationAvailableScopes: EntryScope[];
 };
 
 const resolveImportOrder = (dependencies: Record<EntryScope, EntryScope[]>): ImportOrder => {
@@ -70,6 +70,6 @@ export const getImportCapabilities = async (
 
     return {
         importOrder: resolveImportOrder(data.responseData.dependencies),
-        availableScopes: Object.keys(data.responseData.dependencies) as EntryScope[],
+        installationAvailableScopes: Object.keys(data.responseData.dependencies) as EntryScope[],
     };
 };

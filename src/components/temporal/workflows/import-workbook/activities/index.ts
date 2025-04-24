@@ -1,6 +1,7 @@
 import {WorkbookStatus} from '../../../../gateway/schema/us/types/workbook';
 import type {ActivitiesDeps} from '../../../types';
 
+import {CheckScopesAvailabilityArgs, checkScopesAvailability} from './check-scopes-availability';
 import {DeleteWorkbookArgs, deleteWorkbook} from './delete-workbook';
 import {FinishImportErrorArgs, finishImportError} from './finish-import-error';
 import {FinishImportSuccessArgs, finishImportSuccess} from './finish-import-success';
@@ -43,5 +44,9 @@ export const createActivities = (deps: ActivitiesDeps) => ({
 
     async getImportCapabilities(args: GetImportCapabilitiesArgs) {
         return getImportCapabilities(deps, args);
+    },
+
+    async checkScopesAvailability(args: CheckScopesAvailabilityArgs) {
+        return checkScopesAvailability(deps, args);
     },
 });
