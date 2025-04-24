@@ -7,7 +7,11 @@ const buildWorkflowBundle = async () => {
     const {code} = await bundleWorkflowCode({
         workflowsPath: require.resolve('../workflows'),
     });
-    const bundlePath = path.join(__dirname, '../../../../dist/workflow-bundle.js');
+
+    const pathParam =
+        process.argv[2] ?? '../../../../dist/server/components/temporal/workflow-bundle.js';
+
+    const bundlePath = path.join(__dirname, pathParam);
 
     await writeFile(bundlePath, code);
     console.log(`Bundle written to ${bundlePath}`);

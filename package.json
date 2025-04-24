@@ -13,7 +13,7 @@
   "scripts": {
     "x--------------------------------------------------------Build": "exit 1",
     "build:workflow": "ts-node src/components/temporal/scripts/build-workflow-bundle.ts",
-    "build": "npm run clear:dist && npm run build:workflow && tsc",
+    "build": "npm run clear:dist && tsc && npm run build:workflow",
     "dev": "npm run clear:dist && APP_DEV_MODE=1 tsc-watch --onSuccess 'node dist/server'",
     "clear:dist": "rm -rf ./dist/server",
     "x--------------------------------------------------------CI": "exit 1",

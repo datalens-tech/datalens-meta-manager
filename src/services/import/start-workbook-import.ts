@@ -98,7 +98,7 @@ export const startWorkbookImport = async (
             secret: ctx.config.exportDataVerificationKey,
         })
     ) {
-        ctx.logWarn('WORKBOOK_IMPORT_DATA_HASH_MISMATCH', {
+        ctx.log('WORKBOOK_IMPORT_DATA_HASH_MISMATCH', {
             importId: workbookImport.importId,
             workbookId: workbook.workbookId,
         });
