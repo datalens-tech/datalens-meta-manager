@@ -33,7 +33,7 @@ export const checkScopesAvailability = async (
     const notifications: WorkbookImportNotification[] = notAvailableScopes.map((scope) => ({
         code: META_MANAGER_NOTIFICATION_CODE.SCOPE_NOT_AVAILABLE_FOR_INSTALLATION,
         level: NotificationLevel.Warning,
-        message: `Entries with scope "${scope}" is not available in current installation.`,
+        message: `Entries with scope "${scope}" is not available in current installation adn will not be imported.`,
     }));
 
     await WorkbookImportModel.query(WorkbookImportModel.primary)
