@@ -16,7 +16,7 @@ const WORKFLOWS_SOURCES = isTruthyEnvVariable('APP_DEV_MODE')
     ? {workflowsPath: require.resolve('./workflows')}
     : {
           workflowBundle: {
-              codePath: require.resolve('../../../workflow-bundle.js'),
+              codePath: require.resolve('./workflow-bundle.js'),
           },
       };
 
