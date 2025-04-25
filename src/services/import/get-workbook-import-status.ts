@@ -7,6 +7,7 @@ import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
 import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../db/models';
 import {WorkbookImportNotifications} from '../../db/models/workbook-import/types';
+import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 
@@ -36,7 +37,9 @@ export const getWorkbookImportStatus = async (
     const handle = client.workflow.getHandle(importId);
     const progress = await handle.query(getWorkbookImportProgress);
 
-    const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.replica)
+    const {db} = registry.getDbInstance();
+
+    const workbookImport = await WorkbookImportModel.query(db.replica)
         .select([
             ImportModelColumn.ImportId,
             ImportModelColumn.Status,

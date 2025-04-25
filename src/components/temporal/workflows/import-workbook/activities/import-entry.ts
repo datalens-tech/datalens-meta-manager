@@ -4,6 +4,8 @@ import {raw} from 'objection';
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
 import {WORKBOOK_EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/workbook-export/constants';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
+import {registry} from '../../../../../registry';
+import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
@@ -26,9 +28,11 @@ export const importEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
     {workflowArgs, mockEntryId, idMapping, scope}: ImportEntryArgs,
 ): Promise<ImportEntryResult> => {
-    const {importId, workbookId, requestId} = workflowArgs;
+    const {importId, workbookId, requestId, tenantId} = workflowArgs;
 
-    const result = (await WorkbookImportModel.query(WorkbookImportModel.replica)
+    const {db} = registry.getDbInstance();
+
+    const result = (await WorkbookImportModel.query(db.replica)
         .select(
             raw('??->?->?->? as data', [
                 ImportModelColumn.Data,
@@ -56,7 +60,9 @@ export const importEntry = async (
     try {
         data = await gatewayApi.uiApi.importWorkbookEntry({
             ctx,
-            headers: {},
+            headers: {
+                ...makeTenantIdHeader(tenantId),
+            },
             requestId,
             args: {
                 idMapping,
@@ -73,7 +79,7 @@ export const importEntry = async (
     } = data;
 
     if (notifications.length > 0) {
-        await WorkbookImportModel.query(WorkbookImportModel.primary)
+        await WorkbookImportModel.query(db.primary)
             .patch({
                 notifications: raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
                     ImportModelColumn.Notifications,

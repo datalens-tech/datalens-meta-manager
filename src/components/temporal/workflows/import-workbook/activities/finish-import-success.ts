@@ -1,4 +1,5 @@
 import {ImportStatus, WorkbookImportModel} from '../../../../../db/models';
+import {registry} from '../../../../../registry';
 import type {ActivitiesDeps} from '../../../types';
 import {ImportWorkbookArgs} from '../types';
 
@@ -12,7 +13,9 @@ export const finishImportSuccess = async (
 ): Promise<void> => {
     const {importId} = workflowArgs;
 
-    await WorkbookImportModel.query(WorkbookImportModel.primary)
+    const {db} = registry.getDbInstance();
+
+    await WorkbookImportModel.query(db.primary)
         .patch({
             status: ImportStatus.Success,
         })

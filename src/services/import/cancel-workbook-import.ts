@@ -4,6 +4,7 @@ import {getClient} from '../../components/temporal/client';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
 import {ImportModelColumn, WorkbookImportModel} from '../../db/models';
+import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 
@@ -25,7 +26,9 @@ export const cancelWorkbookImport = async (
         importId,
     });
 
-    const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.replica)
+    const {db} = registry.getDbInstance();
+
+    const workbookImport = await WorkbookImportModel.query(db.replica)
         .select([ImportModelColumn.ImportId, ImportModelColumn.Meta])
         .where({
             [ImportModelColumn.ImportId]: importId,

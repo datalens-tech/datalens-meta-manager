@@ -37,7 +37,7 @@ const runWorkerWithRestarts = async ({
 
     const runWithRestart = async () => {
         try {
-            ctx.log(`Starting ${workerName} worker (attempt ${restarts}/${maxRestarts})`);
+            ctx.log(`Starting ${workerName} worker (attempt ${restarts + 1}/${maxRestarts})`);
             await runWorkerFn();
         } catch (error) {
             ctx.logError(`${workerName} worker failed:`, error);

@@ -1,6 +1,7 @@
 import {ApplicationFailure} from '@temporalio/common';
 
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
+import {registry} from '../../../../../registry';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
 import {ImportWorkbookArgs} from '../types';
@@ -20,7 +21,9 @@ export const getImportDataEntriesInfo = async (
 ): Promise<GetImportDataEntriesInfoResult> => {
     const {importId} = workflowArgs;
 
-    const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.replica)
+    const {db} = registry.getDbInstance();
+
+    const workbookImport = await WorkbookImportModel.query(db.replica)
         .select()
         .where({
             [ImportModelColumn.ImportId]: importId,

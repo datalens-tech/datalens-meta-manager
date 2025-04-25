@@ -7,6 +7,8 @@ import {
     WorkbookExportEntriesData,
     WorkbookExportEntryNotifications,
 } from '../../../../../db/models/workbook-export/types';
+import {registry} from '../../../../../registry';
+import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
@@ -25,14 +27,16 @@ export const exportEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
     {workflowArgs, entryId, scope, idMapping}: ExportEntryArgs,
 ): Promise<void> => {
-    const {workbookId, exportId, requestId} = workflowArgs;
+    const {workbookId, exportId, requestId, tenantId} = workflowArgs;
 
     let data;
 
     try {
         data = await gatewayApi.uiApi.exportWorkbookEntry({
             ctx,
-            headers: {},
+            headers: {
+                ...makeTenantIdHeader(tenantId),
+            },
             requestId,
             args: {exportId: entryId, scope, idMapping, workbookId},
         });
@@ -71,7 +75,9 @@ export const exportEntry = async (
         ]);
     }
 
-    await WorkbookExportModel.query(WorkbookExportModel.primary).patch(update).where({
+    const {db} = registry.getDbInstance();
+
+    await WorkbookExportModel.query(db.primary).patch(update).where({
         exportId,
     });
 
