@@ -1,6 +1,6 @@
 import {Request, Response} from '@gravity-ui/expresskit';
 
-import {db} from '../db';
+import {registry} from '../registry';
 
 export default {
     ping: async (_: Request, res: Response) => {
@@ -9,6 +9,8 @@ export default {
 
     pingDb: async (req: Request, res: Response) => {
         const {ctx} = req;
+
+        const {db} = registry.getDbInstance();
 
         try {
             await db.replica.raw('select 1 + 1');
@@ -24,6 +26,8 @@ export default {
     pingDbPrimary: async (req: Request, res: Response) => {
         const {ctx} = req;
 
+        const {db} = registry.getDbInstance();
+
         try {
             await db.primary.raw('select 1 + 1');
 
@@ -37,6 +41,8 @@ export default {
 
     pool: async (req: Request, res: Response) => {
         const {ctx} = req;
+
+        const {db} = registry.getDbInstance();
 
         try {
             const primaryPool = db.primary.client.pool;
