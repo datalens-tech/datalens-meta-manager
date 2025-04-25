@@ -1,7 +1,7 @@
 import path from 'path';
 
 import type {NodeKit} from '@gravity-ui/nodekit';
-import {initDB as initPostgresDB} from '@gravity-ui/postgreskit';
+import {getModel, initDB as initPostgresDB} from '@gravity-ui/postgreskit';
 import type {Knex} from 'knex';
 
 import {isTruthyEnvVariable} from '../utils';
@@ -48,6 +48,10 @@ export const getKnexOptions = (): Knex.Config => ({
     debug: false,
 });
 
+export class Model extends getModel() {
+    static DEFAULT_QUERY_TIMEOUT = DEFAULT_QUERY_TIMEOUT;
+}
+
 export const initDB = (nodekit: NodeKit) => {
     const dsnList = process.env.POSTGRES_DSN_LIST as string;
 
@@ -59,7 +63,7 @@ export const initDB = (nodekit: NodeKit) => {
         suppressStatusLogs,
     };
 
-    const {db, CoreBaseModel, helpers} = initPostgresDB({
+    const {db, helpers} = initPostgresDB({
         connectionString: dsnList,
         dispatcherOptions,
         knexOptions: getKnexOptions(),
@@ -72,10 +76,6 @@ export const initDB = (nodekit: NodeKit) => {
     async function getId() {
         const queryResult = await db.primary.raw('select get_id() as id');
         return queryResult.rows[0].id;
-    }
-
-    class Model extends CoreBaseModel {
-        static DEFAULT_QUERY_TIMEOUT = DEFAULT_QUERY_TIMEOUT;
     }
 
     return {db, Model, getId, helpers};
