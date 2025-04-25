@@ -2,6 +2,7 @@ import {ApplicationFailure} from '@temporalio/common';
 import {PartialModelObject, raw} from 'objection';
 
 import {ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
+import {WORKBOOK_EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/workbook-export/constants';
 import {
     WorkbookExportEntriesData,
     WorkbookExportEntryNotifications,
@@ -18,14 +19,13 @@ import {ExportWorkbookArgs} from '../types';
 export type ExportEntryArgs = {
     workflowArgs: ExportWorkbookArgs;
     entryId: string;
-    mockEntryId: string;
     scope: EntryScope;
     idMapping: Record<string, string>;
 };
 
 export const exportEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
-    {workflowArgs, entryId, mockEntryId, scope, idMapping}: ExportEntryArgs,
+    {workflowArgs, entryId, scope, idMapping}: ExportEntryArgs,
 ): Promise<void> => {
     const {workbookId, exportId, requestId, tenantId} = workflowArgs;
 
@@ -48,11 +48,15 @@ export const exportEntry = async (
         responseData: {entryData, notifications},
     } = data;
 
+    const mockEntryId = idMapping[entryId];
+
     const update: PartialModelObject<WorkbookExportModel> = {
-        data: raw("jsonb_set(??, '{??}', (COALESCE(??->?, '{}') || ?))", [
+        data: raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
             ExportModelColumn.Data,
+            WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
             scope,
             ExportModelColumn.Data,
+            WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
             scope,
             {
                 [mockEntryId]: entryData,

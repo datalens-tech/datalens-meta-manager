@@ -2,6 +2,7 @@ import {ApplicationFailure} from '@temporalio/common';
 import {raw} from 'objection';
 
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
+import {WORKBOOK_EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/workbook-export/constants';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
 import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';
@@ -32,7 +33,14 @@ export const importEntry = async (
     const {db} = registry.getDbInstance();
 
     const result = (await WorkbookImportModel.query(db.replica)
-        .select(raw('??->?->? as data', [ImportModelColumn.Data, scope, mockEntryId]))
+        .select(
+            raw('??->?->?->? as data', [
+                ImportModelColumn.Data,
+                WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
+                scope,
+                mockEntryId,
+            ]),
+        )
         .first()
         .where({
             importId,

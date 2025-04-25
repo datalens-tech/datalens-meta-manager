@@ -8,12 +8,7 @@ export type GetWorkbookContentArgs = {
     workflowArgs: ExportWorkbookArgs;
 };
 
-type GetWorkbookContentResult = {
-    connections: string[];
-    datasets: string[];
-    charts: string[];
-    dashboards: string[];
-};
+type GetWorkbookContentResult = Array<{entryId: string; scope: EntryScope}>;
 
 export const getWorkbookContent = async (
     {ctx, gatewayApi}: ActivitiesDeps,
@@ -21,10 +16,7 @@ export const getWorkbookContent = async (
 ): Promise<GetWorkbookContentResult> => {
     const {workbookId, tenantId, requestId} = workflowArgs;
 
-    const connections: string[] = [];
-    const datasets: string[] = [];
-    const charts: string[] = [];
-    const dashboards: string[] = [];
+    const resultEntries: GetWorkbookContentResult = [];
 
     let page: number | undefined = 0;
 
@@ -48,27 +40,12 @@ export const getWorkbookContent = async (
             responseData: {entries, nextPageToken},
         } = data;
 
-        entries.forEach((entry) => {
-            switch (entry.scope) {
-                case EntryScope.Connection:
-                    connections.push(entry.entryId);
-                    break;
-                case EntryScope.Dataset:
-                    datasets.push(entry.entryId);
-                    break;
-                case EntryScope.Widget:
-                    charts.push(entry.entryId);
-                    break;
-                case EntryScope.Dash:
-                    dashboards.push(entry.entryId);
-                    break;
-                default:
-                    break;
-            }
-        });
+        for (const entry of entries) {
+            resultEntries.push({entryId: entry.entryId, scope: entry.scope});
+        }
 
         page = nextPageToken ? Number(nextPageToken) : undefined;
     }
 
-    return {connections, datasets, charts, dashboards};
+    return resultEntries;
 };

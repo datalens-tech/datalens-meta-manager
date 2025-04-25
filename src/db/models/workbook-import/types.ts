@@ -3,7 +3,7 @@ import {NotificationLevel} from '../../../types/models';
 
 type EntryId = string;
 
-type WorkbookImportNotification = {
+export type WorkbookImportNotification = {
     code: string;
     message?: string;
     level: NotificationLevel;

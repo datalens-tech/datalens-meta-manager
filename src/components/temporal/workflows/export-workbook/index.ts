@@ -6,13 +6,16 @@ import {
     proxyActivities,
     setHandler,
 } from '@temporalio/workflow';
-
-import {EntryScope} from '../../../gateway/schema/us/types/entry';
+import pLimit from 'p-limit';
 
 import type {createActivities} from './activities';
 import type {ExportWorkbookArgs, ExportWorkbookResult} from './types';
 
 export const getWorkbookExportProgress = defineQuery<number, []>('getProgress');
+
+const EXPORT_REQUESTS_CONCURRENCY = 20;
+
+const limit = pLimit(EXPORT_REQUESTS_CONCURRENCY);
 
 const {finishExportSuccess, finishExportError, getWorkbookContent, exportEntry} = proxyActivities<
     ReturnType<typeof createActivities>
@@ -39,80 +42,32 @@ export const exportWorkbook = async (
     });
 
     try {
-        const {connections, datasets, charts, dashboards} = await getWorkbookContent({
+        const entries = await getWorkbookContent({
             workflowArgs,
         });
 
-        entriesCount = connections.length + datasets.length + charts.length + dashboards.length;
+        entriesCount = entries.length;
 
-        const idMapping: Record<string, string> = {};
+        const idMapping = entries.reduce<Record<string, string>>((acc, {entryId}, index) => {
+            acc[entryId] = String(index);
 
-        const exportConnectionPromises = connections.map(async (connectionId, index) => {
-            const mockConnectionId = `connectionId_${index}`;
+            return acc;
+        }, {});
 
-            await exportEntry({
-                workflowArgs,
-                entryId: connectionId,
-                mockEntryId: mockConnectionId,
-                scope: EntryScope.Connection,
-                idMapping,
-            });
+        const exportEntryPromises = entries.map(({entryId, scope}) =>
+            limit(async () => {
+                await exportEntry({
+                    workflowArgs,
+                    entryId,
+                    scope,
+                    idMapping,
+                });
 
-            processedEntriesCount++;
-            idMapping[connectionId] = mockConnectionId;
-        });
+                processedEntriesCount++;
+            }),
+        );
 
-        await Promise.all(exportConnectionPromises);
-
-        const exportDatasetPromises = datasets.map(async (datasetId, index) => {
-            const mockDatasetId = `datasetId_${index}`;
-
-            await exportEntry({
-                workflowArgs,
-                entryId: datasetId,
-                mockEntryId: mockDatasetId,
-                scope: EntryScope.Dataset,
-                idMapping,
-            });
-
-            processedEntriesCount++;
-            idMapping[datasetId] = mockDatasetId;
-        });
-
-        await Promise.all(exportDatasetPromises);
-
-        const exportChartPromises = charts.map(async (chartId, index) => {
-            const mockChartId = `chartId_${index}`;
-
-            await exportEntry({
-                workflowArgs,
-                entryId: chartId,
-                mockEntryId: mockChartId,
-                scope: EntryScope.Widget,
-                idMapping,
-            });
-
-            processedEntriesCount++;
-            idMapping[chartId] = mockChartId;
-        });
-
-        await Promise.all(exportChartPromises);
-
-        const exportDashboardPromises = dashboards.map(async (dashId, index) => {
-            const mockDashId = `dashId_${index}`;
-
-            await exportEntry({
-                workflowArgs,
-                entryId: dashId,
-                mockEntryId: mockDashId,
-                scope: EntryScope.Dash,
-                idMapping,
-            });
-
-            processedEntriesCount++;
-        });
-
-        await Promise.all(exportDashboardPromises);
+        await Promise.all(exportEntryPromises);
 
         await finishExportSuccess({workflowArgs});
     } catch (error) {
