@@ -2,8 +2,6 @@ import {Request, Response} from '@gravity-ui/expresskit';
 import {GatewayConfig, GatewayError} from '@gravity-ui/gateway';
 import {AppContext, AppError, NodeKit} from '@gravity-ui/nodekit';
 
-import {AUTHORIZATION_HEADER, TENANT_ID_HEADER} from '../../constants';
-
 export type {GatewaySchemas, GatewayApi} from './types';
 
 export const getGatewayConfig = (
@@ -16,7 +14,7 @@ export const getGatewayConfig = (
         caCertificatePath: null,
         withDebugHeaders: false,
         ErrorConstructor: AppError,
-        proxyHeaders: [AUTHORIZATION_HEADER, TENANT_ID_HEADER],
+        proxyHeaders: (headers) => headers,
         getAuthArgs: () => undefined,
         getAuthHeaders: () => undefined,
     };

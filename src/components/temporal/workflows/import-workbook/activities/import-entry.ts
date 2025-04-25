@@ -3,6 +3,7 @@ import {raw} from 'objection';
 
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
+import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
@@ -28,7 +29,9 @@ export const importEntry = async (
 ): Promise<ImportEntryResult> => {
     const {importId, workbookId, requestId, tenantId} = workflowArgs;
 
-    const result = (await WorkbookImportModel.query(WorkbookImportModel.replica)
+    const {db} = registry.getDbInstance();
+
+    const result = (await WorkbookImportModel.query(db.replica)
         .select(raw('??->?->? as data', [ImportModelColumn.Data, scope, mockEntryId]))
         .first()
         .where({
@@ -68,7 +71,7 @@ export const importEntry = async (
     } = data;
 
     if (notifications.length > 0) {
-        await WorkbookImportModel.query(WorkbookImportModel.primary)
+        await WorkbookImportModel.query(db.primary)
             .patch({
                 notifications: raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
                     ImportModelColumn.Notifications,

@@ -3,6 +3,7 @@ import {AppError} from '@gravity-ui/nodekit';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
+import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {WorkbookExportDataWithHash} from '../../types/workbook-export';
@@ -28,7 +29,9 @@ export const getWorkbookExport = async (
         exportId,
     });
 
-    const workbookExport = await WorkbookExportModel.query(WorkbookExportModel.replica)
+    const {db} = registry.getDbInstance();
+
+    const workbookExport = await WorkbookExportModel.query(db.replica)
         .select()
         .where({
             [ExportModelColumn.ExportId]: exportId,

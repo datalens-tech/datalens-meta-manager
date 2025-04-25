@@ -51,6 +51,7 @@ export const startWorkbookImport = async (
     }
 
     const {gatewayApi} = registry.getGatewayApi();
+    const {db} = registry.getDbInstance();
     const {tenantId} = getCtxInfo(ctx);
 
     const user = getCtxUser(ctx);
@@ -82,7 +83,7 @@ export const startWorkbookImport = async (
         throw error;
     }
 
-    const workbookImport = await WorkbookImportModel.query(WorkbookImportModel.primary)
+    const workbookImport = await WorkbookImportModel.query(db.primary)
         .insert({
             createdBy: user?.userId ?? SYSTEM_USER.ID,
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_IMPORT_EXPIRATION_DAYS]),

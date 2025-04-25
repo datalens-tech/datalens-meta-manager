@@ -42,7 +42,9 @@ export const startWorkbookExport = async (
 
     const user = getCtxUser(ctx);
 
-    const result = await WorkbookExportModel.query(WorkbookExportModel.primary)
+    const {db} = registry.getDbInstance();
+
+    const result = await WorkbookExportModel.query(db.primary)
         .insert({
             createdBy: user?.userId ?? SYSTEM_USER.ID,
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),

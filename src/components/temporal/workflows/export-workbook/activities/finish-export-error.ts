@@ -3,6 +3,7 @@ import {PartialModelObject, raw} from 'objection';
 import {META_MANAGER_NOTIFICATION_CODE} from '../../../../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../../../../db/models';
 import {WorkbookExportEntryNotifications} from '../../../../../db/models/workbook-export/types';
+import {registry} from '../../../../../registry';
 import {NotificationLevel} from '../../../../../types/models';
 import type {ActivitiesDeps} from '../../../types';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
@@ -40,7 +41,9 @@ export const finishExportError = async (
         ]);
     }
 
-    await WorkbookExportModel.query(WorkbookExportModel.primary).patch(update).where({
+    const {db} = registry.getDbInstance();
+
+    await WorkbookExportModel.query(db.primary).patch(update).where({
         exportId,
     });
 };

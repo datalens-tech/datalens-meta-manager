@@ -3,6 +3,7 @@ import {PartialModelObject, raw} from 'objection';
 import {META_MANAGER_NOTIFICATION_CODE} from '../../../../../constants';
 import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../../../../db/models';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
+import {registry} from '../../../../../registry';
 import {NotificationLevel} from '../../../../../types/models';
 import type {ActivitiesDeps} from '../../../types';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
@@ -40,7 +41,9 @@ export const finishImportError = async (
         ]);
     }
 
-    await WorkbookImportModel.query(WorkbookImportModel.primary).patch(update).where({
+    const {db} = registry.getDbInstance();
+
+    await WorkbookImportModel.query(db.primary).patch(update).where({
         importId,
     });
 };

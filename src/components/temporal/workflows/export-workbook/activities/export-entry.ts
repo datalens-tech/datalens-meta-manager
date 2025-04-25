@@ -6,6 +6,7 @@ import {
     WorkbookExportEntriesData,
     WorkbookExportEntryNotifications,
 } from '../../../../../db/models/workbook-export/types';
+import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
@@ -70,7 +71,9 @@ export const exportEntry = async (
         ]);
     }
 
-    await WorkbookExportModel.query(WorkbookExportModel.primary).patch(update).where({
+    const {db} = registry.getDbInstance();
+
+    await WorkbookExportModel.query(db.primary).patch(update).where({
         exportId,
     });
 
