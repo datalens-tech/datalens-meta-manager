@@ -7,6 +7,7 @@ import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
 import {WorkbookExportNotifications} from '../../db/models/workbook-export/types';
+import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 
@@ -34,7 +35,9 @@ export const getWorkbookExportStatus = async (
     const client = await getClient();
     const handle = client.workflow.getHandle(exportId);
 
-    const workbookExportPromise = WorkbookExportModel.query(WorkbookExportModel.replica)
+    const {db} = registry.getDbInstance();
+
+    const workbookExportPromise = WorkbookExportModel.query(db.replica)
         .select([
             ExportModelColumn.ExportId,
             ExportModelColumn.Status,
