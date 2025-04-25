@@ -1,5 +1,5 @@
+import {makeTenantIdHeader} from '../../../../../utils';
 import {WorkbookStatus} from '../../../../gateway/schema/us/types/workbook';
-import {makeTenantIdHeader} from '../../../../us/utils';
 import type {ActivitiesDeps} from '../../../types';
 import {prepareGatewayRestError} from '../../utils';
 import {ImportWorkbookArgs} from '../types';

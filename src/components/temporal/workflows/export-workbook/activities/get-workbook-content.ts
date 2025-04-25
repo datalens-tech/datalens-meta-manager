@@ -1,5 +1,5 @@
+import {makeTenantIdHeader} from '../../../../../utils';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
-import {makeTenantIdHeader} from '../../../../us/utils';
 import type {ActivitiesDeps} from '../../../types';
 import {prepareGatewayRestError} from '../../utils';
 import {ExportWorkbookArgs} from '../types';

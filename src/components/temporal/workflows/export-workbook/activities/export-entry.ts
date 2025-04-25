@@ -6,6 +6,7 @@ import {
     WorkbookExportEntriesData,
     WorkbookExportEntryNotifications,
 } from '../../../../../db/models/workbook-export/types';
+import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
@@ -25,14 +26,16 @@ export const exportEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
     {workflowArgs, entryId, mockEntryId, scope, idMapping}: ExportEntryArgs,
 ): Promise<void> => {
-    const {workbookId, exportId, requestId} = workflowArgs;
+    const {workbookId, exportId, requestId, tenantId} = workflowArgs;
 
     let data;
 
     try {
         data = await gatewayApi.uiApi.exportWorkbookEntry({
             ctx,
-            headers: {},
+            headers: {
+                ...makeTenantIdHeader(tenantId),
+            },
             requestId,
             args: {exportId: entryId, scope, idMapping, workbookId},
         });

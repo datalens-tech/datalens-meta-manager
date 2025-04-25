@@ -3,6 +3,7 @@ import {raw} from 'objection';
 
 import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
 import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
+import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
@@ -25,7 +26,7 @@ export const importEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
     {workflowArgs, mockEntryId, idMapping, scope}: ImportEntryArgs,
 ): Promise<ImportEntryResult> => {
-    const {importId, workbookId, requestId} = workflowArgs;
+    const {importId, workbookId, requestId, tenantId} = workflowArgs;
 
     const result = (await WorkbookImportModel.query(WorkbookImportModel.replica)
         .select(raw('??->?->? as data', [ImportModelColumn.Data, scope, mockEntryId]))
@@ -48,7 +49,9 @@ export const importEntry = async (
     try {
         data = await gatewayApi.uiApi.importWorkbookEntry({
             ctx,
-            headers: {},
+            headers: {
+                ...makeTenantIdHeader(tenantId),
+            },
             requestId,
             args: {
                 idMapping,
