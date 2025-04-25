@@ -1,4 +1,4 @@
-import {makeTenantIdHeader} from '../../../../us/utils';
+import {makeTenantIdHeader} from '../../../../../utils';
 import type {ActivitiesDeps} from '../../../types';
 import {prepareGatewayRestError} from '../../utils';
 import {ImportWorkbookArgs} from '../types';
