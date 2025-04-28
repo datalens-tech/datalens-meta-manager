@@ -1,15 +1,13 @@
 import {AppContext} from '@gravity-ui/nodekit';
 
-import {AUTHORIZATION_HEADER, DL_AUTH_HEADER_KEY, TENANT_ID_HEADER} from '../../../constants';
+import {AUTHORIZATION_HEADER, DL_AUTH_HEADER_KEY} from '../../../constants';
+import {registry} from '../../../registry';
 import {makeTenantIdHeader} from '../../../utils';
 import {getCtxInfo, getCtxUser} from '../../../utils/ctx';
 
-export const getDefaultUsHeaders = (
-    ctx: AppContext,
-): {
-    [AUTHORIZATION_HEADER]?: string;
-    [TENANT_ID_HEADER]?: string;
-} => {
+export const getDefaultUsHeaders = (ctx: AppContext): Record<string, string> => {
+    const {getAdditionalDefaultUsHeaders} = registry.common.functions.get();
+
     const user = getCtxUser(ctx);
     const info = getCtxInfo(ctx);
 
@@ -19,5 +17,7 @@ export const getDefaultUsHeaders = (
             : {}),
 
         ...makeTenantIdHeader(info.tenantId),
+
+        ...getAdditionalDefaultUsHeaders({ctx}),
     };
 };

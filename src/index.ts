@@ -3,6 +3,7 @@ import {nodekit} from './nodekit';
 
 import {AppMiddleware, ExpressKit} from '@gravity-ui/expresskit';
 
+import {registerAppPlugins} from './registry/register-app-plugins';
 import {initSwagger} from './components/api-docs';
 import {ctxInfo, finalRequestHandler} from './components/middlewares';
 import {initTemporal} from './components/temporal/utils';
@@ -12,6 +13,7 @@ import {getAppRoutes} from './routes';
 import {setRegistryToContext} from './components/app-context';
 
 setRegistryToContext(nodekit, registry);
+registerAppPlugins();
 
 const beforeAuth: AppMiddleware[] = [];
 const afterAuth: AppMiddleware[] = [ctxInfo];

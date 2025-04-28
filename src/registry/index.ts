@@ -10,6 +10,8 @@ import type {AppContext} from '@gravity-ui/nodekit';
 import type {GatewaySchemas} from '../components/gateway';
 import type {initDB} from '../db/init-db';
 
+import {commonRegistry} from './common';
+
 type DbInstance = ReturnType<typeof initDB>;
 
 let app: ExpressKit;
@@ -70,6 +72,7 @@ export const registry = {
 
         return {gatewayApi: gateway.api as GatewayApi<TSchema>};
     },
+    common: commonRegistry,
 };
 
 export type Registry = typeof registry;
