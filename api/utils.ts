@@ -1,7 +1,1 @@
-export {
-    decodeId,
-    encodeId,
-    getEnvCert,
-    getRequiredEnvVariable,
-    isTruthyEnvVariable,
-} from '../src/utils';
+export {decodeId, encodeId, getEnvCert, getEnvVariable, isTruthyEnvVariable} from '../src/utils';

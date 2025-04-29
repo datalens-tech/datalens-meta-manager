@@ -1,6 +1,6 @@
-import {getRequiredEnvVariable} from '../../../../utils';
+import {getEnvVariable} from '../../../../utils';
 
-const endpoint = getRequiredEnvVariable('US_ENDPOINT');
+const endpoint = getEnvVariable('US_ENDPOINT') ?? '';
 
 export const endpoints = {
     opensource: {

@@ -16,12 +16,6 @@ export const getEnvCert = (variableName: string): string | undefined => {
     return variable.replace(/\\n/g, '\n');
 };
 
-export const getRequiredEnvVariable = (variableName: string): string => {
-    const variable = process.env[variableName];
-
-    if (!variable) {
-        throw new Error(`Missing ${variableName} in env!`);
-    }
-
-    return variable;
+export const getEnvVariable = (variableName: string): string | undefined => {
+    return process.env[variableName];
 };
