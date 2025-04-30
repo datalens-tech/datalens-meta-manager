@@ -11,7 +11,7 @@ const getDBErrorCode = (error: DBError): string => {
     return nativeError?.code || '';
 };
 
-type PreparedErrorResponse = {
+export type PreparedErrorResponse = {
     code: number;
     response: {
         code?: string;

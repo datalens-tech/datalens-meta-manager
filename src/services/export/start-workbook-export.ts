@@ -28,8 +28,11 @@ export const startWorkbookExport = async (
 
     const requestId = getCtxRequestIdWithFallback(ctx);
 
+    const {checkExportAvailability} = registry.common.functions.get();
     const {gatewayApi} = registry.getGatewayApi();
     const {tenantId, user} = getCtxInfo(ctx);
+
+    await checkExportAvailability({ctx});
 
     const {responseData} = await gatewayApi.us.getWorkbook({
         ctx,
