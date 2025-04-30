@@ -29,6 +29,10 @@ export const getWorkbookExport = async (
         exportId,
     });
 
+    const {checkExportAvailability} = registry.common.functions.get();
+
+    await checkExportAvailability({ctx});
+
     const {db} = registry.getDbInstance();
 
     const workbookExport = await WorkbookExportModel.query(db.replica)
