@@ -29,10 +29,6 @@ export const getWorkbookExport = async (
         exportId,
     });
 
-    const {checkExportAvailability} = registry.common.functions.get();
-
-    await checkExportAvailability({ctx});
-
     const {db} = registry.getDbInstance();
 
     const workbookExport = await WorkbookExportModel.query(db.replica)
@@ -49,15 +45,19 @@ export const getWorkbookExport = async (
         });
     }
 
+    const {sourceWorkbookId} = workbookExport.meta;
+
+    await checkWorkbookAccessById({ctx, workbookId: sourceWorkbookId});
+
     if (workbookExport.status !== ExportStatus.Success) {
         throw new AppError(META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED, {
             code: META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED,
         });
     }
 
-    const {sourceWorkbookId} = workbookExport.meta;
+    const {checkExportAvailability} = registry.common.functions.get();
 
-    await checkWorkbookAccessById({ctx, workbookId: sourceWorkbookId});
+    await checkExportAvailability({ctx});
 
     const hash = getExportDataVerificationHash({
         data: workbookExport.data,
