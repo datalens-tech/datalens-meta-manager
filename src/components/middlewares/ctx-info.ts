@@ -11,8 +11,13 @@ export const ctxInfo = (req: Request, res: Response, next: NextFunction) => {
         tenantId = req.headers[TENANT_ID_HEADER] as string;
     }
 
+    const {userId, login} = res.locals;
+
+    const user = {userId, login};
+
     req.originalContext.set('info', {
         tenantId,
+        user,
     });
 
     req.ctx.log('REQUEST_INFO', {

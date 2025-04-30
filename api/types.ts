@@ -7,3 +7,5 @@ export {
 } from '../src/types/nodekit';
 
 export {PlatformAppRouteHandler, PlatformAppRouteParams} from '../src/types/expresskit';
+
+export {UserCtxInfo, CtxInfo} from '../src/types/ctx';

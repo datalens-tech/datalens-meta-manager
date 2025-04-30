@@ -10,7 +10,7 @@ import {
 import {WorkbookExportModel} from '../../db/models';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
-import {getCtxInfo, getCtxRequestIdWithFallback, getCtxUser} from '../../utils/ctx';
+import {getCtxInfo, getCtxRequestIdWithFallback} from '../../utils/ctx';
 
 type StartWorkbookExportArgs = {
     workbookId: string;
@@ -29,7 +29,7 @@ export const startWorkbookExport = async (
     const requestId = getCtxRequestIdWithFallback(ctx);
 
     const {gatewayApi} = registry.getGatewayApi();
-    const {tenantId} = getCtxInfo(ctx);
+    const {tenantId, user} = getCtxInfo(ctx);
 
     const {responseData} = await gatewayApi.us.getWorkbook({
         ctx,
@@ -40,13 +40,11 @@ export const startWorkbookExport = async (
 
     checkWorkbookAccessByPermissions({permissions: responseData.permissions});
 
-    const user = getCtxUser(ctx);
-
     const {db} = registry.getDbInstance();
 
     const result = await WorkbookExportModel.query(db.primary)
         .insert({
-            createdBy: user?.userId ?? SYSTEM_USER.ID,
+            createdBy: user.userId ?? SYSTEM_USER.ID,
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),
             data: {version: WORKBOOK_EXPORT_DATA_VERSION, entries: {}},
             meta: {sourceWorkbookId: responseData.workbookId},
