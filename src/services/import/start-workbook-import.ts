@@ -17,7 +17,7 @@ import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {WorkbookExportDataWithHash} from '../../types/workbook-export';
-import {getCtxInfo, getCtxRequestIdWithFallback, getCtxUser} from '../../utils/ctx';
+import {getCtxInfo, getCtxRequestIdWithFallback} from '../../utils/ctx';
 import {getExportDataVerificationHash} from '../../utils/export';
 
 type StartWorkbookImportArgs = {
@@ -52,9 +52,8 @@ export const startWorkbookImport = async (
 
     const {gatewayApi} = registry.getGatewayApi();
     const {db} = registry.getDbInstance();
-    const {tenantId} = getCtxInfo(ctx);
+    const {tenantId, user} = getCtxInfo(ctx);
 
-    const user = getCtxUser(ctx);
     const requestId = getCtxRequestIdWithFallback(ctx);
 
     let workbook: Workbook;
