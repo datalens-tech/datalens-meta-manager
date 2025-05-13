@@ -1,10 +1,12 @@
+import {BigIntId} from '../../../../types';
+
 export type ExportWorkbookArgs = {
     workbookId: string;
-    exportId: string;
+    exportId: BigIntId;
     tenantId?: string;
     requestId: string;
 };
 
 export type ExportWorkbookResult = {
-    exportId: string;
+    exportId: BigIntId;
 };
