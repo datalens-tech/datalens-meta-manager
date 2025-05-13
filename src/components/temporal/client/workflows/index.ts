@@ -1,3 +1,4 @@
+import {BigIntId} from '../../../../types';
 import {exportWorkbook} from '../../workflows/export-workbook';
 import {EXPORT_WORKBOOK_QUEUE_NAME} from '../../workflows/export-workbook/constants';
 import {importWorkbook} from '../../workflows/import-workbook';
@@ -10,7 +11,7 @@ export const startExportWorkbookWorkflow = async ({
     tenantId,
     requestId,
 }: {
-    exportId: string;
+    exportId: BigIntId;
     workbookId: string;
     tenantId?: string;
     requestId: string;
@@ -30,7 +31,7 @@ export const startImportWorkbookWorkflow = async ({
     tenantId,
     requestId,
 }: {
-    importId: string;
+    importId: BigIntId;
     workbookId: string;
     tenantId?: string;
     requestId: string;
