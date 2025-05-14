@@ -17,6 +17,7 @@ import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {WorkbookExportDataWithHash} from '../../types/workbook-export';
+import {encodeId} from '../../utils';
 import {getCtxInfo, getCtxRequestIdWithFallback} from '../../utils/ctx';
 import {getExportDataVerificationHash} from '../../utils/export';
 
@@ -121,8 +122,10 @@ export const startWorkbookImport = async (
         requestId,
     });
 
+    const encodedImportId = encodeId(workbookImport.importId);
+
     ctx.log('START_WORKBOOK_IMPORT_FINISH', {
-        importId: workbookImport.importId,
+        importId: encodedImportId,
         workbookId: workbook.workbookId,
     });
 

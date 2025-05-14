@@ -7,6 +7,7 @@ import {ExportModelColumn, WorkbookExportModel} from '../../db/models';
 import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
+import {encodeId} from '../../utils';
 
 type CancelWorkbookExportArgs = {
     exportId: BigIntId;
@@ -22,8 +23,10 @@ export const cancelWorkbookExport = async (
 ): Promise<CancelWorkbookExportResult> => {
     const {exportId} = args;
 
+    const encodedExportId = encodeId(exportId);
+
     ctx.log('CANCEL_WORKBOOK_EXPORT_START', {
-        exportId,
+        exportId: encodedExportId,
     });
 
     const {db} = registry.getDbInstance();
@@ -47,7 +50,7 @@ export const cancelWorkbookExport = async (
     await checkWorkbookAccessById({ctx, workbookId: sourceWorkbookId});
 
     const client = await getClient();
-    const handle = client.workflow.getHandle(exportId);
+    const handle = client.workflow.getHandle(encodedExportId);
 
     await handle.cancel();
 

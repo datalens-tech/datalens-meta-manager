@@ -1,4 +1,5 @@
 import {BigIntId} from '../../../../types';
+import {encodeId} from '../../../../utils';
 import {exportWorkbook} from '../../workflows/export-workbook';
 import {EXPORT_WORKBOOK_QUEUE_NAME} from '../../workflows/export-workbook/constants';
 import {importWorkbook} from '../../workflows/import-workbook';
@@ -18,10 +19,12 @@ export const startExportWorkbookWorkflow = async ({
 }) => {
     const client = await getClient();
 
+    const encodedExportId = encodeId(exportId);
+
     await client.workflow.start(exportWorkbook, {
         args: [{exportId, workbookId, tenantId, requestId}],
         taskQueue: EXPORT_WORKBOOK_QUEUE_NAME,
-        workflowId: exportId,
+        workflowId: encodedExportId,
     });
 };
 
@@ -38,9 +41,11 @@ export const startImportWorkbookWorkflow = async ({
 }) => {
     const client = await getClient();
 
+    const encodedImportId = encodeId(importId);
+
     await client.workflow.start(importWorkbook, {
         args: [{importId, workbookId, tenantId, requestId}],
         taskQueue: IMPORT_WORKBOOK_QUEUE_NAME,
-        workflowId: importId,
+        workflowId: encodedImportId,
     });
 };
