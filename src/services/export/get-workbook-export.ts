@@ -7,6 +7,7 @@ import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {WorkbookExportDataWithHash} from '../../types/workbook-export';
+import {encodeId} from '../../utils';
 import {getExportDataVerificationHash} from '../../utils/export';
 
 type GetWorkbookExportArgs = {
@@ -25,8 +26,10 @@ export const getWorkbookExport = async (
 ): Promise<GetWorkbookExportResult> => {
     const {exportId} = args;
 
+    const encodedExportId = encodeId(exportId);
+
     ctx.log('GET_WORKBOOK_EXPORT_START', {
-        exportId,
+        exportId: encodedExportId,
     });
 
     const {db} = registry.getDbInstance();

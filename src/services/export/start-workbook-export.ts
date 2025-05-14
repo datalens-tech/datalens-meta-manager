@@ -10,6 +10,7 @@ import {
 import {WorkbookExportModel} from '../../db/models';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
+import {encodeId} from '../../utils';
 import {getCtxInfo, getCtxRequestIdWithFallback} from '../../utils/ctx';
 
 type StartWorkbookExportArgs = {
@@ -62,8 +63,10 @@ export const startWorkbookExport = async (
         requestId,
     });
 
+    const encodedExportId = encodeId(result.exportId);
+
     ctx.log('START_WORKBOOK_EXPORT_FINISH', {
-        exportId: result.exportId,
+        exportId: encodedExportId,
     });
 
     return result;

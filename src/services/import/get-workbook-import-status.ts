@@ -10,6 +10,7 @@ import {WorkbookImportNotifications} from '../../db/models/workbook-import/types
 import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
+import {encodeId} from '../../utils';
 
 type GetWorkbookImportStatusArgs = {
     importId: BigIntId;
@@ -29,12 +30,14 @@ export const getWorkbookImportStatus = async (
 ): Promise<GetWorkbookImportStatusResult> => {
     const {importId} = args;
 
+    const encodedImportId = encodeId(importId);
+
     ctx.log('GET_WORKBOOK_IMPORT_STATUS_START', {
-        importId,
+        importId: encodedImportId,
     });
 
     const client = await getClient();
-    const handle = client.workflow.getHandle(importId);
+    const handle = client.workflow.getHandle(encodedImportId);
     const progress = await handle.query(getWorkbookImportProgress);
 
     const {db} = registry.getDbInstance();
