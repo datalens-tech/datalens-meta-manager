@@ -1,14 +1,12 @@
 /*
     Use:
-    ts-node scripts/ids.ts --helper=decode -- r41ri22abtygq r41ri22abtygq
-    npm run decode r41ri22abtygq r41ri22abtygq
+    node scripts/helpers.js --helper=decode -- r41ri22abtygq r41ri22abtygq
 */
-import util from 'node:util';
+const util = require('util');
 
-import minimist from 'minimist';
+const minimist = require('minimist');
 
-import type {BigIntId, StringId} from '../api/types';
-import {decodeId, encodeId} from '../api/utils';
+const {decodeId, encodeId} = require('../dist/server/utils/id.js');
 
 util.inspect.defaultOptions.maxArrayLength = null;
 
@@ -23,14 +21,14 @@ const {helper} = args;
 
 switch (helper) {
     case 'decode': {
-        const encodedIds = args._ as StringId[];
+        const encodedIds = args._;
         const decodedIds = encodedIds.map(decodeId);
 
         console.log(decodedIds);
         break;
     }
     case 'encode': {
-        const encodedIds = args._ as BigIntId[];
+        const encodedIds = args._;
         const decodedIds = encodedIds.map(encodeId);
 
         console.log(decodedIds);

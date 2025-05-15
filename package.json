@@ -29,8 +29,8 @@
     "db:rollback": "node dist/server/db/scripts/rollback.js",
     "db:rollback-one": "node dist/server/db/scripts/rollback-one.js",
     "x--------------------------------------------------------Scripts": "exit 1",
-    "decode": "ts-node ./scripts/ids.ts -h=decode",
-    "encode": "ts-node ./scripts/ids.ts -h=encode"
+    "decode": "node ./scripts/helpers.js -h=decode",
+    "encode": "node ./scripts/helpers.js -h=encode"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^7.3.0",
