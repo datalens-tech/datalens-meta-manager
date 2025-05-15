@@ -7,4 +7,5 @@ export const entryNotificationSchema = z.object({
     code: z.string(),
     message: z.string().optional(),
     level: z.string(),
+    details: z.record(z.string(), z.unknown()).optional(),
 });

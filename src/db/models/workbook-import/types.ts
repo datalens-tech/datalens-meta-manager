@@ -7,6 +7,7 @@ export type WorkbookImportNotification = {
     code: string;
     message?: string;
     level: NotificationLevel;
+    details?: Record<string, unknown>;
 };
 
 export type WorkbookImportEntryNotifications = {

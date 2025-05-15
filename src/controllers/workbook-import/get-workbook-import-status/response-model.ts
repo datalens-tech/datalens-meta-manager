@@ -34,6 +34,7 @@ const format = ({
                 code: notification.code,
                 message: notification.message,
                 level: notification.level,
+                details: notification.details,
             })),
         ),
         progress,

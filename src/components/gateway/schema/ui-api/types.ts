@@ -10,6 +10,7 @@ export type Notification = {
     code: string;
     message?: string;
     level: NotificationLevel;
+    details?: Record<string, unknown>;
 };
 
 export type ExportWorkbookEntryParams = {
