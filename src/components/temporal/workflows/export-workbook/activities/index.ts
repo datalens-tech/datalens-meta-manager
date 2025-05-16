@@ -1,4 +1,5 @@
 import type {ActivitiesDeps} from '../../../types';
+import {callActivity} from '../../utils';
 
 import {ExportEntryArgs, exportEntry} from './export-entry';
 import {FinishExportErrorArgs, finishExportError} from './finish-export-error';
@@ -7,18 +8,18 @@ import {GetWorkbookContentArgs, getWorkbookContent} from './get-workbook-content
 
 export const createActivities = (deps: ActivitiesDeps) => ({
     async finishExportSuccess(args: FinishExportSuccessArgs) {
-        return finishExportSuccess(deps, args);
+        return callActivity({deps, args, activityFn: finishExportSuccess});
     },
 
     async finishExportError(args: FinishExportErrorArgs) {
-        return finishExportError(deps, args);
+        return callActivity({deps, args, activityFn: finishExportError});
     },
 
     async getWorkbookContent(args: GetWorkbookContentArgs) {
-        return getWorkbookContent(deps, args);
+        return callActivity({deps, args, activityFn: getWorkbookContent});
     },
 
     async exportEntry(args: ExportEntryArgs) {
-        return exportEntry(deps, args);
+        return callActivity({deps, args, activityFn: exportEntry});
     },
 });
