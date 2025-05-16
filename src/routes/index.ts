@@ -103,7 +103,7 @@ export const getRoutes = (nodekit: NodeKit, options: GetRoutesOptions) => {
     return typedRoutes;
 };
 
-export const getAppRoutes = (nodekit: NodeKit, options: GetRoutesOptions): AppRoutes => {
+export const getAppRoutes = (nodekit: NodeKit, options: GetRoutesOptions, _: number): AppRoutes => {
     const extendedRoutes = getRoutes(nodekit, options);
 
     const routes: AppRoutes = {};

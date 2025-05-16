@@ -32,10 +32,7 @@ if (require.main === module) {
     initTemporal({ctx: nodekit.ctx});
 }
 
-//
-//
-
-const routes = getAppRoutes(nodekit, {beforeAuth, afterAuth});
+const routes = getAppRoutes(nodekit, {beforeAuth, afterAuth}, 2);
 
 const app = new ExpressKit(nodekit, routes);
 registry.setupApp(app);
