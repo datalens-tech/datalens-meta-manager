@@ -1,5 +1,6 @@
 import {WorkbookStatus} from '../../../../gateway/schema/us/types/workbook';
 import type {ActivitiesDeps} from '../../../types';
+import {callActivity} from '../../utils';
 
 import {CheckScopesAvailabilityArgs, checkScopesAvailability} from './check-scopes-availability';
 import {DeleteWorkbookArgs, deleteWorkbook} from './delete-workbook';
@@ -15,38 +16,46 @@ import {UpdateWorkbookStatusArgs, updateWorkbookStatus} from './update-workbook-
 
 export const createActivities = (deps: ActivitiesDeps) => ({
     async finishImportSuccess(args: FinishImportSuccessArgs) {
-        return finishImportSuccess(deps, args);
+        return callActivity({deps, args, activityFn: finishImportSuccess});
     },
 
     async finishImportError(args: FinishImportErrorArgs) {
-        return finishImportError(deps, args);
+        return callActivity({deps, args, activityFn: finishImportError});
     },
 
     async getImportDataEntriesInfo(args: GetImportDataEntriesInfoArgs) {
-        return getImportDataEntriesInfo(deps, args);
+        return callActivity({deps, args, activityFn: getImportDataEntriesInfo});
     },
 
     async importEntry(args: ImportEntryArgs) {
-        return importEntry(deps, args);
+        return callActivity({deps, args, activityFn: importEntry});
     },
 
     async deleteWorkbook(args: DeleteWorkbookArgs) {
-        return deleteWorkbook(deps, args);
+        return callActivity({deps, args, activityFn: deleteWorkbook});
     },
 
     async updateWorkbookStatusActive(args: Omit<UpdateWorkbookStatusArgs, 'status'>) {
-        return updateWorkbookStatus(deps, {...args, status: WorkbookStatus.Active});
+        return callActivity({
+            deps,
+            args: {...args, status: WorkbookStatus.Active},
+            activityFn: updateWorkbookStatus,
+        });
     },
 
     async updateWorkbookStatusDeleting(args: Omit<UpdateWorkbookStatusArgs, 'status'>) {
-        return updateWorkbookStatus(deps, {...args, status: WorkbookStatus.Deleting});
+        return callActivity({
+            deps,
+            args: {...args, status: WorkbookStatus.Deleting},
+            activityFn: updateWorkbookStatus,
+        });
     },
 
     async getImportCapabilities(args: GetImportCapabilitiesArgs) {
-        return getImportCapabilities(deps, args);
+        return callActivity({deps, args, activityFn: getImportCapabilities});
     },
 
     async checkScopesAvailability(args: CheckScopesAvailabilityArgs) {
-        return checkScopesAvailability(deps, args);
+        return callActivity({deps, args, activityFn: checkScopesAvailability});
     },
 });
