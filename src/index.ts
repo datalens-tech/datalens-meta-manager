@@ -32,6 +32,8 @@ if (require.main === module) {
     initTemporal({ctx: nodekit.ctx});
 }
 
+//
+
 const routes = getAppRoutes(nodekit, {beforeAuth, afterAuth});
 
 const app = new ExpressKit(nodekit, routes);
