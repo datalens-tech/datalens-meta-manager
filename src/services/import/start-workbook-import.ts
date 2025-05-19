@@ -92,6 +92,8 @@ export const startWorkbookImport = async (
         })
         .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
 
+    const encodedImportId = encodeId(workbookImport.importId);
+
     if (
         data.hash !==
         getExportDataVerificationHash({
@@ -100,7 +102,7 @@ export const startWorkbookImport = async (
         })
     ) {
         ctx.log('WORKBOOK_IMPORT_DATA_HASH_MISMATCH', {
-            importId: workbookImport.importId,
+            importId: encodedImportId,
             workbookId: workbook.workbookId,
         });
     }
@@ -111,7 +113,7 @@ export const startWorkbookImport = async (
         requestId,
         args: {
             workbookId: workbook.workbookId,
-            meta: {...workbook.meta, importId: workbookImport.importId},
+            meta: {...workbook.meta, importId: encodedImportId},
         },
     });
 
@@ -121,8 +123,6 @@ export const startWorkbookImport = async (
         tenantId,
         requestId,
     });
-
-    const encodedImportId = encodeId(workbookImport.importId);
 
     ctx.log('START_WORKBOOK_IMPORT_FINISH', {
         importId: encodedImportId,
