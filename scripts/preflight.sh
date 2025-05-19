@@ -5,4 +5,4 @@ echo '{"level":"INFO","msg":"Start migration"}'
 npm run db:migrate
 echo '{"level":"INFO","msg":"Finish migration"}'
 
-node dist/server
+exec 'node' 'dist/server'
