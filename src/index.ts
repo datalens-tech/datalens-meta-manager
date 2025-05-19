@@ -38,7 +38,7 @@ const app = new ExpressKit(nodekit, routes);
 registry.setupApp(app);
 
 if (nodekit.config.swaggerEnabled) {
-    initSwagger(app, routes);
+    initSwagger(app, routes, '');
 }
 
 if (require.main === module) {

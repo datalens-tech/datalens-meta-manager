@@ -53,7 +53,7 @@ const registerApiRoute = ({
     });
 };
 
-export const initSwagger = (app: ExpressKit, routes: AppRoutes) => {
+export const initSwagger = (app: ExpressKit, routes: AppRoutes, _: string) => {
     Object.entries(routes).forEach(([route, routeDescription]) => {
         registerApiRoute({route, routeDescription});
     });
