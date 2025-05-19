@@ -53,6 +53,8 @@ export const importWorkbook = async (
         return entriesCount > 0 ? Math.floor((processedEntriesCount * 100) / entriesCount) : 0;
     });
 
+    //
+
     try {
         const [{entryIdsByScope, total}, {importOrder, installationAvailableScopes}] =
             await Promise.all([
