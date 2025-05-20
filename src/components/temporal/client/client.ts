@@ -11,7 +11,7 @@ const initClient = async () => {
         let apiKey: string | undefined;
 
         if (isTruthyEnvVariable('TEMPORAL_AUTH_ENABLED') && process.env.TEMPORAL_AUTH_PRIVATE_KEY) {
-            const authPrivateKey = getEnvCert(process.env.TEMPORAL_AUTH_PRIVATE_KEY) || '';
+            const authPrivateKey = getEnvCert('TEMPORAL_AUTH_PRIVATE_KEY') || '';
             apiKey = jwt.sign(
                 {
                     sub: process.env.TEMPORAL_AUTH_SERVICE || 'temporal',
