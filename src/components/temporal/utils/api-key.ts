@@ -4,11 +4,12 @@ import {getEnvCert, isTruthyEnvVariable} from '../../../utils';
 import {NAMESPACE} from '../constants';
 
 export const getApiKey = (): string | undefined => {
-    if (!isTruthyEnvVariable('TEMPORAL_AUTH_ENABLED') || !process.env.TEMPORAL_AUTH_PRIVATE_KEY) {
+    const authPrivateKey = getEnvCert('TEMPORAL_AUTH_PRIVATE_KEY');
+
+    if (!isTruthyEnvVariable('TEMPORAL_AUTH_ENABLED') || !authPrivateKey) {
         return undefined;
     }
 
-    const authPrivateKey = getEnvCert('TEMPORAL_AUTH_PRIVATE_KEY') || '';
     return jwt.sign(
         {
             sub: NAMESPACE,
