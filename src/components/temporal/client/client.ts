@@ -18,6 +18,8 @@ const initClient = async () => {
                 process.env.TEMPORAL_AUTH_PRIVATE_KEY,
                 {
                     algorithm: 'RS256',
+                    // PS256 not supported by default at temporal
+                    // https://github.com/temporalio/temporal/blob/main/common/authorization/default_token_key_provider.go#L63
                     keyid: process.env.TEMPORAL_AUTH_SERVICE || 'temporal',
                 },
             );
