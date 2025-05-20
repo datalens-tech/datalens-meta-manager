@@ -17,7 +17,7 @@ const initClient = async () => {
                 },
                 process.env.TEMPORAL_AUTH_PRIVATE_KEY,
                 {
-                    algorithm: 'RS256',
+                    algorithm: 'PS256',
                     keyid: process.env.TEMPORAL_AUTH_SERVICE || 'temporal',
                 },
             );
