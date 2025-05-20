@@ -5,6 +5,7 @@ import {isTruthyEnvVariable} from '../../utils';
 
 import {NAMESPACE} from './constants';
 import {ActivitiesDeps} from './types';
+import {getApiKey} from './utils';
 import {createActivities as createClearExpiredActivities} from './workflows/clear-expired/activities';
 import {CLEAR_EXPIRED_QUEUE_NAME} from './workflows/clear-expired/constants';
 import {createActivities as createExportWorkbookActivities} from './workflows/export-workbook/activities';
@@ -61,7 +62,10 @@ const runWorkerWithRestarts = async ({
 };
 
 export const initWorkers = async (deps: ActivitiesDeps) => {
-    const connection = await NativeConnection.connect({address: process.env.TEMPORAL_ENDPOINT});
+    const connection = await NativeConnection.connect({
+        address: process.env.TEMPORAL_ENDPOINT,
+        apiKey: getApiKey(),
+    });
 
     const runExportWorkbookWorker = async () => {
         const worker = await Worker.create({
