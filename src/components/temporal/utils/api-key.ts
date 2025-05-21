@@ -5,7 +5,8 @@ import {NAMESPACE} from '../constants';
 
 export const getApiKey = (): string | undefined => {
     const authPrivateKey = getEnvCert('TEMPORAL_AUTH_PRIVATE_KEY');
-    const authSubject = getEnvVariable('TEMPORAL_AUTH_SUBJECT') || NAMESPACE;
+    const authSubject =
+        getEnvVariable('TEMPORAL_AUTH_SUBJECT') || getEnvVariable('HOSTNAME') || NAMESPACE;
 
     if (!isTruthyEnvVariable('TEMPORAL_AUTH_ENABLED') || !authPrivateKey) {
         return undefined;
