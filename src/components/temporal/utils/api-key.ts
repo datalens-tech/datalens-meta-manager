@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
 
-import {getEnvCert, isTruthyEnvVariable} from '../../../utils';
+import {getEnvCert, getEnvVariable, isTruthyEnvVariable} from '../../../utils';
 import {NAMESPACE} from '../constants';
 
 export const getApiKey = (): string | undefined => {
     const authPrivateKey = getEnvCert('TEMPORAL_AUTH_PRIVATE_KEY');
+    const authSubject = getEnvVariable('TEMPORAL_AUTH_SUBJECT') || NAMESPACE;
 
     if (!isTruthyEnvVariable('TEMPORAL_AUTH_ENABLED') || !authPrivateKey) {
         return undefined;
@@ -12,7 +13,7 @@ export const getApiKey = (): string | undefined => {
 
     return jwt.sign(
         {
-            sub: NAMESPACE,
+            sub: authSubject,
             permissions: [`${NAMESPACE}:admin`],
         },
         authPrivateKey,
