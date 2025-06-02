@@ -6,7 +6,7 @@ import {WORKBOOK_EXPORT_DATA_ENTRIES_FIELD} from './constants';
 type EntryId = string;
 type MockEntryId = string;
 
-type WorkbookExportNotification = {
+export type WorkbookExportNotification = {
     code: string;
     message?: string;
     level: NotificationLevel;

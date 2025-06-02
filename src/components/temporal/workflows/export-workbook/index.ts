@@ -3,12 +3,14 @@ import {
     ApplicationFailure,
     CancellationScope,
     defineQuery,
+    isCancellation,
     proxyActivities,
     setHandler,
 } from '@temporalio/workflow';
 import pLimit from 'p-limit';
 
 import type {createActivities} from './activities';
+import {APPLICATION_FAILURE_TYPE} from './constants';
 import type {ExportWorkbookArgs, ExportWorkbookResult} from './types';
 
 export const getWorkbookExportProgress = defineQuery<number, []>('getProgress');
@@ -75,6 +77,10 @@ export const exportWorkbook = async (
 
         if (error instanceof ActivityFailure && error.cause instanceof ApplicationFailure) {
             failureType = error.cause.type || undefined;
+        }
+
+        if (isCancellation(error)) {
+            failureType = APPLICATION_FAILURE_TYPE.CANCELLED;
         }
 
         await CancellationScope.nonCancellable(() =>
