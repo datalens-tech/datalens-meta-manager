@@ -107,7 +107,7 @@ export const startWorkbookImport = async (
         });
     }
 
-    await gatewayApi.us.updateWorkbook({
+    await gatewayApi.us._updateWorkbook({
         ctx,
         headers: getDefaultUsHeaders(ctx),
         requestId,
