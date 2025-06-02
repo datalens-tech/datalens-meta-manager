@@ -42,20 +42,6 @@ export const actions = {
         }),
     }),
 
-    updateWorkbook: createAction<UpdateWorkbookResponse, UpdateWorkbookParams>({
-        method: 'POST',
-        path: ({workbookId}) => `/v2/workbooks/${workbookId}/update`,
-        params: ({title, description, status, meta}, headers) => ({
-            headers,
-            body: {
-                title,
-                description,
-                status,
-                meta,
-            },
-        }),
-    }),
-
     _updateWorkbook: createAction<UpdateWorkbookResponse, UpdateWorkbookParams>({
         method: 'POST',
         path: ({workbookId}) => `/private/v2/workbooks/${workbookId}/update`,
