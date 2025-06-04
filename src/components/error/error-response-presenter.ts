@@ -77,7 +77,7 @@ export const prepareErrorResponse = (
                     response: {
                         code: META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_COMPLETED,
                         message:
-                            'The export is not completed. It is either still in progress or has failed.',
+                            'The export is not completed. It is either still in progress or has failed',
                     },
                 };
             }
@@ -98,7 +98,7 @@ export const prepareErrorResponse = (
                     response: {
                         code: META_MANAGER_ERROR.WORKBOOK_EXPORT_DATA_OUTDATED,
                         message:
-                            'The provided export data version is outdated. Please export the data again.',
+                            'The provided export data version is outdated. Please export the data again',
                     },
                 };
             }
@@ -116,6 +116,16 @@ export const prepareErrorResponse = (
             case META_MANAGER_ERROR.WORKBOOK_ALREADY_EXISTS: {
                 return {
                     code: HttpStatusCode.Conflict,
+                    response: {
+                        code,
+                        message,
+                    },
+                };
+            }
+
+            case META_MANAGER_ERROR.WORKBOOK_NOT_EXIST: {
+                return {
+                    code: HttpStatusCode.NotFound,
                     response: {
                         code,
                         message,
