@@ -16,6 +16,8 @@ export const getApiKey = (): string | undefined => {
         {
             sub: authSubject,
             permissions: [`${NAMESPACE}:admin`],
+            // fix time sync between temporal and meta-manager in cluster
+            iat: Math.floor((Date.now() - 30000) / 1000),
         },
         authPrivateKey,
         {
