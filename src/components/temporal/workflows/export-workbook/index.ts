@@ -15,7 +15,7 @@ import type {ExportWorkbookArgs, ExportWorkbookResult} from './types';
 
 export const getWorkbookExportProgress = defineQuery<number, []>('getProgress');
 
-const EXPORT_REQUESTS_CONCURRENCY = 20;
+const EXPORT_REQUESTS_CONCURRENCY = 10;
 
 const limit = pLimit(EXPORT_REQUESTS_CONCURRENCY);
 
