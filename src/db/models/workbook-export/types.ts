@@ -20,6 +20,7 @@ export type WorkbookExportEntryNotifications = {
 };
 
 export type WorkbookExportMeta = {
+    version: string;
     sourceWorkbookId: string;
 };
 

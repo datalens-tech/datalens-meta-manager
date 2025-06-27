@@ -1,5 +1,6 @@
 import {Model} from '../..';
 import {BigIntId} from '../../../types';
+import {ExportEntryModel, ExportEntryModelColumn} from '../export-entry';
 
 import {ExportStatus} from './types';
 
@@ -30,6 +31,19 @@ export class ExportModel<
         return ExportModelColumn.ExportId;
     }
 
+    static get relationMappings() {
+        return {
+            entries: {
+                relation: Model.HasManyRelation,
+                modelClass: ExportEntryModel,
+                join: {
+                    from: `${ExportModel.tableName}.${ExportModelColumn.ExportId}`,
+                    to: `${ExportEntryModel.tableName}.${ExportEntryModelColumn.ExportId}`,
+                },
+            },
+        };
+    }
+
     exportId!: BigIntId;
     status!: ExportStatus;
     meta!: Meta;
@@ -39,4 +53,7 @@ export class ExportModel<
     createdAt!: string;
     updatedAt!: string;
     expiredAt!: string;
+
+    /** Relations */
+    entries?: ExportEntryModel[];
 }

@@ -1,7 +1,7 @@
 import {ApplicationFailure} from '@temporalio/common';
-import {PartialModelObject, raw} from 'objection';
+import {PartialModelObject, raw, transaction} from 'objection';
 
-import {ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
+import {ExportEntryModel, ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
 import {WORKBOOK_EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/workbook-export/constants';
 import {
     WorkbookExportEntriesData,
@@ -27,7 +27,7 @@ export const exportEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
     {workflowArgs, entryId, scope, idMapping}: ExportEntryArgs,
 ): Promise<void> => {
-    const {workbookId, exportId, requestId, tenantId} = workflowArgs;
+    const {workbookId, exportId, requestId, tenantId, withExportEntries} = workflowArgs;
 
     let data;
 
@@ -50,8 +50,10 @@ export const exportEntry = async (
 
     const mockEntryId = idMapping[entryId];
 
-    const update: PartialModelObject<WorkbookExportModel> = {
-        data: raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
+    const update: PartialModelObject<WorkbookExportModel> = {};
+
+    if (!withExportEntries) {
+        update.data = raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
             ExportModelColumn.Data,
             WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
             scope,
@@ -61,8 +63,8 @@ export const exportEntry = async (
             {
                 [mockEntryId]: entryData,
             } satisfies WorkbookExportEntriesData,
-        ]),
-    };
+        ]);
+    }
 
     if (notifications.length > 0) {
         update.notifications = raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
@@ -77,8 +79,18 @@ export const exportEntry = async (
 
     const {db} = registry.getDbInstance();
 
-    await WorkbookExportModel.query(db.primary).patch(update).where({
-        exportId,
+    await transaction(db.primary, async (trx) => {
+        await Promise.all([
+            WorkbookExportModel.query(trx).patch(update).where({
+                exportId,
+            }),
+            ExportEntryModel.query(trx).insert({
+                exportId,
+                mockEntryId,
+                scope,
+                data: entryData,
+            }),
+        ]);
     });
 
     const criticalNotifications = notifications.filter(

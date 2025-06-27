@@ -3,6 +3,8 @@ import {AppError} from '@gravity-ui/nodekit';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
 import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
+import {ExportEntryModelColumn} from '../../db/models/export-entry';
+import {WorkbookExportData} from '../../db/models/workbook-export/types';
 import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
@@ -19,6 +21,13 @@ export type GetWorkbookExportResult = {
     status: ExportStatus;
     data: WorkbookExportDataWithHash;
 };
+
+const selectedEntryColumns = [
+    ExportEntryModelColumn.ExportId,
+    ExportEntryModelColumn.MockEntryId,
+    ExportEntryModelColumn.Scope,
+    ExportEntryModelColumn.Data,
+];
 
 export const getWorkbookExport = async (
     {ctx}: ServiceArgs,
@@ -38,6 +47,12 @@ export const getWorkbookExport = async (
         .select()
         .where({
             [ExportModelColumn.ExportId]: exportId,
+        })
+        .withGraphJoined(`[entries(entriesModifier)]`)
+        .modifiers({
+            entriesModifier(builder) {
+                builder.select(selectedEntryColumns);
+            },
         })
         .first()
         .timeout(WorkbookExportModel.DEFAULT_QUERY_TIMEOUT);
@@ -62,8 +77,30 @@ export const getWorkbookExport = async (
 
     await checkExportAvailability({ctx});
 
+    let exportData: WorkbookExportData;
+
+    if (workbookExport.meta.version) {
+        exportData = {
+            version: workbookExport.meta.version,
+            entries: (workbookExport.entries ?? []).reduce(
+                (acc, {scope, mockEntryId, data}) => {
+                    if (!acc[scope]) {
+                        acc[scope] = {};
+                    }
+
+                    acc[scope][mockEntryId] = data;
+
+                    return acc;
+                },
+                {} as WorkbookExportData['entries'],
+            ),
+        };
+    } else {
+        exportData = workbookExport.data;
+    }
+
     const hash = getExportDataVerificationHash({
-        data: workbookExport.data,
+        data: exportData,
         secret: ctx.config.exportDataVerificationKey,
     });
 
@@ -73,7 +110,7 @@ export const getWorkbookExport = async (
         exportId: workbookExport.exportId,
         status: workbookExport.status,
         data: {
-            export: workbookExport.data,
+            export: exportData,
             hash,
         },
     };
