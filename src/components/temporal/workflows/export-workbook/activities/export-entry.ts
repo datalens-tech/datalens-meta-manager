@@ -1,12 +1,9 @@
 import {ApplicationFailure} from '@temporalio/common';
-import {PartialModelObject, raw} from 'objection';
+import {PartialModelObject, raw, transaction} from 'objection';
 
-import {ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
-import {WORKBOOK_EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/workbook-export/constants';
-import {
-    WorkbookExportEntriesData,
-    WorkbookExportEntryNotifications,
-} from '../../../../../db/models/workbook-export/types';
+import {ExportEntryModel, ExportModel, ExportModelColumn} from '../../../../../db/models';
+import {EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/export/constants';
+import {ExportEntriesData, ExportEntryNotifications} from '../../../../../db/models/export/types';
 import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
@@ -27,7 +24,7 @@ export const exportEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
     {workflowArgs, entryId, scope, idMapping}: ExportEntryArgs,
 ): Promise<void> => {
-    const {workbookId, exportId, requestId, tenantId} = workflowArgs;
+    const {workbookId, exportId, requestId, tenantId, withExportEntries} = workflowArgs;
 
     let data;
 
@@ -50,19 +47,21 @@ export const exportEntry = async (
 
     const mockEntryId = idMapping[entryId];
 
-    const update: PartialModelObject<WorkbookExportModel> = {
-        data: raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
+    const update: PartialModelObject<ExportModel> = {};
+
+    if (!withExportEntries) {
+        update.data = raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
             ExportModelColumn.Data,
-            WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
+            EXPORT_DATA_ENTRIES_FIELD,
             scope,
             ExportModelColumn.Data,
-            WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
+            EXPORT_DATA_ENTRIES_FIELD,
             scope,
             {
                 [mockEntryId]: entryData,
-            } satisfies WorkbookExportEntriesData,
-        ]),
-    };
+            } satisfies ExportEntriesData,
+        ]);
+    }
 
     if (notifications.length > 0) {
         update.notifications = raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
@@ -71,14 +70,26 @@ export const exportEntry = async (
                 entryId,
                 scope,
                 notifications,
-            } satisfies WorkbookExportEntryNotifications,
+            } satisfies ExportEntryNotifications,
         ]);
     }
 
     const {db} = registry.getDbInstance();
 
-    await WorkbookExportModel.query(db.primary).patch(update).where({
-        exportId,
+    await transaction(db.primary, async (trx) => {
+        await Promise.all([
+            ExportModel.query(trx).patch(update).where({
+                exportId,
+            }),
+            withExportEntries
+                ? ExportEntryModel.query(trx).insert({
+                      exportId,
+                      mockEntryId,
+                      scope,
+                      data: entryData,
+                  })
+                : undefined,
+        ]);
     });
 
     const criticalNotifications = notifications.filter(

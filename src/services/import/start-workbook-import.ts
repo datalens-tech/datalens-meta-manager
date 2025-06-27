@@ -12,7 +12,7 @@ import {
     WORKBOOK_EXPORT_DATA_VERSION,
     WORKBOOK_IMPORT_EXPIRATION_DAYS,
 } from '../../constants';
-import {WorkbookImportModel} from '../../db/models';
+import {ImportModel} from '../../db/models';
 import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
@@ -83,14 +83,14 @@ export const startWorkbookImport = async (
         throw error;
     }
 
-    const workbookImport = await WorkbookImportModel.query(db.primary)
+    const workbookImport = await ImportModel.query(db.primary)
         .insert({
             createdBy: user?.userId ?? SYSTEM_USER.ID,
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_IMPORT_EXPIRATION_DAYS]),
             meta: {workbookId: workbook.workbookId},
             data: data.export,
         })
-        .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(ImportModel.DEFAULT_QUERY_TIMEOUT);
 
     const encodedImportId = encodeId(workbookImport.importId);
 

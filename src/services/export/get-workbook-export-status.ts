@@ -5,8 +5,8 @@ import {getClient} from '../../components/temporal/client';
 import {getWorkbookExportProgress} from '../../components/temporal/workflows';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
-import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
-import {WorkbookExportNotifications} from '../../db/models/workbook-export/types';
+import {ExportModel, ExportModelColumn, ExportStatus} from '../../db/models';
+import {ExportNotifications} from '../../db/models/export/types';
 import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
@@ -20,7 +20,7 @@ export type GetWorkbookExportStatusResult = {
     status: ExportStatus;
     exportId: BigIntId;
     progress: number;
-    notifications: WorkbookExportNotifications | null;
+    notifications: ExportNotifications | null;
 };
 
 export const getWorkbookExportStatus = async (
@@ -40,7 +40,7 @@ export const getWorkbookExportStatus = async (
 
     const {db} = registry.getDbInstance();
 
-    const workbookExportPromise = WorkbookExportModel.query(db.replica)
+    const workbookExportPromise = ExportModel.query(db.replica)
         .select([
             ExportModelColumn.ExportId,
             ExportModelColumn.Status,
@@ -59,7 +59,7 @@ export const getWorkbookExportStatus = async (
             [ExportModelColumn.ExportId]: exportId,
         })
         .first()
-        .timeout(WorkbookExportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
 
     const [progress, workbookExport] = await Promise.all([
         handle.query(getWorkbookExportProgress),

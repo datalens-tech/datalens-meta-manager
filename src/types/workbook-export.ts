@@ -1,3 +1,3 @@
-import {WorkbookExportData} from '../db/models/workbook-export/types';
+import {ExportData} from '../db/models/export/types';
 
-export type WorkbookExportDataWithHash = {export: WorkbookExportData; hash: string};
+export type WorkbookExportDataWithHash = {export: ExportData; hash: string};

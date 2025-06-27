@@ -1,7 +1,8 @@
 import {Model} from '../..';
 import {BigIntId} from '../../../types';
+import {ExportData} from '../export/types';
 
-import {ImportStatus} from './types';
+import {ImportMeta, ImportNotifications, ImportStatus} from './types';
 
 export {ImportStatus};
 
@@ -17,11 +18,7 @@ export const ImportModelColumn = {
     ExpiredAt: 'expiredAt',
 } as const;
 
-export class ImportModel<
-    Meta extends Record<string, unknown>,
-    Data extends Record<string, unknown>,
-    Notifications extends Record<string, unknown> | Array<unknown>,
-> extends Model {
+export class ImportModel extends Model {
     static get tableName() {
         return 'imports';
     }
@@ -32,9 +29,9 @@ export class ImportModel<
 
     importId!: BigIntId;
     status!: ImportStatus;
-    meta!: Meta;
-    data!: Data;
-    notifications!: Notifications | null;
+    meta!: ImportMeta;
+    data!: ExportData;
+    notifications!: ImportNotifications | null;
     createdBy!: string;
     createdAt!: string;
     updatedAt!: string;

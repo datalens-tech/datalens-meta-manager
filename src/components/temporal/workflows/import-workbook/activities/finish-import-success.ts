@@ -1,4 +1,4 @@
-import {ImportStatus, WorkbookImportModel} from '../../../../../db/models';
+import {ImportModel, ImportStatus} from '../../../../../db/models';
 import {registry} from '../../../../../registry';
 import type {ActivitiesDeps} from '../../../types';
 import {ImportWorkbookArgs} from '../types';
@@ -15,7 +15,7 @@ export const finishImportSuccess = async (
 
     const {db} = registry.getDbInstance();
 
-    await WorkbookImportModel.query(db.primary)
+    await ImportModel.query(db.primary)
         .patch({
             status: ImportStatus.Success,
         })

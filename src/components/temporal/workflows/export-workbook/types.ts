@@ -5,6 +5,7 @@ export type ExportWorkbookArgs = {
     exportId: BigIntId;
     tenantId?: string;
     requestId: string;
+    withExportEntries: boolean;
 };
 
 export type ExportWorkbookResult = {
