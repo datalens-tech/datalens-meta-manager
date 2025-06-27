@@ -1,4 +1,4 @@
-import {ExportStatus, ExportModel} from '../../../../../db/models';
+import {ExportModel, ExportStatus} from '../../../../../db/models';
 import {registry} from '../../../../../registry';
 import type {ActivitiesDeps} from '../../../types';
 import {ExportWorkbookArgs} from '../types';
