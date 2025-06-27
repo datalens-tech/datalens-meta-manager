@@ -1,12 +1,9 @@
 import {ApplicationFailure} from '@temporalio/common';
 import {PartialModelObject, raw, transaction} from 'objection';
 
-import {ExportEntryModel, ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
-import {WORKBOOK_EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/workbook-export/constants';
-import {
-    WorkbookExportEntriesData,
-    WorkbookExportEntryNotifications,
-} from '../../../../../db/models/workbook-export/types';
+import {ExportEntryModel, ExportModel, ExportModelColumn} from '../../../../../db/models';
+import {EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/export/constants';
+import {ExportEntriesData, ExportEntryNotifications} from '../../../../../db/models/export/types';
 import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
@@ -50,19 +47,19 @@ export const exportEntry = async (
 
     const mockEntryId = idMapping[entryId];
 
-    const update: PartialModelObject<WorkbookExportModel> = {};
+    const update: PartialModelObject<ExportModel> = {};
 
     if (!withExportEntries) {
         update.data = raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
             ExportModelColumn.Data,
-            WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
+            EXPORT_DATA_ENTRIES_FIELD,
             scope,
             ExportModelColumn.Data,
-            WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
+            EXPORT_DATA_ENTRIES_FIELD,
             scope,
             {
                 [mockEntryId]: entryData,
-            } satisfies WorkbookExportEntriesData,
+            } satisfies ExportEntriesData,
         ]);
     }
 
@@ -73,7 +70,7 @@ export const exportEntry = async (
                 entryId,
                 scope,
                 notifications,
-            } satisfies WorkbookExportEntryNotifications,
+            } satisfies ExportEntryNotifications,
         ]);
     }
 
@@ -81,7 +78,7 @@ export const exportEntry = async (
 
     await transaction(db.primary, async (trx) => {
         await Promise.all([
-            WorkbookExportModel.query(trx).patch(update).where({
+            ExportModel.query(trx).patch(update).where({
                 exportId,
             }),
             withExportEntries

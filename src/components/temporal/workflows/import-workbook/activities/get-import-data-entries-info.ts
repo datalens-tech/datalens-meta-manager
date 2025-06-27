@@ -1,6 +1,6 @@
 import {ApplicationFailure} from '@temporalio/common';
 
-import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
+import {ImportModel, ImportModelColumn} from '../../../../../db/models';
 import {registry} from '../../../../../registry';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
@@ -23,13 +23,13 @@ export const getImportDataEntriesInfo = async (
 
     const {db} = registry.getDbInstance();
 
-    const workbookImport = await WorkbookImportModel.query(db.replica)
+    const workbookImport = await ImportModel.query(db.replica)
         .select()
         .where({
             [ImportModelColumn.ImportId]: importId,
         })
         .first()
-        .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(ImportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookImport) {
         throw ApplicationFailure.create({

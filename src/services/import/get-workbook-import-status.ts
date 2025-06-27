@@ -5,8 +5,8 @@ import {getClient} from '../../components/temporal/client';
 import {getWorkbookImportProgress} from '../../components/temporal/workflows';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
-import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../db/models';
-import {WorkbookImportNotifications} from '../../db/models/workbook-import/types';
+import {ImportModel, ImportModelColumn, ImportStatus} from '../../db/models';
+import {ImportNotifications} from '../../db/models/import/types';
 import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
@@ -20,7 +20,7 @@ export type GetWorkbookImportStatusResult = {
     status: ImportStatus;
     importId: BigIntId;
     progress: number;
-    notifications: WorkbookImportNotifications | null;
+    notifications: ImportNotifications | null;
     workbookId: string;
 };
 
@@ -42,7 +42,7 @@ export const getWorkbookImportStatus = async (
 
     const {db} = registry.getDbInstance();
 
-    const workbookImport = await WorkbookImportModel.query(db.replica)
+    const workbookImport = await ImportModel.query(db.replica)
         .select([
             ImportModelColumn.ImportId,
             ImportModelColumn.Status,
@@ -61,7 +61,7 @@ export const getWorkbookImportStatus = async (
             [ImportModelColumn.ImportId]: importId,
         })
         .first()
-        .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(ImportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookImport) {
         throw new AppError(META_MANAGER_ERROR.WORKBOOK_IMPORT_NOT_EXIST, {

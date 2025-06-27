@@ -1,8 +1,8 @@
 import {PartialModelObject, raw} from 'objection';
 
 import {META_MANAGER_NOTIFICATION_CODE} from '../../../../../constants';
-import {ImportModelColumn, ImportStatus, WorkbookImportModel} from '../../../../../db/models';
-import {WorkbookImportEntryNotifications} from '../../../../../db/models/workbook-import/types';
+import {ImportModel, ImportModelColumn, ImportStatus} from '../../../../../db/models';
+import {ImportEntryNotifications} from '../../../../../db/models/import/types';
 import {registry} from '../../../../../registry';
 import {NotificationLevel} from '../../../../../types/models';
 import type {ActivitiesDeps} from '../../../types';
@@ -20,7 +20,7 @@ export const finishImportError = async (
 ): Promise<void> => {
     const {importId} = workflowArgs;
 
-    const update: PartialModelObject<WorkbookImportModel> = {
+    const update: PartialModelObject<ImportModel> = {
         status: ImportStatus.Error,
     };
 
@@ -37,13 +37,13 @@ export const finishImportError = async (
                         message: 'Unexpected error while importing the workbook.',
                     },
                 ],
-            } satisfies WorkbookImportEntryNotifications,
+            } satisfies ImportEntryNotifications,
         ]);
     }
 
     const {db} = registry.getDbInstance();
 
-    await WorkbookImportModel.query(db.primary).patch(update).where({
+    await ImportModel.query(db.primary).patch(update).where({
         importId,
     });
 };

@@ -1,11 +1,8 @@
 import {PartialModelObject, raw} from 'objection';
 
 import {META_MANAGER_NOTIFICATION_CODE} from '../../../../../constants';
-import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../../../../db/models';
-import {
-    WorkbookExportEntryNotifications,
-    WorkbookExportNotification,
-} from '../../../../../db/models/workbook-export/types';
+import {ExportModel, ExportModelColumn, ExportStatus} from '../../../../../db/models';
+import {ExportEntryNotifications, ExportNotification} from '../../../../../db/models/export/types';
 import {registry} from '../../../../../registry';
 import {NotificationLevel} from '../../../../../types/models';
 import type {ActivitiesDeps} from '../../../types';
@@ -23,7 +20,7 @@ export const finishExportError = async (
 ): Promise<void> => {
     const {exportId} = workflowArgs;
 
-    const update: PartialModelObject<WorkbookExportModel> = {
+    const update: PartialModelObject<ExportModel> = {
         status: ExportStatus.Error,
     };
 
@@ -33,7 +30,7 @@ export const finishExportError = async (
 
     const isUnexpectedError = !isCriticalNotificationError && !isCancelledError;
 
-    const notifications: WorkbookExportNotification[] = [];
+    const notifications: ExportNotification[] = [];
 
     if (isCancelledError) {
         notifications.push({
@@ -56,13 +53,13 @@ export const finishExportError = async (
             ExportModelColumn.Notifications,
             {
                 notifications,
-            } satisfies WorkbookExportEntryNotifications,
+            } satisfies ExportEntryNotifications,
         ]);
     }
 
     const {db} = registry.getDbInstance();
 
-    await WorkbookExportModel.query(db.primary).patch(update).where({
+    await ExportModel.query(db.primary).patch(update).where({
         exportId,
     });
 };

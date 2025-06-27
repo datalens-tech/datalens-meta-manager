@@ -2,11 +2,9 @@ import _ from 'lodash';
 import {raw} from 'objection';
 
 import {META_MANAGER_NOTIFICATION_CODE} from '../../../../../constants';
-import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
-import {
-    WorkbookImportEntryNotifications,
-    WorkbookImportNotification,
-} from '../../../../../db/models/workbook-import/types';
+import {ImportModel, ImportModelColumn} from '../../../../../db/models';
+import {ImportEntryNotifications, ImportNotification} from '../../../../../db/models/import/types';
+import {registry} from '../../../../../registry';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
@@ -30,19 +28,21 @@ export const checkScopesAvailability = async (
 
     const {importId} = workflowArgs;
 
-    const notifications: WorkbookImportNotification[] = notAvailableScopes.map((scope) => ({
+    const notifications: ImportNotification[] = notAvailableScopes.map((scope) => ({
         code: META_MANAGER_NOTIFICATION_CODE.SCOPE_NOT_AVAILABLE_FOR_INSTALLATION,
         level: NotificationLevel.Warning,
         message: `Entries with scope "${scope}" is not available in current installation and will not be imported.`,
     }));
 
-    await WorkbookImportModel.query(WorkbookImportModel.primary)
+    const {db} = registry.getDbInstance();
+
+    await ImportModel.query(db.primary)
         .patch({
             notifications: raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
                 ImportModelColumn.Notifications,
                 {
                     notifications,
-                } satisfies WorkbookImportEntryNotifications,
+                } satisfies ImportEntryNotifications,
             ]),
         })
         .where({
