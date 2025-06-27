@@ -84,12 +84,14 @@ export const exportEntry = async (
             WorkbookExportModel.query(trx).patch(update).where({
                 exportId,
             }),
-            ExportEntryModel.query(trx).insert({
-                exportId,
-                mockEntryId,
-                scope,
-                data: entryData,
-            }),
+            withExportEntries
+                ? ExportEntryModel.query(trx).insert({
+                      exportId,
+                      mockEntryId,
+                      scope,
+                      data: entryData,
+                  })
+                : undefined,
         ]);
     });
 
