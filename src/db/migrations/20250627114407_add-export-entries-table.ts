@@ -9,7 +9,7 @@ export async function up(knex: Knex): Promise<void> {
             scope TEXT NOT NULL,
             data jsonb DEFAULT NULL,
             notifications jsonb DEFAULT NULL,
-            PRIMARY KEY (export_id, mock_entry_id),
+            PRIMARY KEY (export_id, entry_id),
             FOREIGN KEY (export_id) REFERENCES exports(export_id) ON DELETE CASCADE
         );
     `);
