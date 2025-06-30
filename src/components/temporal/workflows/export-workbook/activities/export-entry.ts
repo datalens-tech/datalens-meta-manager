@@ -1,5 +1,5 @@
 import {ApplicationFailure} from '@temporalio/common';
-import {PartialModelObject, raw, transaction} from 'objection';
+import {PartialModelObject, raw} from 'objection';
 
 import {ExportEntryModel, ExportModel, ExportModelColumn} from '../../../../../db/models';
 import {EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/export/constants';
@@ -47,10 +47,8 @@ export const exportEntry = async (
 
     const mockEntryId = idMapping[entryId];
 
-    const update: PartialModelObject<ExportModel> = {};
-
-    if (!withExportEntries) {
-        update.data = raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
+    const update: PartialModelObject<ExportModel> = {
+        data: raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
             ExportModelColumn.Data,
             EXPORT_DATA_ENTRIES_FIELD,
             scope,
@@ -60,8 +58,8 @@ export const exportEntry = async (
             {
                 [mockEntryId]: entryData,
             } satisfies ExportEntriesData,
-        ]);
-    }
+        ]),
+    };
 
     if (notifications.length > 0) {
         update.notifications = raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
@@ -76,21 +74,20 @@ export const exportEntry = async (
 
     const {db} = registry.getDbInstance();
 
-    await transaction(db.primary, async (trx) => {
-        await Promise.all([
-            ExportModel.query(trx).patch(update).where({
-                exportId,
-            }),
-            withExportEntries
-                ? ExportEntryModel.query(trx).insert({
-                      exportId,
-                      mockEntryId,
-                      scope,
-                      data: entryData,
-                  })
-                : undefined,
-        ]);
-    });
+    if (withExportEntries) {
+        await ExportEntryModel.query(db.primary).insert({
+            exportId,
+            entryId,
+            mockEntryId,
+            scope,
+            data: entryData,
+            notifications: raw('?::jsonb', [JSON.stringify(notifications)]),
+        });
+    } else {
+        await ExportModel.query(db.primary).patch(update).where({
+            exportId,
+        });
+    }
 
     const criticalNotifications = notifications.filter(
         ({level}) => level === NotificationLevel.Critical,

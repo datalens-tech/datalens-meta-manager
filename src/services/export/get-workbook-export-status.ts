@@ -5,7 +5,13 @@ import {getClient} from '../../components/temporal/client';
 import {getWorkbookExportProgress} from '../../components/temporal/workflows';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
-import {ExportModel, ExportModelColumn, ExportStatus} from '../../db/models';
+import {
+    ExportEntryModel,
+    ExportEntryModelColumn,
+    ExportModel,
+    ExportModelColumn,
+    ExportStatus,
+} from '../../db/models';
 import {ExportNotifications} from '../../db/models/export/types';
 import {registry} from '../../registry';
 import {BigIntId} from '../../types';
@@ -21,7 +27,15 @@ export type GetWorkbookExportStatusResult = {
     exportId: BigIntId;
     progress: number;
     notifications: ExportNotifications | null;
+    entries?: ExportEntryModel[];
 };
+
+const selectedEntryColumns = [
+    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.ExportId}`,
+    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.entryId}`,
+    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.Scope}`,
+    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.Notifications}`,
+];
 
 export const getWorkbookExportStatus = async (
     {ctx}: ServiceArgs,
@@ -76,6 +90,20 @@ export const getWorkbookExportStatus = async (
 
     await checkWorkbookAccessById({ctx, workbookId: sourceWorkbookId});
 
+    let entries: ExportEntryModel[] | undefined;
+
+    if (
+        workbookExport.status === ExportStatus.Error ||
+        workbookExport.status === ExportStatus.Success
+    ) {
+        entries = await ExportEntryModel.query(db.replica)
+            .select(selectedEntryColumns)
+            .where({
+                [ExportEntryModelColumn.ExportId]: exportId,
+            })
+            .timeout(ExportEntryModel.DEFAULT_QUERY_TIMEOUT);
+    }
+
     ctx.log('GET_WORKBOOK_EXPORT_STATUS_FINISH');
 
     return {
@@ -83,5 +111,6 @@ export const getWorkbookExportStatus = async (
         status: workbookExport.status,
         notifications: workbookExport.notifications,
         progress,
+        entries,
     };
 };
