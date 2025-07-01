@@ -51,7 +51,6 @@ export const startWorkbookExport = async (
         .insert({
             createdBy: user.userId ?? SYSTEM_USER.ID,
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),
-            data: {version: WORKBOOK_EXPORT_DATA_VERSION, entries: {}},
             meta: {
                 version: WORKBOOK_EXPORT_DATA_VERSION,
                 sourceWorkbookId: responseData.workbookId,

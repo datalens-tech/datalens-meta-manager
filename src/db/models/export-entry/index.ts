@@ -6,7 +6,7 @@ import {ExportEntryNotification} from './types';
 
 export const ExportEntryModelColumn = {
     ExportId: 'exportId',
-    entryId: 'entryId',
+    EntryId: 'entryId',
     MockEntryId: 'mockEntryId',
     Scope: 'scope',
     Data: 'data',
@@ -19,7 +19,7 @@ export class ExportEntryModel extends Model {
     }
 
     static get idColumn() {
-        return [ExportEntryModelColumn.ExportId, ExportEntryModelColumn.MockEntryId];
+        return [ExportEntryModelColumn.ExportId, ExportEntryModelColumn.EntryId];
     }
 
     exportId!: BigIntId;

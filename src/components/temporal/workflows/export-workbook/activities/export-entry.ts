@@ -47,31 +47,6 @@ export const exportEntry = async (
 
     const mockEntryId = idMapping[entryId];
 
-    const update: PartialModelObject<ExportModel> = {
-        data: raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
-            ExportModelColumn.Data,
-            EXPORT_DATA_ENTRIES_FIELD,
-            scope,
-            ExportModelColumn.Data,
-            EXPORT_DATA_ENTRIES_FIELD,
-            scope,
-            {
-                [mockEntryId]: entryData,
-            } satisfies ExportEntriesData,
-        ]),
-    };
-
-    if (notifications.length > 0) {
-        update.notifications = raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
-            ExportModelColumn.Notifications,
-            {
-                entryId,
-                scope,
-                notifications,
-            } satisfies ExportEntryNotifications,
-        ]);
-    }
-
     const {db} = registry.getDbInstance();
 
     if (withExportEntries) {
@@ -84,6 +59,31 @@ export const exportEntry = async (
             notifications: raw('?::jsonb', [JSON.stringify(notifications)]),
         });
     } else {
+        const update: PartialModelObject<ExportModel> = {
+            data: raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
+                ExportModelColumn.Data,
+                EXPORT_DATA_ENTRIES_FIELD,
+                scope,
+                ExportModelColumn.Data,
+                EXPORT_DATA_ENTRIES_FIELD,
+                scope,
+                {
+                    [mockEntryId]: entryData,
+                } satisfies ExportEntriesData,
+            ]),
+        };
+
+        if (notifications.length > 0) {
+            update.notifications = raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
+                ExportModelColumn.Notifications,
+                {
+                    entryId,
+                    scope,
+                    notifications,
+                } satisfies ExportEntryNotifications,
+            ]);
+        }
+
         await ExportModel.query(db.primary).patch(update).where({
             exportId,
         });

@@ -32,7 +32,7 @@ export type GetWorkbookExportStatusResult = {
 
 const selectedEntryColumns = [
     `${ExportEntryModel.tableName}.${ExportEntryModelColumn.ExportId}`,
-    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.entryId}`,
+    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.EntryId}`,
     `${ExportEntryModel.tableName}.${ExportEntryModelColumn.Scope}`,
     `${ExportEntryModel.tableName}.${ExportEntryModelColumn.Notifications}`,
 ];
