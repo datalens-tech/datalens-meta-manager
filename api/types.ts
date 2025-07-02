@@ -1,3 +1,5 @@
+import '../src/types/global';
+
 export {StringId, BigIntId} from '../src/types';
 
 export {

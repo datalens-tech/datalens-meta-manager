@@ -22,12 +22,22 @@ export type GetWorkbookExportResult = {
     data: WorkbookExportDataWithHash;
 };
 
-const selectedEntryColumns = [
-    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.ExportId}`,
-    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.MockEntryId}`,
-    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.Scope}`,
-    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.Data}`,
+const entryColumns = [
+    ExportEntryModelColumn.ExportId,
+    ExportEntryModelColumn.MockEntryId,
+    ExportEntryModelColumn.Scope,
+    ExportEntryModelColumn.Data,
 ];
+
+type SelectedExportEntryModel = Pick<ExportEntryModel, ArrayElement<typeof entryColumns>>;
+
+type SelectedExportModel = Omit<ExportModel, 'entries'> & {
+    entries?: SelectedExportEntryModel[];
+};
+
+const selectedEntryColumns = entryColumns.map(
+    (column) => `${ExportEntryModel.tableName}.${column}`,
+);
 
 export const getWorkbookExport = async (
     {ctx}: ServiceArgs,
@@ -43,7 +53,7 @@ export const getWorkbookExport = async (
 
     const {db} = registry.getDbInstance();
 
-    const workbookExport = await ExportModel.query(db.replica)
+    const workbookExport: SelectedExportModel | undefined = await ExportModel.query(db.replica)
         .select()
         .where({
             [`${ExportModel.tableName}.${ExportModelColumn.ExportId}`]: exportId,

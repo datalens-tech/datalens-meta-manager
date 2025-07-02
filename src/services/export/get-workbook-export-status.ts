@@ -22,20 +22,32 @@ type GetWorkbookExportStatusArgs = {
     exportId: BigIntId;
 };
 
+const selectedExportColumns = [
+    ExportModelColumn.ExportId,
+    ExportModelColumn.Status,
+    ExportModelColumn.Meta,
+] as const;
+
+type SelectedExportModel = Pick<ExportModel, ArrayElement<typeof selectedExportColumns>> & {
+    notifications: ExportNotifications | null;
+};
+
+const selectedEntryColumns = [
+    ExportEntryModelColumn.ExportId,
+    ExportEntryModelColumn.EntryId,
+    ExportEntryModelColumn.Scope,
+    ExportEntryModelColumn.Notifications,
+] as const;
+
+type SelectedExportEntryModel = Pick<ExportEntryModel, ArrayElement<typeof selectedEntryColumns>>;
+
 export type GetWorkbookExportStatusResult = {
     status: ExportStatus;
     exportId: BigIntId;
     progress: number;
     notifications: ExportNotifications | null;
-    entries?: ExportEntryModel[];
+    entries?: SelectedExportEntryModel[];
 };
-
-const selectedEntryColumns = [
-    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.ExportId}`,
-    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.EntryId}`,
-    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.Scope}`,
-    `${ExportEntryModel.tableName}.${ExportEntryModelColumn.Notifications}`,
-];
 
 export const getWorkbookExportStatus = async (
     {ctx}: ServiceArgs,
@@ -75,10 +87,9 @@ export const getWorkbookExportStatus = async (
         .first()
         .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
 
-    const [progress, workbookExport] = await Promise.all([
-        handle.query(getWorkbookExportProgress),
-        workbookExportPromise,
-    ]);
+    const [progress, workbookExport]: [number, SelectedExportModel | undefined] = await Promise.all(
+        [handle.query(getWorkbookExportProgress), workbookExportPromise],
+    );
 
     if (!workbookExport) {
         throw new AppError(META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_EXIST, {
@@ -90,7 +101,7 @@ export const getWorkbookExportStatus = async (
 
     await checkWorkbookAccessById({ctx, workbookId: sourceWorkbookId});
 
-    let entries: ExportEntryModel[] | undefined;
+    let entries: SelectedExportEntryModel[] | undefined;
 
     if (
         workbookExport.status === ExportStatus.Error ||
