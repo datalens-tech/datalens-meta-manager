@@ -1,8 +1,8 @@
 import {ApplicationFailure} from '@temporalio/common';
 import {raw} from 'objection';
 
+import {EXPORT_DATA_ENTRIES_FIELD} from '../../../../../constants';
 import {ImportModel, ImportModelColumn} from '../../../../../db/models';
-import {EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/export/constants';
 import {ImportEntryNotifications} from '../../../../../db/models/import/types';
 import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';

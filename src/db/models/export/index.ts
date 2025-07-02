@@ -2,7 +2,7 @@ import {Model} from '../..';
 import {BigIntId} from '../../../types';
 import {ExportEntryModel, ExportEntryModelColumn} from '../export-entry';
 
-import {ExportData, ExportMeta, ExportNotifications, ExportStatus} from './types';
+import {ExportMeta, ExportNotifications, ExportStatus} from './types';
 
 export {ExportStatus};
 
@@ -10,7 +10,6 @@ export const ExportModelColumn = {
     ExportId: 'exportId',
     Status: 'status',
     Meta: 'meta',
-    Data: 'data',
     Notifications: 'notifications',
     CreatedBy: 'createdBy',
     CreatedAt: 'createdAt',
@@ -43,7 +42,6 @@ export class ExportModel extends Model {
     exportId!: BigIntId;
     status!: ExportStatus;
     meta!: ExportMeta;
-    data!: ExportData;
     notifications!: ExportNotifications | null;
     createdBy!: string;
     createdAt!: string;
