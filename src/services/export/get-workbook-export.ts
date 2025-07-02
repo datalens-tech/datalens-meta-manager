@@ -3,12 +3,11 @@ import {AppError} from '@gravity-ui/nodekit';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
 import {ExportModel, ExportModelColumn, ExportStatus} from '../../db/models';
-import {ExportData} from '../../db/models/export/types';
 import {ExportEntryModel, ExportEntryModelColumn} from '../../db/models/export-entry';
 import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
-import {WorkbookExportDataWithHash} from '../../types/workbook-export';
+import {ExportData, WorkbookExportDataWithHash} from '../../types/workbook-export';
 import {encodeId} from '../../utils';
 import {getExportDataVerificationHash} from '../../utils/export';
 
@@ -87,27 +86,21 @@ export const getWorkbookExport = async (
 
     await checkExportAvailability({ctx});
 
-    let exportData: ExportData;
+    const exportData: ExportData = {
+        version: workbookExport.meta.version,
+        entries: (workbookExport.entries ?? []).reduce<ExportData['entries']>(
+            (acc, {scope, mockEntryId, data}) => {
+                if (!acc[scope]) {
+                    acc[scope] = {};
+                }
 
-    if (workbookExport.meta.version) {
-        exportData = {
-            version: workbookExport.meta.version,
-            entries: (workbookExport.entries ?? []).reduce(
-                (acc, {scope, mockEntryId, data}) => {
-                    if (!acc[scope]) {
-                        acc[scope] = {};
-                    }
+                acc[scope][mockEntryId] = data;
 
-                    acc[scope][mockEntryId] = data;
-
-                    return acc;
-                },
-                {} as ExportData['entries'],
-            ),
-        };
-    } else {
-        exportData = workbookExport.data;
-    }
+                return acc;
+            },
+            {},
+        ),
+    };
 
     const hash = getExportDataVerificationHash({
         data: exportData,

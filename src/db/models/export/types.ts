@@ -1,10 +1,7 @@
 import {EntryScope} from '../../../components/gateway/schema/us/types/entry';
 import {NotificationLevel} from '../../../types/models';
 
-import {EXPORT_DATA_ENTRIES_FIELD} from './constants';
-
 type EntryId = string;
-type MockEntryId = string;
 
 export enum ExportStatus {
     Pending = 'pending',
@@ -28,15 +25,6 @@ export type ExportEntryNotifications = {
 export type ExportMeta = {
     version: string;
     sourceWorkbookId: string;
-};
-
-export type ExportEntriesData = Record<MockEntryId, unknown>;
-
-export type ExportData = {
-    version: string;
-    [EXPORT_DATA_ENTRIES_FIELD]: {
-        [key in EntryScope]?: ExportEntriesData;
-    };
 };
 
 export type ExportNotifications = ExportEntryNotifications[];

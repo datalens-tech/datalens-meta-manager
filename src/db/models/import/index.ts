@@ -1,6 +1,6 @@
 import {Model} from '../..';
 import {BigIntId} from '../../../types';
-import {ExportData} from '../export/types';
+import {ExportData} from '../../../types/workbook-export';
 
 import {ImportMeta, ImportNotifications, ImportStatus} from './types';
 
