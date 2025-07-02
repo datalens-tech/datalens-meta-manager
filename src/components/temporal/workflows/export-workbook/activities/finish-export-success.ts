@@ -1,4 +1,4 @@
-import {ExportStatus, WorkbookExportModel} from '../../../../../db/models';
+import {ExportModel, ExportStatus} from '../../../../../db/models';
 import {registry} from '../../../../../registry';
 import type {ActivitiesDeps} from '../../../types';
 import {ExportWorkbookArgs} from '../types';
@@ -15,7 +15,7 @@ export const finishExportSuccess = async (
 
     const {db} = registry.getDbInstance();
 
-    await WorkbookExportModel.query(db.primary)
+    await ExportModel.query(db.primary)
         .patch({
             status: ExportStatus.Success,
         })

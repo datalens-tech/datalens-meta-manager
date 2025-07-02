@@ -22,7 +22,7 @@ export const startExportWorkbookWorkflow = async ({
     const encodedExportId = encodeId(exportId);
 
     await client.workflow.start(exportWorkbook, {
-        args: [{exportId, workbookId, tenantId, requestId}],
+        args: [{exportId, workbookId, tenantId, requestId, withExportEntries: true}],
         taskQueue: EXPORT_WORKBOOK_QUEUE_NAME,
         workflowId: encodedExportId,
     });

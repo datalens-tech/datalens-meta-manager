@@ -1,12 +1,9 @@
 import {ApplicationFailure} from '@temporalio/common';
 import {PartialModelObject, raw} from 'objection';
 
-import {ExportModelColumn, WorkbookExportModel} from '../../../../../db/models';
-import {WORKBOOK_EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/workbook-export/constants';
-import {
-    WorkbookExportEntriesData,
-    WorkbookExportEntryNotifications,
-} from '../../../../../db/models/workbook-export/types';
+import {ExportEntryModel, ExportModel, ExportModelColumn} from '../../../../../db/models';
+import {EXPORT_DATA_ENTRIES_FIELD} from '../../../../../db/models/export/constants';
+import {ExportEntriesData, ExportEntryNotifications} from '../../../../../db/models/export/types';
 import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
@@ -27,7 +24,7 @@ export const exportEntry = async (
     {ctx, gatewayApi}: ActivitiesDeps,
     {workflowArgs, entryId, scope, idMapping}: ExportEntryArgs,
 ): Promise<void> => {
-    const {workbookId, exportId, requestId, tenantId} = workflowArgs;
+    const {workbookId, exportId, requestId, tenantId, withExportEntries} = workflowArgs;
 
     let data;
 
@@ -50,36 +47,50 @@ export const exportEntry = async (
 
     const mockEntryId = idMapping[entryId];
 
-    const update: PartialModelObject<WorkbookExportModel> = {
-        data: raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
-            ExportModelColumn.Data,
-            WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
-            scope,
-            ExportModelColumn.Data,
-            WORKBOOK_EXPORT_DATA_ENTRIES_FIELD,
-            scope,
-            {
-                [mockEntryId]: entryData,
-            } satisfies WorkbookExportEntriesData,
-        ]),
-    };
-
-    if (notifications.length > 0) {
-        update.notifications = raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
-            ExportModelColumn.Notifications,
-            {
-                entryId,
-                scope,
-                notifications,
-            } satisfies WorkbookExportEntryNotifications,
-        ]);
-    }
-
     const {db} = registry.getDbInstance();
 
-    await WorkbookExportModel.query(db.primary).patch(update).where({
-        exportId,
-    });
+    if (withExportEntries) {
+        await ExportEntryModel.query(db.primary).insert({
+            exportId,
+            entryId,
+            mockEntryId,
+            scope,
+            data: entryData,
+            notifications:
+                notifications.length > 0
+                    ? raw('?::jsonb', [JSON.stringify(notifications)])
+                    : undefined,
+        });
+    } else {
+        const update: PartialModelObject<ExportModel> = {
+            data: raw("jsonb_set(??, '{??,??}', (COALESCE(??->?->?, '{}') || ?))", [
+                ExportModelColumn.Data,
+                EXPORT_DATA_ENTRIES_FIELD,
+                scope,
+                ExportModelColumn.Data,
+                EXPORT_DATA_ENTRIES_FIELD,
+                scope,
+                {
+                    [mockEntryId]: entryData,
+                } satisfies ExportEntriesData,
+            ]),
+        };
+
+        if (notifications.length > 0) {
+            update.notifications = raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
+                ExportModelColumn.Notifications,
+                {
+                    entryId,
+                    scope,
+                    notifications,
+                } satisfies ExportEntryNotifications,
+            ]);
+        }
+
+        await ExportModel.query(db.primary).patch(update).where({
+            exportId,
+        });
+    }
 
     const criticalNotifications = notifications.filter(
         ({level}) => level === NotificationLevel.Critical,

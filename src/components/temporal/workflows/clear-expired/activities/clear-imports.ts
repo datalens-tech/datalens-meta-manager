@@ -1,6 +1,6 @@
 import {raw} from 'objection';
 
-import {ImportModelColumn, WorkbookImportModel} from '../../../../../db/models';
+import {ImportModel, ImportModelColumn} from '../../../../../db/models';
 import {registry} from '../../../../../registry';
 import {ActivitiesDeps} from '../../../types';
 
@@ -11,11 +11,11 @@ export const clearImports = async (
 ): Promise<{deletedTotal: number; limitReached: boolean}> => {
     const {db} = registry.getDbInstance();
 
-    const deletedTotal = await WorkbookImportModel.query(db.primary)
+    const deletedTotal = await ImportModel.query(db.primary)
         .delete()
         .where(ImportModelColumn.ExpiredAt, '<', raw('CURRENT_TIMESTAMP'))
         .limit(LIMIT)
-        .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(ImportModel.DEFAULT_QUERY_TIMEOUT);
 
     return {deletedTotal, limitReached: deletedTotal === LIMIT};
 };

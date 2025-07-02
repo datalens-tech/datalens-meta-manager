@@ -7,7 +7,7 @@ import {
     WORKBOOK_EXPORT_DATA_VERSION,
     WORKBOOK_EXPORT_EXPIRATION_DAYS,
 } from '../../constants';
-import {WorkbookExportModel} from '../../db/models';
+import {ExportModel} from '../../db/models';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 import {encodeId} from '../../utils';
@@ -20,7 +20,7 @@ type StartWorkbookExportArgs = {
 export const startWorkbookExport = async (
     {ctx}: ServiceArgs,
     args: StartWorkbookExportArgs,
-): Promise<WorkbookExportModel> => {
+): Promise<ExportModel> => {
     const {workbookId} = args;
 
     ctx.log('START_WORKBOOK_EXPORT_START', {
@@ -47,14 +47,16 @@ export const startWorkbookExport = async (
 
     const {db} = registry.getDbInstance();
 
-    const result = await WorkbookExportModel.query(db.primary)
+    const result = await ExportModel.query(db.primary)
         .insert({
             createdBy: user.userId ?? SYSTEM_USER.ID,
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),
-            data: {version: WORKBOOK_EXPORT_DATA_VERSION, entries: {}},
-            meta: {sourceWorkbookId: responseData.workbookId},
+            meta: {
+                version: WORKBOOK_EXPORT_DATA_VERSION,
+                sourceWorkbookId: responseData.workbookId,
+            },
         })
-        .timeout(WorkbookExportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
 
     await startExportWorkbookWorkflow({
         exportId: result.exportId,

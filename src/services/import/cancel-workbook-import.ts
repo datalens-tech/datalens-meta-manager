@@ -3,7 +3,7 @@ import {AppError} from '@gravity-ui/nodekit';
 import {getClient} from '../../components/temporal/client';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
-import {ImportModelColumn, WorkbookImportModel} from '../../db/models';
+import {ImportModel, ImportModelColumn} from '../../db/models';
 import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
@@ -31,13 +31,13 @@ export const cancelWorkbookImport = async (
 
     const {db} = registry.getDbInstance();
 
-    const workbookImport = await WorkbookImportModel.query(db.replica)
+    const workbookImport = await ImportModel.query(db.replica)
         .select([ImportModelColumn.ImportId, ImportModelColumn.Meta])
         .where({
             [ImportModelColumn.ImportId]: importId,
         })
         .first()
-        .timeout(WorkbookImportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(ImportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookImport) {
         throw new AppError(META_MANAGER_ERROR.WORKBOOK_IMPORT_NOT_EXIST, {

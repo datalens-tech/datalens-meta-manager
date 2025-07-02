@@ -18,20 +18,37 @@ const format = ({
     status,
     progress,
     notifications,
+    entries,
 }: GetWorkbookExportStatusResult): z.infer<typeof schema> => {
-    return {
-        exportId: encodeId(exportId),
-        status,
-        notifications: notifications?.flatMap((entry) =>
-            entry.notifications.map((notification) => ({
-                entryId: entry.entryId,
-                scope: entry.scope,
+    const exportNotifications =
+        notifications?.flatMap((item) =>
+            item.notifications.map((notification) => ({
+                entryId: item.entryId,
+                scope: item.scope,
                 code: notification.code,
                 message: notification.message,
                 level: notification.level,
                 details: notification.details,
             })),
-        ),
+        ) || [];
+
+    const entriesNotifications =
+        entries?.flatMap(
+            (entry) =>
+                entry.notifications?.map((notification) => ({
+                    entryId: entry.entryId,
+                    scope: entry.scope,
+                    code: notification.code,
+                    message: notification.message,
+                    level: notification.level,
+                    details: notification.details,
+                })) || [],
+        ) || [];
+
+    return {
+        exportId: encodeId(exportId),
+        status,
+        notifications: [...exportNotifications, ...entriesNotifications],
         progress,
     };
 };

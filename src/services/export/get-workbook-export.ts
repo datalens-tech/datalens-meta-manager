@@ -2,7 +2,9 @@ import {AppError} from '@gravity-ui/nodekit';
 
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
-import {ExportModelColumn, ExportStatus, WorkbookExportModel} from '../../db/models';
+import {ExportModel, ExportModelColumn, ExportStatus} from '../../db/models';
+import {ExportData} from '../../db/models/export/types';
+import {ExportEntryModel, ExportEntryModelColumn} from '../../db/models/export-entry';
 import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
@@ -20,6 +22,23 @@ export type GetWorkbookExportResult = {
     data: WorkbookExportDataWithHash;
 };
 
+const entryColumns = [
+    ExportEntryModelColumn.ExportId,
+    ExportEntryModelColumn.MockEntryId,
+    ExportEntryModelColumn.Scope,
+    ExportEntryModelColumn.Data,
+];
+
+type SelectedExportEntryModel = Pick<ExportEntryModel, ArrayElement<typeof entryColumns>>;
+
+type SelectedExportModel = Omit<ExportModel, 'entries'> & {
+    entries?: SelectedExportEntryModel[];
+};
+
+const selectedEntryColumns = entryColumns.map(
+    (column) => `${ExportEntryModel.tableName}.${column}`,
+);
+
 export const getWorkbookExport = async (
     {ctx}: ServiceArgs,
     args: GetWorkbookExportArgs,
@@ -34,13 +53,19 @@ export const getWorkbookExport = async (
 
     const {db} = registry.getDbInstance();
 
-    const workbookExport = await WorkbookExportModel.query(db.replica)
+    const workbookExport: SelectedExportModel | undefined = await ExportModel.query(db.replica)
         .select()
         .where({
-            [ExportModelColumn.ExportId]: exportId,
+            [`${ExportModel.tableName}.${ExportModelColumn.ExportId}`]: exportId,
+        })
+        .withGraphJoined(`[entries(entriesModifier)]`)
+        .modifiers({
+            entriesModifier(builder) {
+                builder.select(selectedEntryColumns);
+            },
         })
         .first()
-        .timeout(WorkbookExportModel.DEFAULT_QUERY_TIMEOUT);
+        .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookExport) {
         throw new AppError(META_MANAGER_ERROR.WORKBOOK_EXPORT_NOT_EXIST, {
@@ -62,8 +87,30 @@ export const getWorkbookExport = async (
 
     await checkExportAvailability({ctx});
 
+    let exportData: ExportData;
+
+    if (workbookExport.meta.version) {
+        exportData = {
+            version: workbookExport.meta.version,
+            entries: (workbookExport.entries ?? []).reduce(
+                (acc, {scope, mockEntryId, data}) => {
+                    if (!acc[scope]) {
+                        acc[scope] = {};
+                    }
+
+                    acc[scope][mockEntryId] = data;
+
+                    return acc;
+                },
+                {} as ExportData['entries'],
+            ),
+        };
+    } else {
+        exportData = workbookExport.data;
+    }
+
     const hash = getExportDataVerificationHash({
-        data: workbookExport.data,
+        data: exportData,
         secret: ctx.config.exportDataVerificationKey,
     });
 
@@ -73,7 +120,7 @@ export const getWorkbookExport = async (
         exportId: workbookExport.exportId,
         status: workbookExport.status,
         data: {
-            export: workbookExport.data,
+            export: exportData,
             hash,
         },
     };

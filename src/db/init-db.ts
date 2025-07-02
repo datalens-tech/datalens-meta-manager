@@ -3,10 +3,9 @@ import path from 'path';
 import type {NodeKit} from '@gravity-ui/nodekit';
 import {getModel, initDB as initPostgresDB} from '@gravity-ui/postgreskit';
 import type {Knex} from 'knex';
+import {knexSnakeCaseMappers} from 'objection';
 
 import {isTruthyEnvVariable} from '../utils';
-
-import {convertCamelCase} from './utils/camel-case';
 
 const DEFAULT_QUERY_TIMEOUT = 40000;
 
@@ -27,25 +26,8 @@ export const getKnexOptions = (): Knex.Config => ({
         extension: 'js',
         loadExtensions: ['.js'],
     },
-    postProcessResponse: (result: unknown): unknown => {
-        let dataFormed;
-
-        if (Array.isArray(result)) {
-            dataFormed = result.map((dataObj) => convertCamelCase(dataObj));
-        } else if (result !== null && typeof result === 'object') {
-            dataFormed = convertCamelCase(result);
-        } else {
-            dataFormed = result;
-        }
-
-        return dataFormed;
-    },
-    wrapIdentifier: (value, origImpl) => {
-        const snakeCaseFormat = value.replace(/(?=[A-Z])/g, '_').toLowerCase();
-
-        return origImpl(snakeCaseFormat);
-    },
     debug: false,
+    ...knexSnakeCaseMappers(),
 });
 
 export class Model extends getModel() {
