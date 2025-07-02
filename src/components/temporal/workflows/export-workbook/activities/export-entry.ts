@@ -56,7 +56,10 @@ export const exportEntry = async (
             mockEntryId,
             scope,
             data: entryData,
-            notifications: raw('?::jsonb', [JSON.stringify(notifications)]),
+            notifications:
+                notifications.length > 0
+                    ? raw('?::jsonb', [JSON.stringify(notifications)])
+                    : undefined,
         });
     } else {
         const update: PartialModelObject<ExportModel> = {
