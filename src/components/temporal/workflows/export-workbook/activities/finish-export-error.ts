@@ -3,7 +3,6 @@ import {PartialModelObject, raw} from 'objection';
 import {META_MANAGER_NOTIFICATION_CODE} from '../../../../../constants';
 import {ExportModel, ExportModelColumn, ExportStatus} from '../../../../../db/models';
 import {ExportEntryNotifications, ExportNotification} from '../../../../../db/models/export/types';
-import {registry} from '../../../../../registry';
 import {NotificationLevel} from '../../../../../types/models';
 import type {ActivitiesDeps} from '../../../types';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
@@ -57,9 +56,7 @@ export const finishExportError = async (
         ]);
     }
 
-    const {db} = registry.getDbInstance();
-
-    await ExportModel.query(db.primary).patch(update).where({
+    await ExportModel.query(ExportModel.primary).patch(update).where({
         exportId,
     });
 };

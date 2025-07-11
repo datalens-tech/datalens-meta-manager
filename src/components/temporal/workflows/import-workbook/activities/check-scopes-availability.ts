@@ -4,7 +4,6 @@ import {raw} from 'objection';
 import {META_MANAGER_NOTIFICATION_CODE} from '../../../../../constants';
 import {ImportModel, ImportModelColumn} from '../../../../../db/models';
 import {ImportEntryNotifications, ImportNotification} from '../../../../../db/models/import/types';
-import {registry} from '../../../../../registry';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
@@ -34,9 +33,7 @@ export const checkScopesAvailability = async (
         message: `Entries with scope "${scope}" is not available in current installation and will not be imported.`,
     }));
 
-    const {db} = registry.getDbInstance();
-
-    await ImportModel.query(db.primary)
+    await ImportModel.query(ImportModel.primary)
         .patch({
             notifications: raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
                 ImportModelColumn.Notifications,

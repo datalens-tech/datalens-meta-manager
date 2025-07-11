@@ -2,7 +2,6 @@ import {ApplicationFailure} from '@temporalio/common';
 import {raw} from 'objection';
 
 import {ExportEntryModel} from '../../../../../db/models';
-import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
@@ -45,9 +44,7 @@ export const exportEntry = async (
 
     const mockEntryId = idMapping[entryId];
 
-    const {db} = registry.getDbInstance();
-
-    await ExportEntryModel.query(db.primary).insert({
+    await ExportEntryModel.query(ExportEntryModel.primary).insert({
         exportId,
         entryId,
         mockEntryId,

@@ -8,6 +8,7 @@ import {
     WORKBOOK_EXPORT_EXPIRATION_DAYS,
 } from '../../constants';
 import {ExportModel} from '../../db/models';
+import {getPrimary} from '../../db/utils';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 import {encodeId} from '../../utils';
@@ -18,7 +19,7 @@ type StartWorkbookExportArgs = {
 };
 
 export const startWorkbookExport = async (
-    {ctx}: ServiceArgs,
+    {ctx, trx}: ServiceArgs,
     args: StartWorkbookExportArgs,
 ): Promise<ExportModel> => {
     const {workbookId} = args;
@@ -45,9 +46,7 @@ export const startWorkbookExport = async (
 
     await checkExportAvailability({ctx});
 
-    const {db} = registry.getDbInstance();
-
-    const result = await ExportModel.query(db.primary)
+    const result = await ExportModel.query(getPrimary(trx))
         .insert({
             createdBy: user.userId ?? SYSTEM_USER.ID,
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),

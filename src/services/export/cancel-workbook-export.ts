@@ -4,7 +4,7 @@ import {getClient} from '../../components/temporal/client';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
 import {ExportModel, ExportModelColumn} from '../../db/models';
-import {registry} from '../../registry';
+import {getReplica} from '../../db/utils';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {encodeId} from '../../utils';
@@ -18,7 +18,7 @@ export type CancelWorkbookExportResult = {
 };
 
 export const cancelWorkbookExport = async (
-    {ctx}: ServiceArgs,
+    {ctx, trx}: ServiceArgs,
     args: CancelWorkbookExportArgs,
 ): Promise<CancelWorkbookExportResult> => {
     const {exportId} = args;
@@ -29,9 +29,7 @@ export const cancelWorkbookExport = async (
         exportId: encodedExportId,
     });
 
-    const {db} = registry.getDbInstance();
-
-    const workbookExport = await ExportModel.query(db.replica)
+    const workbookExport = await ExportModel.query(getReplica(trx))
         .select([ExportModelColumn.ExportId, ExportModelColumn.Meta])
         .where({
             [ExportModelColumn.ExportId]: exportId,

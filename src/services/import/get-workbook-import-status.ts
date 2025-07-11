@@ -7,7 +7,7 @@ import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
 import {ImportModel, ImportModelColumn, ImportStatus} from '../../db/models';
 import {ImportNotifications} from '../../db/models/import/types';
-import {registry} from '../../registry';
+import {getReplica} from '../../db/utils';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {encodeId} from '../../utils';
@@ -25,7 +25,7 @@ export type GetWorkbookImportStatusResult = {
 };
 
 export const getWorkbookImportStatus = async (
-    {ctx}: ServiceArgs,
+    {ctx, trx}: ServiceArgs,
     args: GetWorkbookImportStatusArgs,
 ): Promise<GetWorkbookImportStatusResult> => {
     const {importId} = args;
@@ -40,9 +40,7 @@ export const getWorkbookImportStatus = async (
     const handle = client.workflow.getHandle(encodedImportId);
     const progress = await handle.query(getWorkbookImportProgress);
 
-    const {db} = registry.getDbInstance();
-
-    const workbookImport = await ImportModel.query(db.replica)
+    const workbookImport = await ImportModel.query(getReplica(trx))
         .select([
             ImportModelColumn.ImportId,
             ImportModelColumn.Status,

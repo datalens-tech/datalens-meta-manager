@@ -3,7 +3,6 @@ import {PartialModelObject, raw} from 'objection';
 import {META_MANAGER_NOTIFICATION_CODE} from '../../../../../constants';
 import {ImportModel, ImportModelColumn, ImportStatus} from '../../../../../db/models';
 import {ImportEntryNotifications} from '../../../../../db/models/import/types';
-import {registry} from '../../../../../registry';
 import {NotificationLevel} from '../../../../../types/models';
 import type {ActivitiesDeps} from '../../../types';
 import {APPLICATION_FAILURE_TYPE} from '../constants';
@@ -41,9 +40,7 @@ export const finishImportError = async (
         ]);
     }
 
-    const {db} = registry.getDbInstance();
-
-    await ImportModel.query(db.primary).patch(update).where({
+    await ImportModel.query(ImportModel.primary).patch(update).where({
         importId,
     });
 };

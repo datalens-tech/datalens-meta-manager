@@ -13,6 +13,7 @@ import {
     WORKBOOK_IMPORT_EXPIRATION_DAYS,
 } from '../../constants';
 import {ImportModel} from '../../db/models';
+import {getPrimary} from '../../db/utils';
 import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
@@ -34,7 +35,7 @@ export type StartWorkbookImportResult = {
 };
 
 export const startWorkbookImport = async (
-    {ctx}: ServiceArgs,
+    {ctx, trx}: ServiceArgs,
     args: StartWorkbookImportArgs,
 ): Promise<StartWorkbookImportResult> => {
     const {data, title, description, collectionId} = args;
@@ -52,7 +53,6 @@ export const startWorkbookImport = async (
     }
 
     const {gatewayApi} = registry.getGatewayApi();
-    const {db} = registry.getDbInstance();
     const {tenantId, user} = getCtxInfo(ctx);
 
     const requestId = getCtxRequestIdWithFallback(ctx);
@@ -83,7 +83,7 @@ export const startWorkbookImport = async (
         throw error;
     }
 
-    const workbookImport = await ImportModel.query(db.primary)
+    const workbookImport = await ImportModel.query(getPrimary(trx))
         .insert({
             createdBy: user?.userId ?? SYSTEM_USER.ID,
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_IMPORT_EXPIRATION_DAYS]),
