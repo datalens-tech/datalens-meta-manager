@@ -13,7 +13,7 @@ import {
     ExportStatus,
 } from '../../db/models';
 import {ExportNotifications} from '../../db/models/export/types';
-import {registry} from '../../registry';
+import {getReplica} from '../../db/utils';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {encodeId} from '../../utils';
@@ -50,7 +50,7 @@ export type GetWorkbookExportStatusResult = {
 };
 
 export const getWorkbookExportStatus = async (
-    {ctx}: ServiceArgs,
+    {ctx, trx}: ServiceArgs,
     args: GetWorkbookExportStatusArgs,
 ): Promise<GetWorkbookExportStatusResult> => {
     const {exportId} = args;
@@ -64,9 +64,7 @@ export const getWorkbookExportStatus = async (
     const client = await getClient();
     const handle = client.workflow.getHandle(encodedExportId);
 
-    const {db} = registry.getDbInstance();
-
-    const workbookExportPromise = ExportModel.query(db.replica)
+    const workbookExportPromise = ExportModel.query(getReplica(trx))
         .select([
             ExportModelColumn.ExportId,
             ExportModelColumn.Status,
@@ -107,7 +105,7 @@ export const getWorkbookExportStatus = async (
         workbookExport.status === ExportStatus.Error ||
         workbookExport.status === ExportStatus.Success
     ) {
-        entries = await ExportEntryModel.query(db.replica)
+        entries = await ExportEntryModel.query(getReplica(trx))
             .select(selectedEntryColumns)
             .where({
                 [ExportEntryModelColumn.ExportId]: exportId,

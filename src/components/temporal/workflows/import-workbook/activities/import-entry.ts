@@ -4,7 +4,6 @@ import {raw} from 'objection';
 import {EXPORT_DATA_ENTRIES_FIELD} from '../../../../../constants';
 import {ImportModel, ImportModelColumn} from '../../../../../db/models';
 import {ImportEntryNotifications} from '../../../../../db/models/import/types';
-import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
@@ -30,9 +29,7 @@ export const importEntry = async (
 ): Promise<ImportEntryResult> => {
     const {importId, workbookId, requestId, tenantId} = workflowArgs;
 
-    const {db} = registry.getDbInstance();
-
-    const result = (await ImportModel.query(db.replica)
+    const result = (await ImportModel.query(ImportModel.replica)
         .select(
             raw('??->?->?->? as data', [
                 ImportModelColumn.Data,
@@ -79,7 +76,7 @@ export const importEntry = async (
     } = data;
 
     if (notifications.length > 0) {
-        await ImportModel.query(db.primary)
+        await ImportModel.query(ImportModel.primary)
             .patch({
                 notifications: raw("jsonb_insert(COALESCE(??, '[]'), '{-1}', ?, true)", [
                     ImportModelColumn.Notifications,

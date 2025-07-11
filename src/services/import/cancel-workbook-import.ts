@@ -4,7 +4,7 @@ import {getClient} from '../../components/temporal/client';
 import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
 import {ImportModel, ImportModelColumn} from '../../db/models';
-import {registry} from '../../registry';
+import {getReplica} from '../../db/utils';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {encodeId} from '../../utils';
@@ -18,7 +18,7 @@ export type CancelWorkbookImportResult = {
 };
 
 export const cancelWorkbookImport = async (
-    {ctx}: ServiceArgs,
+    {ctx, trx}: ServiceArgs,
     args: CancelWorkbookImportArgs,
 ): Promise<CancelWorkbookImportResult> => {
     const {importId} = args;
@@ -29,9 +29,7 @@ export const cancelWorkbookImport = async (
         importId: encodedImportId,
     });
 
-    const {db} = registry.getDbInstance();
-
-    const workbookImport = await ImportModel.query(db.replica)
+    const workbookImport = await ImportModel.query(getReplica(trx))
         .select([ImportModelColumn.ImportId, ImportModelColumn.Meta])
         .where({
             [ImportModelColumn.ImportId]: importId,

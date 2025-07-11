@@ -4,6 +4,7 @@ import {checkWorkbookAccessById} from '../../components/us/utils';
 import {META_MANAGER_ERROR} from '../../constants';
 import {ExportModel, ExportModelColumn, ExportStatus} from '../../db/models';
 import {ExportEntryModel, ExportEntryModelColumn} from '../../db/models/export-entry';
+import {getReplica} from '../../db/utils';
 import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
@@ -39,7 +40,7 @@ const selectedEntryColumns = entryColumns.map(
 );
 
 export const getWorkbookExport = async (
-    {ctx}: ServiceArgs,
+    {ctx, trx}: ServiceArgs,
     args: GetWorkbookExportArgs,
 ): Promise<GetWorkbookExportResult> => {
     const {exportId} = args;
@@ -50,9 +51,7 @@ export const getWorkbookExport = async (
         exportId: encodedExportId,
     });
 
-    const {db} = registry.getDbInstance();
-
-    const workbookExport: SelectedExportModel | undefined = await ExportModel.query(db.replica)
+    const workbookExport: SelectedExportModel | undefined = await ExportModel.query(getReplica(trx))
         .select()
         .where({
             [`${ExportModel.tableName}.${ExportModelColumn.ExportId}`]: exportId,

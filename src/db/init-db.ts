@@ -60,5 +60,7 @@ export const initDB = (nodekit: NodeKit) => {
         return queryResult.rows[0].id;
     }
 
+    Model.db = db;
+
     return {db, Model, getId, helpers};
 };
