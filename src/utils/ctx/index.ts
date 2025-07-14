@@ -22,7 +22,7 @@ export const getCtxTenantId = (ctx: AppContext): string | undefined => {
 };
 
 export const getCtxTenantIdUnsafe = (ctx: AppContext): string => {
-    const tenantId = ctx.get('info').tenantId;
+    const tenantId = getCtxTenantId(ctx);
 
     if (!tenantId) {
         throw new AppError(META_MANAGER_ERROR.TENANT_ID_MISSING_IN_CONTEXT, {
