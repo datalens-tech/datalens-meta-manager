@@ -27,6 +27,7 @@ const config: Partial<AppConfig> = {
     authTokenPublicKey: getEnvCert('AUTH_TOKEN_PUBLIC_KEY'),
 
     multitenant: false,
+    tenantIdOverride: 'common',
 
     appSensitiveHeaders,
 
