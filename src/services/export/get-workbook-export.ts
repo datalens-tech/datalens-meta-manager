@@ -10,6 +10,7 @@ import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {ExportData, WorkbookExportDataWithHash} from '../../types/workbook-export';
 import {encodeId} from '../../utils';
+import {getCtxTenantIdUnsafe} from '../../utils/ctx';
 import {getExportDataVerificationHash} from '../../utils/export';
 
 type GetWorkbookExportArgs = {
@@ -51,10 +52,13 @@ export const getWorkbookExport = async (
         exportId: encodedExportId,
     });
 
+    const tenantId = getCtxTenantIdUnsafe(ctx);
+
     const workbookExport: SelectedExportModel | undefined = await ExportModel.query(getReplica(trx))
         .select()
         .where({
             [`${ExportModel.tableName}.${ExportModelColumn.ExportId}`]: exportId,
+            [`${ExportModel.tableName}.${ExportModelColumn.TenantId}`]: tenantId,
         })
         .withGraphJoined(`[entries(entriesModifier)]`)
         .modifiers({

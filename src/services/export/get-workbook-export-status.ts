@@ -17,6 +17,7 @@ import {getReplica} from '../../db/utils';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {encodeId} from '../../utils';
+import {getCtxTenantIdUnsafe} from '../../utils/ctx';
 
 type GetWorkbookExportStatusArgs = {
     exportId: BigIntId;
@@ -61,6 +62,8 @@ export const getWorkbookExportStatus = async (
         exportId: encodedExportId,
     });
 
+    const tenantId = getCtxTenantIdUnsafe(ctx);
+
     const client = await getClient();
     const handle = client.workflow.getHandle(encodedExportId);
 
@@ -81,6 +84,7 @@ export const getWorkbookExportStatus = async (
         ])
         .where({
             [ExportModelColumn.ExportId]: exportId,
+            [ExportModelColumn.TenantId]: tenantId,
         })
         .first()
         .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);

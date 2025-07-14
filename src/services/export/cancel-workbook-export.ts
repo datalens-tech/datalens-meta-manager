@@ -8,6 +8,7 @@ import {getReplica} from '../../db/utils';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {encodeId} from '../../utils';
+import {getCtxTenantIdUnsafe} from '../../utils/ctx';
 
 type CancelWorkbookExportArgs = {
     exportId: BigIntId;
@@ -29,10 +30,13 @@ export const cancelWorkbookExport = async (
         exportId: encodedExportId,
     });
 
+    const tenantId = getCtxTenantIdUnsafe(ctx);
+
     const workbookExport = await ExportModel.query(getReplica(trx))
         .select([ExportModelColumn.ExportId, ExportModelColumn.Meta])
         .where({
             [ExportModelColumn.ExportId]: exportId,
+            [ExportModelColumn.TenantId]: tenantId,
         })
         .first()
         .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
