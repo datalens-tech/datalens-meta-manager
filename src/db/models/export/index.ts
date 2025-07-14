@@ -15,6 +15,7 @@ export const ExportModelColumn = {
     CreatedAt: 'createdAt',
     UpdatedAt: 'updatedAt',
     ExpiredAt: 'expiredAt',
+    TenantId: 'tenantId',
 } as const;
 
 export class ExportModel extends Model {
@@ -47,6 +48,7 @@ export class ExportModel extends Model {
     createdAt!: string;
     updatedAt!: string;
     expiredAt!: string;
+    tenantId!: string;
 
     /** Relations */
     entries?: ExportEntryModel[];

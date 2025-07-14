@@ -10,6 +10,7 @@ export interface PlatformAppConfig {
     swaggerEnabled?: boolean;
     exportDataVerificationKey: string;
     multitenant: boolean;
+    tenantIdOverride?: string;
 
     // auth
     isAuthEnabled?: boolean;

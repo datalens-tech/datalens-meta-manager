@@ -132,6 +132,17 @@ export const prepareErrorResponse = (
                     },
                 };
             }
+
+            case META_MANAGER_ERROR.TENANT_ID_MISSING_IN_CONTEXT: {
+                return {
+                    code: HttpStatusCode.BadRequest,
+                    response: {
+                        code,
+                        message:
+                            'TenantId is missing. Probably it needs to be passed in the request headers.',
+                    },
+                };
+            }
         }
 
         return {

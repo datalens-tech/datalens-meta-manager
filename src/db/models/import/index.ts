@@ -16,6 +16,7 @@ export const ImportModelColumn = {
     CreatedAt: 'createdAt',
     UpdatedAt: 'updatedAt',
     ExpiredAt: 'expiredAt',
+    TenantId: 'tenantId',
 } as const;
 
 export class ImportModel extends Model {
@@ -36,4 +37,5 @@ export class ImportModel extends Model {
     createdAt!: string;
     updatedAt!: string;
     expiredAt!: string;
+    tenantId!: string;
 }

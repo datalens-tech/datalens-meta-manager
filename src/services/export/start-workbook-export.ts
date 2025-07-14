@@ -12,7 +12,7 @@ import {getPrimary} from '../../db/utils';
 import {registry} from '../../registry';
 import {ServiceArgs} from '../../types/service';
 import {encodeId} from '../../utils';
-import {getCtxInfo, getCtxRequestIdWithFallback} from '../../utils/ctx';
+import {getCtxInfo, getCtxRequestIdWithFallback, getCtxTenantIdUnsafe} from '../../utils/ctx';
 
 type StartWorkbookExportArgs = {
     workbookId: string;
@@ -31,7 +31,8 @@ export const startWorkbookExport = async (
     const requestId = getCtxRequestIdWithFallback(ctx);
 
     const {gatewayApi} = registry.getGatewayApi();
-    const {tenantId, user} = getCtxInfo(ctx);
+    const {user} = getCtxInfo(ctx);
+    const tenantId = getCtxTenantIdUnsafe(ctx);
 
     const {responseData} = await gatewayApi.us.getWorkbook({
         ctx,
@@ -54,6 +55,7 @@ export const startWorkbookExport = async (
                 version: WORKBOOK_EXPORT_DATA_VERSION,
                 sourceWorkbookId: responseData.workbookId,
             },
+            tenantId,
         })
         .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
 
