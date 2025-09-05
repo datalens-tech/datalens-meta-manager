@@ -72,6 +72,7 @@ export const actions = {
                 page,
             },
         }),
+        retries: 2,
     }),
 
     _deleteWorkbook: createAction<DeleteWorkbookResponse, DeleteWorkbookParams>({
