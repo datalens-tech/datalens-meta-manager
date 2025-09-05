@@ -26,6 +26,7 @@ export const actions = {
                 includePermissionsInfo,
             },
         }),
+        retries: 2,
     }),
 
     createWorkbook: createAction<CreateWorkbookResponse, CreateWorkbookParams>({
@@ -71,6 +72,7 @@ export const actions = {
                 page,
             },
         }),
+        retries: 2,
     }),
 
     _deleteWorkbook: createAction<DeleteWorkbookResponse, DeleteWorkbookParams>({

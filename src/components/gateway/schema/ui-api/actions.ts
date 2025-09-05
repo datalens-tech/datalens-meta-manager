@@ -27,6 +27,7 @@ export const actions = {
                 workbookId,
             },
         }),
+        retries: 2,
     }),
 
     importWorkbookEntry: createAction<ImportWorkbookEntryResponse, ImportWorkbookEntryParams>({
@@ -58,5 +59,6 @@ export const actions = {
                 [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
             },
         }),
+        retries: 2,
     }),
 };
