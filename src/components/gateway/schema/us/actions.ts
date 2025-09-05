@@ -26,6 +26,7 @@ export const actions = {
                 includePermissionsInfo,
             },
         }),
+        retries: 2,
     }),
 
     createWorkbook: createAction<CreateWorkbookResponse, CreateWorkbookParams>({
