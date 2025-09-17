@@ -2,6 +2,7 @@ import {ApplicationFailure} from '@temporalio/common';
 import {raw} from 'objection';
 
 import {ExportEntryModel} from '../../../../../db/models';
+import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
@@ -25,6 +26,8 @@ export const exportEntry = async (
 
     let data;
 
+    const {getAuthArgsUiApiPrivate} = registry.common.functions.get();
+
     try {
         data = await gatewayApi.uiApi.exportWorkbookEntry({
             ctx,
@@ -33,6 +36,7 @@ export const exportEntry = async (
             },
             requestId,
             args: {exportId: entryId, scope, idMapping, workbookId},
+            authArgs: await getAuthArgsUiApiPrivate({ctx}),
         });
     } catch (error: unknown) {
         throw prepareGatewayRestError(error);
