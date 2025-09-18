@@ -18,7 +18,7 @@ import {registry} from '../../registry';
 import {BigIntId} from '../../types';
 import {ServiceArgs} from '../../types/service';
 import {WorkbookExportDataWithHash} from '../../types/workbook-export';
-import {encodeId} from '../../utils';
+import {encodeId, makeTenantIdHeader} from '../../utils';
 import {getCtxInfo, getCtxRequestIdWithFallback, getCtxTenantIdUnsafe} from '../../utils/ctx';
 import {getExportDataVerificationHash} from '../../utils/export';
 
@@ -111,7 +111,9 @@ export const startWorkbookImport = async (
 
     await gatewayApi.us._updateWorkbook({
         ctx,
-        headers: getDefaultUsHeaders(ctx),
+        headers: {
+            ...makeTenantIdHeader(tenantId),
+        },
         requestId,
         args: {
             workbookId: workbook.workbookId,
