@@ -1,3 +1,4 @@
+import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';
 import {WorkbookStatus} from '../../../../gateway/schema/us/types/workbook';
 import type {ActivitiesDeps} from '../../../types';
@@ -14,6 +15,7 @@ export const updateWorkbookStatus = async (
     {workflowArgs, status}: UpdateWorkbookStatusArgs,
 ): Promise<void> => {
     const {workbookId, tenantId, requestId} = workflowArgs;
+    const {getAuthArgsUsPrivate} = registry.common.functions.get();
 
     try {
         await gatewayApi.us._updateWorkbook({
@@ -26,6 +28,7 @@ export const updateWorkbookStatus = async (
                 workbookId,
                 status,
             },
+            authArgs: await getAuthArgsUsPrivate({ctx}),
         });
     } catch (error: unknown) {
         throw prepareGatewayRestError(error);
