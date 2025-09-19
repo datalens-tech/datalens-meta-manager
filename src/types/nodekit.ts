@@ -6,6 +6,8 @@ import {CtxInfo} from './ctx';
 
 export interface PlatformAppConfig {
     features: FeaturesConfig;
+    dynamicFeaturesEndpoint?: string;
+
     usMasterToken: string;
     swaggerEnabled?: boolean;
     exportDataVerificationKey: string;
