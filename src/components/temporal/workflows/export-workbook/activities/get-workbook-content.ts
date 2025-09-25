@@ -1,3 +1,4 @@
+import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
@@ -16,9 +17,13 @@ export const getWorkbookContent = async (
 ): Promise<GetWorkbookContentResult> => {
     const {workbookId, tenantId, requestId} = workflowArgs;
 
+    const {getAuthArgsUsPrivate} = registry.common.functions.get();
+
     const resultEntries: GetWorkbookContentResult = [];
 
     let page: number | undefined = 0;
+
+    const authArgs = await getAuthArgsUsPrivate({ctx});
 
     while (typeof page === 'number') {
         let data;
@@ -31,6 +36,7 @@ export const getWorkbookContent = async (
                 },
                 requestId,
                 args: {workbookId, page},
+                authArgs,
             });
         } catch (error: unknown) {
             throw prepareGatewayRestError(error);

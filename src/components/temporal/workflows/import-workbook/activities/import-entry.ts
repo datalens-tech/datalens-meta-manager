@@ -4,6 +4,7 @@ import {raw} from 'objection';
 import {EXPORT_DATA_ENTRIES_FIELD} from '../../../../../constants';
 import {ImportModel, ImportModelColumn} from '../../../../../db/models';
 import {ImportEntryNotifications} from '../../../../../db/models/import/types';
+import {registry} from '../../../../../registry';
 import {makeTenantIdHeader} from '../../../../../utils';
 import {NotificationLevel} from '../../../../gateway/schema/ui-api/types';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
@@ -54,6 +55,8 @@ export const importEntry = async (
 
     let data;
 
+    const {getAuthArgsUiApiPrivate} = registry.common.functions.get();
+
     try {
         data = await gatewayApi.uiApi.importWorkbookEntry({
             ctx,
@@ -66,6 +69,7 @@ export const importEntry = async (
                 entryData: result.data,
                 workbookId,
             },
+            authArgs: await getAuthArgsUiApiPrivate({ctx}),
         });
     } catch (error: unknown) {
         throw prepareGatewayRestError(error);

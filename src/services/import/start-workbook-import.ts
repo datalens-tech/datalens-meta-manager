@@ -53,6 +53,8 @@ export const startWorkbookImport = async (
     }
 
     const {gatewayApi} = registry.getGatewayApi();
+    const {getAuthArgsUsPrivate} = registry.common.functions.get();
+
     const {user} = getCtxInfo(ctx);
     const tenantId = getCtxTenantIdUnsafe(ctx);
 
@@ -119,6 +121,7 @@ export const startWorkbookImport = async (
             workbookId: workbook.workbookId,
             meta: {...workbook.meta, importId: encodedImportId},
         },
+        authArgs: await getAuthArgsUsPrivate({ctx}),
     });
 
     await startImportWorkbookWorkflow({

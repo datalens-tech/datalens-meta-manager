@@ -1,5 +1,6 @@
 import {ApplicationFailure} from '@temporalio/common';
 
+import {registry} from '../../../../../registry';
 import {EntryScope} from '../../../../gateway/schema/us/types/entry';
 import type {ActivitiesDeps} from '../../../types';
 import {prepareGatewayRestError} from '../../utils';
@@ -57,12 +58,15 @@ export const getImportCapabilities = async (
 
     let data;
 
+    const {getAuthArgsUiApiPrivate} = registry.common.functions.get();
+
     try {
         data = await gatewayApi.uiApi.getWorkbooksTransferCapabilities({
             ctx,
             headers: {},
             requestId,
             args: undefined,
+            authArgs: await getAuthArgsUiApiPrivate({ctx}),
         });
     } catch (error: unknown) {
         throw prepareGatewayRestError(error);

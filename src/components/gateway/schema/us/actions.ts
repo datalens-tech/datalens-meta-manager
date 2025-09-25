@@ -1,4 +1,3 @@
-import {US_MASTER_TOKEN_HEADER} from '../../../../constants';
 import {createAction} from '../utils';
 
 import {
@@ -46,11 +45,8 @@ export const actions = {
     _updateWorkbook: createAction<UpdateWorkbookResponse, UpdateWorkbookParams>({
         method: 'POST',
         path: ({workbookId}) => `/private/v2/workbooks/${workbookId}/update`,
-        params: ({title, description, status, meta}, headers, {ctx}) => ({
-            headers: {
-                ...headers,
-                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
-            },
+        params: ({title, description, status, meta}, headers) => ({
+            headers,
             body: {
                 title,
                 description,
@@ -63,11 +59,8 @@ export const actions = {
     _getWorkbookContent: createAction<GetWorkbookContentResponse, GetWorkbookContentParams>({
         method: 'GET',
         path: ({workbookId}) => `/private/v2/workbooks/${workbookId}/entries`,
-        params: ({page}, headers, {ctx}) => ({
-            headers: {
-                ...headers,
-                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
-            },
+        params: ({page}, headers) => ({
+            headers,
             query: {
                 page,
             },
@@ -78,11 +71,8 @@ export const actions = {
     _deleteWorkbook: createAction<DeleteWorkbookResponse, DeleteWorkbookParams>({
         method: 'DELETE',
         path: ({workbookId}) => `/private/v2/workbooks/${workbookId}`,
-        params: (params, headers, {ctx}) => ({
-            headers: {
-                ...headers,
-                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
-            },
+        params: (_params, headers) => ({
+            headers,
         }),
     }),
 };
