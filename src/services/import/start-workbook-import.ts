@@ -86,6 +86,7 @@ export const startWorkbookImport = async (
         if (isGatewayError(error) && error.error.code === US_ERRORS.VALIDATION_ERROR) {
             throw new AppError(error.error.message, {
                 code: META_MANAGER_ERROR.VALIDATION_ERROR,
+                details: error.error.details,
             });
         }
 
