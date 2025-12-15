@@ -1,8 +1,8 @@
 import {AppError} from '@gravity-ui/nodekit';
-import {HttpStatusCode} from 'axios';
 import {raw} from 'objection';
 
 import {isGatewayError} from '../../components/gateway';
+import {US_ERRORS} from '../../components/gateway/schema/us/constants';
 import {Workbook, WorkbookStatus} from '../../components/gateway/schema/us/types/workbook';
 import {startImportWorkbookWorkflow} from '../../components/temporal/client';
 import {getDefaultUsHeaders} from '../../components/us/utils';
@@ -77,13 +77,13 @@ export const startWorkbookImport = async (
 
         workbook = responseData;
     } catch (error) {
-        if (isGatewayError(error) && error.error.status === HttpStatusCode.Conflict) {
+        if (isGatewayError(error) && error.error.code === US_ERRORS.WORKBOOK_ALREADY_EXISTS) {
             throw new AppError(error.error.message, {
                 code: META_MANAGER_ERROR.WORKBOOK_ALREADY_EXISTS,
             });
         }
 
-        if (isGatewayError(error) && error.error.status === HttpStatusCode.BadRequest) {
+        if (isGatewayError(error) && error.error.code === US_ERRORS.VALIDATION_ERROR) {
             throw new AppError(error.error.message, {
                 code: META_MANAGER_ERROR.VALIDATION_ERROR,
             });
