@@ -83,6 +83,12 @@ export const startWorkbookImport = async (
             });
         }
 
+        if (isGatewayError(error) && error.error.status === HttpStatusCode.BadRequest) {
+            throw new AppError(error.error.message, {
+                code: META_MANAGER_ERROR.VALIDATION_ERROR,
+            });
+        }
+
         throw error;
     }
 
