@@ -39,10 +39,10 @@ export const importEntry = async (
                 mockEntryId,
             ]),
         )
-        .first()
         .where({
             importId,
-        })) as unknown as {
+        })
+        .first()) as unknown as {
         data: Record<string, unknown> | null;
     };
 
