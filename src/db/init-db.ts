@@ -30,7 +30,7 @@ export const getKnexOptions = (): Knex.Config => ({
     ...knexSnakeCaseMappers(),
 });
 
-export class Model extends getModel() {
+export class Model extends getModel({cancelOnTimeout: true, useLimitInFirst: true}) {
     static DEFAULT_QUERY_TIMEOUT = DEFAULT_QUERY_TIMEOUT;
 }
 

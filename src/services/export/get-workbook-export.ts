@@ -54,7 +54,7 @@ export const getWorkbookExport = async (
 
     const tenantId = getCtxTenantIdUnsafe(ctx);
 
-    const workbookExport: SelectedExportModel | undefined = await ExportModel.query(getReplica(trx))
+    const [workbookExport]: SelectedExportModel[] = await ExportModel.query(getReplica(trx))
         .select()
         .where({
             [`${ExportModel.tableName}.${ExportModelColumn.ExportId}`]: exportId,
@@ -66,7 +66,6 @@ export const getWorkbookExport = async (
                 builder.select(selectedEntryColumns);
             },
         })
-        .first()
         .timeout(ExportModel.DEFAULT_QUERY_TIMEOUT);
 
     if (!workbookExport) {
