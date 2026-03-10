@@ -14,7 +14,7 @@ export const actions = {
         path: () => {
             return `/api/internal/v1/workbooks/export`;
         },
-        params: ({exportId, idMapping, scope, workbookId}, headers, {ctx}) => ({
+        params: ({exportId, idMapping, scope, workbookId}, headers) => ({
             headers,
             body: {
                 exportId,
@@ -31,7 +31,7 @@ export const actions = {
         path: () => {
             return `/api/internal/v1/workbooks/import`;
         },
-        params: ({workbookId, idMapping, entryData}, headers, {ctx}) => ({
+        params: ({workbookId, idMapping, entryData}, headers) => ({
             headers,
             body: {
                 idMapping,
@@ -46,7 +46,7 @@ export const actions = {
         path: () => {
             return `/api/internal/v1/workbooks/meta-manager/capabilities`;
         },
-        params: (_, headers, {ctx}) => ({
+        params: (_, headers) => ({
             headers,
         }),
         retries: 2,
