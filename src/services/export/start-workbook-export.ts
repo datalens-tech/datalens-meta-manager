@@ -34,6 +34,12 @@ export const startWorkbookExport = async (
     const {user} = getCtxInfo(ctx);
     const tenantId = getCtxTenantIdUnsafe(ctx);
 
+    console.log('getWorkbook', {workbookId});
+    console.log('Feature flags', {featureFlags: ctx.config.features});
+    const {getAuthArgsUiApiPrivate} = registry.common.functions.get();
+
+    console.log('getAuthArgsUiApiPrivate', await getAuthArgsUiApiPrivate({ctx}));
+
     const {responseData} = await gatewayApi.us.getWorkbook({
         ctx,
         headers: getDefaultUsHeaders(ctx),

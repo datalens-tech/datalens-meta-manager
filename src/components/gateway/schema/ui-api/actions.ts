@@ -18,7 +18,6 @@ export const actions = {
         params: ({exportId, idMapping, scope, workbookId}, headers, {ctx}) => ({
             headers: {
                 ...headers,
-                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
             },
             body: {
                 exportId,
@@ -38,7 +37,6 @@ export const actions = {
         params: ({workbookId, idMapping, entryData}, headers, {ctx}) => ({
             headers: {
                 ...headers,
-                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
             },
             body: {
                 idMapping,
@@ -56,7 +54,6 @@ export const actions = {
         params: (_, headers, {ctx}) => ({
             headers: {
                 ...headers,
-                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
             },
         }),
         retries: 2,
