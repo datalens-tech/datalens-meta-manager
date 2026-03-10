@@ -1,4 +1,3 @@
-import {US_MASTER_TOKEN_HEADER} from '../../../../constants';
 import {createAction} from '../utils';
 
 import type {
@@ -15,11 +14,8 @@ export const actions = {
         path: () => {
             return `/api/internal/v1/workbooks/export`;
         },
-        params: ({exportId, idMapping, scope, workbookId}, headers, {ctx}) => ({
-            headers: {
-                ...headers,
-                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
-            },
+        params: ({exportId, idMapping, scope, workbookId}, headers) => ({
+            headers,
             body: {
                 exportId,
                 scope,
@@ -35,11 +31,8 @@ export const actions = {
         path: () => {
             return `/api/internal/v1/workbooks/import`;
         },
-        params: ({workbookId, idMapping, entryData}, headers, {ctx}) => ({
-            headers: {
-                ...headers,
-                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
-            },
+        params: ({workbookId, idMapping, entryData}, headers) => ({
+            headers,
             body: {
                 idMapping,
                 workbookId,
@@ -53,11 +46,8 @@ export const actions = {
         path: () => {
             return `/api/internal/v1/workbooks/meta-manager/capabilities`;
         },
-        params: (_, headers, {ctx}) => ({
-            headers: {
-                ...headers,
-                [US_MASTER_TOKEN_HEADER]: ctx.config.usMasterToken,
-            },
+        params: (_, headers) => ({
+            headers,
         }),
         retries: 2,
     }),
