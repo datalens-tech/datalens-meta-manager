@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^7.3.0",
-    "@gravity-ui/expresskit": "^2.2.0",
+    "@gravity-ui/expresskit": "^3.1.0",
     "@gravity-ui/gateway": "^4.10.2",
     "@gravity-ui/nodekit": "^2.2.1",
     "@gravity-ui/postgreskit": "^3.1.0",

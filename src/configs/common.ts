@@ -32,6 +32,8 @@ const config: Partial<AppConfig> = {
     appSensitiveHeaders,
     appSensitiveKeys: appSensitiveHeaders,
 
+    appAuthDisableRedirect: true,
+
     features: {},
 
     swaggerEnabled: !isTruthyEnvVariable('DISABLE_SWAGGER'),
