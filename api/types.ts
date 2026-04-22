@@ -10,4 +10,4 @@ export {
 
 export {PlatformAppRouteHandler, PlatformAppRouteParams} from '../src/types/expresskit';
 
-export {UserCtxInfo, CtxInfo} from '../src/types/ctx';
+export {SubjectCtxInfo, CtxInfo} from '../src/types/ctx';

@@ -5,8 +5,17 @@ export interface ExpirableTokenPayload {
     exp: number;
 }
 
-export interface AccessTokenPayload extends ExpirableTokenPayload {
+export interface UserAccessTokenPayload extends ExpirableTokenPayload {
     userId: string;
     sessionId: string;
     roles: `${UserRole}`[];
+    type?: undefined;
 }
+
+export interface ServiceAccountAccessTokenPayload extends ExpirableTokenPayload {
+    serviceAccountId: string;
+    roles: `${UserRole}`[];
+    type: 'service_account';
+}
+
+export type SubjectAccessTokenPayload = UserAccessTokenPayload | ServiceAccountAccessTokenPayload;

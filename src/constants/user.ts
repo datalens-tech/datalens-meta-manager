@@ -1,4 +1,4 @@
-export const SYSTEM_USER = {
+export const SYSTEM_SUBJECT = {
     LOGIN: 'system',
     ID: 'systemId',
 };

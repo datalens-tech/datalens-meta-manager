@@ -3,7 +3,7 @@ import {raw} from 'objection';
 import {startExportWorkbookWorkflow} from '../../components/temporal/client';
 import {checkWorkbookAccessByPermissions, getDefaultUsHeaders} from '../../components/us/utils';
 import {
-    SYSTEM_USER,
+    SYSTEM_SUBJECT,
     WORKBOOK_EXPORT_DATA_VERSION,
     WORKBOOK_EXPORT_EXPIRATION_DAYS,
 } from '../../constants';
@@ -31,7 +31,7 @@ export const startWorkbookExport = async (
     const requestId = getCtxRequestIdWithFallback(ctx);
 
     const {gatewayApi} = registry.getGatewayApi();
-    const {user} = getCtxInfo(ctx);
+    const {subject} = getCtxInfo(ctx);
     const tenantId = getCtxTenantIdUnsafe(ctx);
 
     const {responseData} = await gatewayApi.us.getWorkbook({
@@ -49,7 +49,7 @@ export const startWorkbookExport = async (
 
     const result = await ExportModel.query(getPrimary(trx))
         .insert({
-            createdBy: user.userId ?? SYSTEM_USER.ID,
+            createdBy: subject.subjectId ?? SYSTEM_SUBJECT.ID,
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_EXPORT_EXPIRATION_DAYS]),
             meta: {
                 version: WORKBOOK_EXPORT_DATA_VERSION,

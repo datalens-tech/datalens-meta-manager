@@ -13,13 +13,13 @@ export const ctxInfo = (req: Request, res: Response, next: NextFunction) => {
         tenantId = tenantIdOverride;
     }
 
-    const {userId, login} = res.locals;
+    const {userId, serviceAccountId, login} = res.locals;
 
-    const user = {userId, login};
+    const subject = {subjectId: userId ?? serviceAccountId, login};
 
     req.originalContext.set('info', {
         tenantId,
-        user,
+        subject,
     });
 
     req.ctx.log('REQUEST_INFO', {

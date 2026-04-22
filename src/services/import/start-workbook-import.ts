@@ -8,7 +8,7 @@ import {startImportWorkbookWorkflow} from '../../components/temporal/client';
 import {getDefaultUsHeaders} from '../../components/us/utils';
 import {
     META_MANAGER_ERROR,
-    SYSTEM_USER,
+    SYSTEM_SUBJECT,
     WORKBOOK_EXPORT_DATA_VERSION,
     WORKBOOK_IMPORT_EXPIRATION_DAYS,
 } from '../../constants';
@@ -55,7 +55,7 @@ export const startWorkbookImport = async (
     const {gatewayApi} = registry.getGatewayApi();
     const {getAuthArgsUsPrivate} = registry.common.functions.get();
 
-    const {user} = getCtxInfo(ctx);
+    const {subject} = getCtxInfo(ctx);
     const tenantId = getCtxTenantIdUnsafe(ctx);
 
     const requestId = getCtxRequestIdWithFallback(ctx);
@@ -95,7 +95,7 @@ export const startWorkbookImport = async (
 
     const workbookImport = await ImportModel.query(getPrimary(trx))
         .insert({
-            createdBy: user?.userId ?? SYSTEM_USER.ID,
+            createdBy: subject?.subjectId ?? SYSTEM_SUBJECT.ID,
             expiredAt: raw(`NOW() + INTERVAL '?? DAY'`, [WORKBOOK_IMPORT_EXPIRATION_DAYS]),
             meta: {workbookId: workbook.workbookId},
             data: data.export,

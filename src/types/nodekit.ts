@@ -1,4 +1,4 @@
-import type {CtxUser} from '../components/auth/types/user';
+import type {CtxSubject} from '../components/auth/types/subject';
 import {FeaturesConfig} from '../components/features/types';
 import type {Registry} from '../registry';
 
@@ -24,7 +24,7 @@ export interface PlatformAppContextParams {
     registry: Registry;
 
     // auth
-    user?: CtxUser;
+    subject?: CtxSubject;
 }
 
 export interface PlatformAppDynamicConfig {
