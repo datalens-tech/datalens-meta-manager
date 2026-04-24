@@ -13,9 +13,9 @@ export const ctxInfo = (req: Request, res: Response, next: NextFunction) => {
         tenantId = tenantIdOverride;
     }
 
-    const {userId, serviceAccountId, login} = res.locals;
+    const {userId, login} = res.locals;
 
-    const subject = {subjectId: userId ?? serviceAccountId, login};
+    const subject = {subjectId: userId, login};
 
     req.originalContext.set('info', {
         tenantId,
