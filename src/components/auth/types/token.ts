@@ -1,21 +1,21 @@
 import type {UserRole} from '../constants/role';
+import {ACCESS_TOKEN_TYPE} from '../constants/token';
 
-export interface ExpirableTokenPayload {
-    iat: number;
-    exp: number;
-}
-
-export interface UserAccessTokenPayload extends ExpirableTokenPayload {
+export type UserAccessTokenPayload = {
+    type?: typeof ACCESS_TOKEN_TYPE.USER;
     userId: string;
     sessionId: string;
     roles: `${UserRole}`[];
-    type?: undefined;
-}
+    iat: number;
+    exp: number;
+};
 
-export interface ServiceAccountAccessTokenPayload extends ExpirableTokenPayload {
-    serviceAccountId: string;
+export type ServiceAccountAccessTokenPayload = {
+    userId: string;
     roles: `${UserRole}`[];
-    type: 'service_account';
-}
+    type: typeof ACCESS_TOKEN_TYPE.SERVICE_ACCOUNT;
+    iat: number;
+    exp: number;
+};
 
 export type SubjectAccessTokenPayload = UserAccessTokenPayload | ServiceAccountAccessTokenPayload;

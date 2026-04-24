@@ -3,6 +3,7 @@ import jwt, {type Algorithm} from 'jsonwebtoken';
 
 import {AUTHORIZATION_HEADER, DL_AUTH_HEADER_KEY} from '../../../constants/auth';
 import {AUTH_ERRORS} from '../constants/error-constants';
+import {ACCESS_TOKEN_TYPE} from '../constants/token';
 import type {SubjectAccessTokenPayload} from '../types/token';
 
 const ALGORITHMS: Algorithm[] = ['PS256'];
@@ -23,23 +24,24 @@ export const appAuth = async (req: Request, res: Response, next: NextFunction) =
                     algorithms: ALGORITHMS,
                 }) as SubjectAccessTokenPayload;
 
-                if (payload.type === 'service_account') {
+                if (payload.type === ACCESS_TOKEN_TYPE.SERVICE_ACCOUNT) {
                     req.originalContext.set('subject', {
-                        serviceAccountId: payload.serviceAccountId,
+                        userId: payload.userId,
                         accessToken,
                         roles: payload.roles,
-                        type: 'service_account',
+                        type: ACCESS_TOKEN_TYPE.SERVICE_ACCOUNT,
                     });
 
                     // for ctx info
-                    res.locals.serviceAccountId = payload.serviceAccountId;
-                    res.locals.login = payload.serviceAccountId;
+                    res.locals.userId = payload.userId;
+                    res.locals.login = payload.userId;
                 } else {
                     req.originalContext.set('subject', {
                         userId: payload.userId,
                         sessionId: payload.sessionId,
                         accessToken,
                         roles: payload.roles,
+                        type: ACCESS_TOKEN_TYPE.USER,
                     });
 
                     // for ctx info
