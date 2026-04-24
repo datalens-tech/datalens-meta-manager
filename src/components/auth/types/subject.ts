@@ -1,7 +1,7 @@
 import type {UserRole} from '../constants/role';
 import {ACCESS_TOKEN_TYPE} from '../constants/token';
 
-export type CtxSubjectSubject = {
+export type CtxUserSubject = {
     type: typeof ACCESS_TOKEN_TYPE.USER;
     userId: string;
     sessionId: string;
@@ -16,4 +16,4 @@ export type CtxServiceAccountSubject = {
     roles: `${UserRole}`[];
 };
 
-export type CtxSubject = CtxSubjectSubject | CtxServiceAccountSubject;
+export type CtxSubject = CtxUserSubject | CtxServiceAccountSubject;
